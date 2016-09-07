@@ -87,7 +87,7 @@ func makeEnumval(enum *node, i int, e schema.Enumerant) enumval {
 }
 
 func (e *enumval) FullName() string {
-	return e.parent.Name + "_" + e.Name
+	return strings.ToUpper(e.parent.Name + "_" + e.Name)
 }
 
 type interfaceMethod struct {
@@ -255,7 +255,7 @@ func resolveName(nodes nodeMap, n *node, base, name string, file *node) error {
 	if base == "" {
 		n.Name = strings.Title(name)
 	} else {
-		n.Name = base + "_" + name
+		n.Name = base + name
 	}
 	n.pkg = file.pkg
 	n.imp = file.imp
@@ -315,7 +315,7 @@ func resolveName(nodes nodeMap, n *node, base, name string, file *node) error {
 			mm := m.At(i)
 			mname, _ := mm.Name()
 			mann, _ := mm.Annotations()
-			base := n.Name + "_" + parseAnnotations(mann).Rename(mname)
+			base := n.Name + parseAnnotations(mann).Rename(mname)
 			if err := methodResolve(mm.ParamStructType(), mname, base, "Params"); err != nil {
 				return err
 			}
