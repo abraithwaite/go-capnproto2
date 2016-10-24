@@ -94,9 +94,13 @@ func (s JsonValue) SetNumber(v float64) {
 	s.Struct.SetUint64(8, math.Float64bits(v))
 }
 
-func (s JsonValue) String_() (string, error) {
+func (s JsonValue) String_(e *capnp.ErrorSet) string {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	if err != nil {
+		*e = append(*e, err)
+		return ""
+	}
+	return p.Text()
 }
 
 func (s JsonValue) HasString_() bool {
@@ -118,9 +122,13 @@ func (s JsonValue) SetString_(v string) error {
 	return s.Struct.SetPtr(0, t.List.ToPtr())
 }
 
-func (s JsonValue) Array() (JsonValue_List, error) {
+func (s JsonValue) Array(e *capnp.ErrorSet) JsonValue_List {
 	p, err := s.Struct.Ptr(0)
-	return JsonValue_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return JsonValue_List{}
+	}
+	return JsonValue_List{List: p.List()}
 }
 
 func (s JsonValue) HasArray() bool {
@@ -145,9 +153,13 @@ func (s JsonValue) NewArray(n int32) (JsonValue_List, error) {
 	return l, err
 }
 
-func (s JsonValue) Object() (JsonValue_Field_List, error) {
+func (s JsonValue) Object(e *capnp.ErrorSet) JsonValueField_List {
 	p, err := s.Struct.Ptr(0)
-	return JsonValue_Field_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return JsonValueField_List{}
+	}
+	return JsonValueField_List{List: p.List()}
 }
 
 func (s JsonValue) HasObject() bool {
@@ -155,26 +167,30 @@ func (s JsonValue) HasObject() bool {
 	return p.IsValid() || err != nil
 }
 
-func (s JsonValue) SetObject(v JsonValue_Field_List) error {
+func (s JsonValue) SetObject(v JsonValueField_List) error {
 	s.Struct.SetUint16(0, 5)
 	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewObject sets the object field to a newly
-// allocated JsonValue_Field_List, preferring placement in s's segment.
-func (s JsonValue) NewObject(n int32) (JsonValue_Field_List, error) {
+// allocated JsonValueField_List, preferring placement in s's segment.
+func (s JsonValue) NewObject(n int32) (JsonValueField_List, error) {
 	s.Struct.SetUint16(0, 5)
-	l, err := NewJsonValue_Field_List(s.Struct.Segment(), n)
+	l, err := NewJsonValueField_List(s.Struct.Segment(), n)
 	if err != nil {
-		return JsonValue_Field_List{}, err
+		return JsonValueField_List{}, err
 	}
 	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
-func (s JsonValue) Call() (JsonValue_Call, error) {
+func (s JsonValue) Call(e *capnp.ErrorSet) JsonValueCall {
 	p, err := s.Struct.Ptr(0)
-	return JsonValue_Call{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return JsonValueCall{}
+	}
+	return JsonValueCall{Struct: p.Struct()}
 }
 
 func (s JsonValue) HasCall() bool {
@@ -182,18 +198,18 @@ func (s JsonValue) HasCall() bool {
 	return p.IsValid() || err != nil
 }
 
-func (s JsonValue) SetCall(v JsonValue_Call) error {
+func (s JsonValue) SetCall(v JsonValueCall) error {
 	s.Struct.SetUint16(0, 6)
 	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewCall sets the call field to a newly
-// allocated JsonValue_Call struct, preferring placement in s's segment.
-func (s JsonValue) NewCall() (JsonValue_Call, error) {
+// allocated JsonValueCall struct, preferring placement in s's segment.
+func (s JsonValue) NewCall() (JsonValueCall, error) {
 	s.Struct.SetUint16(0, 6)
-	ss, err := NewJsonValue_Call(s.Struct.Segment())
+	ss, err := NewJsonValueCall(s.Struct.Segment())
 	if err != nil {
-		return JsonValue_Call{}, err
+		return JsonValueCall{}, err
 	}
 	err = s.Struct.SetPtr(0, ss.Struct.ToPtr())
 	return ss, err
@@ -220,51 +236,55 @@ func (p JsonValue_Promise) Struct() (JsonValue, error) {
 	return JsonValue{s}, err
 }
 
-func (p JsonValue_Promise) Call() JsonValue_Call_Promise {
-	return JsonValue_Call_Promise{Pipeline: p.Pipeline.GetPipeline(0)}
+func (p JsonValue_Promise) Call() JsonValueCall_Promise {
+	return JsonValueCall_Promise{Pipeline: p.Pipeline.GetPipeline(0)}
 }
 
-type JsonValue_Field struct{ capnp.Struct }
+type JsonValueField struct{ capnp.Struct }
 
-// JsonValue_Field_TypeID is the unique identifier for the type JsonValue_Field.
-const JsonValue_Field_TypeID = 0xc27855d853a937cc
+// JsonValueField_TypeID is the unique identifier for the type JsonValueField.
+const JsonValueField_TypeID = 0xc27855d853a937cc
 
-func NewJsonValue_Field(s *capnp.Segment) (JsonValue_Field, error) {
+func NewJsonValueField(s *capnp.Segment) (JsonValueField, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return JsonValue_Field{st}, err
+	return JsonValueField{st}, err
 }
 
-func NewRootJsonValue_Field(s *capnp.Segment) (JsonValue_Field, error) {
+func NewRootJsonValueField(s *capnp.Segment) (JsonValueField, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return JsonValue_Field{st}, err
+	return JsonValueField{st}, err
 }
 
-func ReadRootJsonValue_Field(msg *capnp.Message) (JsonValue_Field, error) {
+func ReadRootJsonValueField(msg *capnp.Message) (JsonValueField, error) {
 	root, err := msg.RootPtr()
-	return JsonValue_Field{root.Struct()}, err
+	return JsonValueField{root.Struct()}, err
 }
 
-func (s JsonValue_Field) String() string {
+func (s JsonValueField) String() string {
 	str, _ := text.Marshal(0xc27855d853a937cc, s.Struct)
 	return str
 }
 
-func (s JsonValue_Field) Name() (string, error) {
+func (s JsonValueField) Name(e *capnp.ErrorSet) string {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	if err != nil {
+		*e = append(*e, err)
+		return ""
+	}
+	return p.Text()
 }
 
-func (s JsonValue_Field) HasName() bool {
+func (s JsonValueField) HasName() bool {
 	p, err := s.Struct.Ptr(0)
 	return p.IsValid() || err != nil
 }
 
-func (s JsonValue_Field) NameBytes() ([]byte, error) {
+func (s JsonValueField) NameBytes() ([]byte, error) {
 	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
-func (s JsonValue_Field) SetName(v string) error {
+func (s JsonValueField) SetName(v string) error {
 	t, err := capnp.NewText(s.Struct.Segment(), v)
 	if err != nil {
 		return err
@@ -272,23 +292,27 @@ func (s JsonValue_Field) SetName(v string) error {
 	return s.Struct.SetPtr(0, t.List.ToPtr())
 }
 
-func (s JsonValue_Field) Value() (JsonValue, error) {
+func (s JsonValueField) Value(e *capnp.ErrorSet) JsonValue {
 	p, err := s.Struct.Ptr(1)
-	return JsonValue{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return JsonValue{}
+	}
+	return JsonValue{Struct: p.Struct()}
 }
 
-func (s JsonValue_Field) HasValue() bool {
+func (s JsonValueField) HasValue() bool {
 	p, err := s.Struct.Ptr(1)
 	return p.IsValid() || err != nil
 }
 
-func (s JsonValue_Field) SetValue(v JsonValue) error {
+func (s JsonValueField) SetValue(v JsonValue) error {
 	return s.Struct.SetPtr(1, v.Struct.ToPtr())
 }
 
 // NewValue sets the value field to a newly
 // allocated JsonValue struct, preferring placement in s's segment.
-func (s JsonValue_Field) NewValue() (JsonValue, error) {
+func (s JsonValueField) NewValue() (JsonValue, error) {
 	ss, err := NewJsonValue(s.Struct.Segment())
 	if err != nil {
 		return JsonValue{}, err
@@ -297,74 +321,76 @@ func (s JsonValue_Field) NewValue() (JsonValue, error) {
 	return ss, err
 }
 
-// JsonValue_Field_List is a list of JsonValue_Field.
-type JsonValue_Field_List struct{ capnp.List }
+// JsonValueField_List is a list of JsonValueField.
+type JsonValueField_List struct{ capnp.List }
 
-// NewJsonValue_Field creates a new list of JsonValue_Field.
-func NewJsonValue_Field_List(s *capnp.Segment, sz int32) (JsonValue_Field_List, error) {
+// NewJsonValueField creates a new list of JsonValueField.
+func NewJsonValueField_List(s *capnp.Segment, sz int32) (JsonValueField_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return JsonValue_Field_List{l}, err
+	return JsonValueField_List{l}, err
 }
 
-func (s JsonValue_Field_List) At(i int) JsonValue_Field { return JsonValue_Field{s.List.Struct(i)} }
+func (s JsonValueField_List) At(i int) JsonValueField { return JsonValueField{s.List.Struct(i)} }
 
-func (s JsonValue_Field_List) Set(i int, v JsonValue_Field) error {
-	return s.List.SetStruct(i, v.Struct)
-}
+func (s JsonValueField_List) Set(i int, v JsonValueField) error { return s.List.SetStruct(i, v.Struct) }
 
-// JsonValue_Field_Promise is a wrapper for a JsonValue_Field promised by a client call.
-type JsonValue_Field_Promise struct{ *capnp.Pipeline }
+// JsonValueField_Promise is a wrapper for a JsonValueField promised by a client call.
+type JsonValueField_Promise struct{ *capnp.Pipeline }
 
-func (p JsonValue_Field_Promise) Struct() (JsonValue_Field, error) {
+func (p JsonValueField_Promise) Struct() (JsonValueField, error) {
 	s, err := p.Pipeline.Struct()
-	return JsonValue_Field{s}, err
+	return JsonValueField{s}, err
 }
 
-func (p JsonValue_Field_Promise) Value() JsonValue_Promise {
+func (p JsonValueField_Promise) Value() JsonValue_Promise {
 	return JsonValue_Promise{Pipeline: p.Pipeline.GetPipeline(1)}
 }
 
-type JsonValue_Call struct{ capnp.Struct }
+type JsonValueCall struct{ capnp.Struct }
 
-// JsonValue_Call_TypeID is the unique identifier for the type JsonValue_Call.
-const JsonValue_Call_TypeID = 0x9bbf84153dd4bb60
+// JsonValueCall_TypeID is the unique identifier for the type JsonValueCall.
+const JsonValueCall_TypeID = 0x9bbf84153dd4bb60
 
-func NewJsonValue_Call(s *capnp.Segment) (JsonValue_Call, error) {
+func NewJsonValueCall(s *capnp.Segment) (JsonValueCall, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return JsonValue_Call{st}, err
+	return JsonValueCall{st}, err
 }
 
-func NewRootJsonValue_Call(s *capnp.Segment) (JsonValue_Call, error) {
+func NewRootJsonValueCall(s *capnp.Segment) (JsonValueCall, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2})
-	return JsonValue_Call{st}, err
+	return JsonValueCall{st}, err
 }
 
-func ReadRootJsonValue_Call(msg *capnp.Message) (JsonValue_Call, error) {
+func ReadRootJsonValueCall(msg *capnp.Message) (JsonValueCall, error) {
 	root, err := msg.RootPtr()
-	return JsonValue_Call{root.Struct()}, err
+	return JsonValueCall{root.Struct()}, err
 }
 
-func (s JsonValue_Call) String() string {
+func (s JsonValueCall) String() string {
 	str, _ := text.Marshal(0x9bbf84153dd4bb60, s.Struct)
 	return str
 }
 
-func (s JsonValue_Call) Function() (string, error) {
+func (s JsonValueCall) Function(e *capnp.ErrorSet) string {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	if err != nil {
+		*e = append(*e, err)
+		return ""
+	}
+	return p.Text()
 }
 
-func (s JsonValue_Call) HasFunction() bool {
+func (s JsonValueCall) HasFunction() bool {
 	p, err := s.Struct.Ptr(0)
 	return p.IsValid() || err != nil
 }
 
-func (s JsonValue_Call) FunctionBytes() ([]byte, error) {
+func (s JsonValueCall) FunctionBytes() ([]byte, error) {
 	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
-func (s JsonValue_Call) SetFunction(v string) error {
+func (s JsonValueCall) SetFunction(v string) error {
 	t, err := capnp.NewText(s.Struct.Segment(), v)
 	if err != nil {
 		return err
@@ -372,23 +398,27 @@ func (s JsonValue_Call) SetFunction(v string) error {
 	return s.Struct.SetPtr(0, t.List.ToPtr())
 }
 
-func (s JsonValue_Call) Params() (JsonValue_List, error) {
+func (s JsonValueCall) Params(e *capnp.ErrorSet) JsonValue_List {
 	p, err := s.Struct.Ptr(1)
-	return JsonValue_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return JsonValue_List{}
+	}
+	return JsonValue_List{List: p.List()}
 }
 
-func (s JsonValue_Call) HasParams() bool {
+func (s JsonValueCall) HasParams() bool {
 	p, err := s.Struct.Ptr(1)
 	return p.IsValid() || err != nil
 }
 
-func (s JsonValue_Call) SetParams(v JsonValue_List) error {
+func (s JsonValueCall) SetParams(v JsonValue_List) error {
 	return s.Struct.SetPtr(1, v.List.ToPtr())
 }
 
 // NewParams sets the params field to a newly
 // allocated JsonValue_List, preferring placement in s's segment.
-func (s JsonValue_Call) NewParams(n int32) (JsonValue_List, error) {
+func (s JsonValueCall) NewParams(n int32) (JsonValue_List, error) {
 	l, err := NewJsonValue_List(s.Struct.Segment(), n)
 	if err != nil {
 		return JsonValue_List{}, err
@@ -397,61 +427,61 @@ func (s JsonValue_Call) NewParams(n int32) (JsonValue_List, error) {
 	return l, err
 }
 
-// JsonValue_Call_List is a list of JsonValue_Call.
-type JsonValue_Call_List struct{ capnp.List }
+// JsonValueCall_List is a list of JsonValueCall.
+type JsonValueCall_List struct{ capnp.List }
 
-// NewJsonValue_Call creates a new list of JsonValue_Call.
-func NewJsonValue_Call_List(s *capnp.Segment, sz int32) (JsonValue_Call_List, error) {
+// NewJsonValueCall creates a new list of JsonValueCall.
+func NewJsonValueCall_List(s *capnp.Segment, sz int32) (JsonValueCall_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 2}, sz)
-	return JsonValue_Call_List{l}, err
+	return JsonValueCall_List{l}, err
 }
 
-func (s JsonValue_Call_List) At(i int) JsonValue_Call { return JsonValue_Call{s.List.Struct(i)} }
+func (s JsonValueCall_List) At(i int) JsonValueCall { return JsonValueCall{s.List.Struct(i)} }
 
-func (s JsonValue_Call_List) Set(i int, v JsonValue_Call) error { return s.List.SetStruct(i, v.Struct) }
+func (s JsonValueCall_List) Set(i int, v JsonValueCall) error { return s.List.SetStruct(i, v.Struct) }
 
-// JsonValue_Call_Promise is a wrapper for a JsonValue_Call promised by a client call.
-type JsonValue_Call_Promise struct{ *capnp.Pipeline }
+// JsonValueCall_Promise is a wrapper for a JsonValueCall promised by a client call.
+type JsonValueCall_Promise struct{ *capnp.Pipeline }
 
-func (p JsonValue_Call_Promise) Struct() (JsonValue_Call, error) {
+func (p JsonValueCall_Promise) Struct() (JsonValueCall, error) {
 	s, err := p.Pipeline.Struct()
-	return JsonValue_Call{s}, err
+	return JsonValueCall{s}, err
 }
 
-const schema_8ef99297a43a5e34 = "x\xdat\x92?hSQ\x18\xc5\xef\xb9\xf7\xbd\xb4\xa5" +
-	"\xad\xc93):(]\x14\xb5\xd4\xda\xc6\x82\x10\x90h" +
-	"\xfd\x83t\x90>\x83\x8e\xda\x97\xf4))//\xe1%" +
-	"1:uQ\xd0AEA\x1c\x9c\x04\x97vrP\xb0" +
-	"h\xd1\x16G'q\x90N\x0e.\x82\x8b\x9bU\xeb\xf5" +
-	"\\C\x93P\xecp\xe1\xde\xdf\xf7\xbd{\xbe{\xce\x1b" +
-	"=\x89cr\xccn(!\xdc\xfdvLG\xab\xc37" +
-	"\x17\xf4\xde[\xc2\xed\x85\xd4\xe3\x173O\x1f=X\xbb" +
-	"+N\xa1\xabK\x88\xe4\x13,$\xe7\xb1O\x88\xc3K" +
-	"\xb8\x07\x01=\xfd\xea\xe3\xd1\x81\x1bo\x1e\x0bg\x00\xed" +
-	"omi\x9ao\xab\x0f\xc9\x87\xca\xec\xee\xab\x06{\xdf" +
-	"\x1f\x99\xcf}:\x7fm\xe5\x7f\xbd\xb0V\x93\xfd\x96\xd9" +
-	"\xf5X\x0dqV\xcfV\xcb\xe1H\xc1\xab \xacd&" +
-	"\xb9\xbf\x10\xf7\x82\xba\xefv\xa3\xf3\x9a\x9et\x87\xbe=" +
-	"4x\xba\xe8\x073\xf1\x13^\x10\xb8\xbb\x94\xd5\xa7\xb5" +
-	"\x05!\x9c\x17C|\xda3\x05\xf7\xb5\xc4n\xfc\xd1\x89" +
-	"\x14\x0c^\x9c ~N\xfc\x96X\xaek\xa4 \x89\x97" +
-	"2\xc4/\x89\xdfI\xf4\xab\xdf:\x05:\xe3,g\x9c" +
-	"\xe5A\xf73\xf17b\xeb\x17\xb1E\xfc5\xcd\xe6/" +
-	"\x0a\xe7@j\xff$\xb5I\xd7\xcd\x15?\x14r)\x83" +
-	"ck\xc41>\xcc\x01\x07\xc9\xf5\x81\x85\x9d,\xc4\xc3" +
-	"z\x10\x88\xd8\\\xbe\\\x0e|/\xe4L\x92\x0b\xd9\xb0" +
-	"^\xca\xfb\x11zy\xec\xe5\xb1Z\x8b\x8a\xe1\x15\xd7b" +
-	"\x18\xdf\xef\x1c\xda\xb1}zqE\xb8\x96\xc4\xf1\x04\xd0" +
-	"G1L\xcc5[.\x09A \xb90\xe8E\x91w" +
-	"\x1d\xdb\x04\xa6\x14\x90h{-``\xb6\x9c\x9f\xf5\x0b" +
-	"\xb5v\xbd\xe5h\xb3\x1e/\xd0A\xe2\x96\xb7\xc4\x09\xe6" +
-	"\xb7\x91\x89\xdc\xc8\xc4D2B\xbb\x11L\x01n\xb7\xa2" +
-	"%\xff\x1c?0i~&\x9a5.\xe1\x00M\xbf\xc7" +
-	"\x8c+\xc3\x84g$\xf4\xe5zX\xa8\x15\xcb\xa1h\x0f" +
-	"\x9d\xadx\x91W\xaan9\xf5\x16\xf2\xcc\\\x053\x9b" +
-	"\xf4M\xe2{(5\xda\xa1\x7f0\xdd\x1e*\x1ez%" +
-	"\xbf\xe5\xd6Us\xd1&A\xbe\xf7o\x00\x00\x00\xff\xff" +
-	"\x9f\xdb\xc7\x93"
+const schema_8ef99297a43a5e34 = "x\xdat\x92AHTQ\x14\x86\xff\xff\xde7\xa3\xe2" +
+	"L\xf3^\xf3\xa4\x16\x89\x9b\xa2\x1235!\x18\x88)" +
+	"-\x09\x17\xe1m\xa8e\xf9\x1c_1r}O\xde8" +
+	"Y+7\x05\xb5\xa8(\x88\x16\xad\x826\xbajQ\x90" +
+	"\x94\x94\xd2\xb2U\xb4\x08W-\xda\x04m\xdaee7" +
+	"n\x92O$w\x87s\xce=\xff\xcf\xf7\xdf\x9e\x93<" +
+	".z33\x12P\x072Y\x93\xact\xdd\x987\xfb" +
+	"nB\xb5R\x98\xfe\x0b\xa5'\x0f\xef\xaf\xde\xc1)6" +
+	"5\x01\xc5\xc7\x9c/\xceq?pd\x91w\x09\x9a\xd1" +
+	"\x97\x1f\x8e\xb5]\x7f\xfd\x08^\x1b\xd3\xb7\x19a\x97o" +
+	"\xc9\xf7\xc5\x07\xd2V\xf7\xe4\x0ch\xde\x1d\x9d\xab|<" +
+	"wu\xf9\x7f\xbbtV\x8ay\xc7V-\xce\x0c\xce\x98" +
+	"\x89z\x1cuW\x83)FS\xa5\xe1z\x1c\x9d/\x04" +
+	"\xba\x11\xaafn>\xd3\xd2\xb7I?\xd3\xd91T\x0b" +
+	"\xf5xa0\xd0Z\xed\x91N\xce\x18\x87\x80\xf7\xbc\x13" +
+	"PO%\xd5+\xc1v\xfe6\xaeO\xdb^\x18\x00\xd4" +
+	"3I\xf5F\xb0]\xac\x19\xfa\x14\x80\xb7X\x02\xd4\x0b" +
+	"I\xf5V0/\x7f\x19\x9f\x12\xf0\x96J\xdeR\x87\xfa" +
+	"$\xa9\xbe\x0a\xe6\x9d\x9f\xc6\xa7\x03x_\xfa\x00\xf5Y" +
+	"\xf2,\x05\xf3\x99\x1f\xc6g\x06\xf0\xd6\xec\x89\xef\x92\x15" +
+	"\xdf\xb6\xb3\xab\xc6g\x16(z\xec\x04*9JVv" +
+	"S\xb0\x105\xb4Fvv,\x8eu\x18D$\x04\x09" +
+	"\x96\xa3\xc6\xe4X\x98\xb0\x15\x82\xad`\xb9>\x9d\xd4\xa2" +
+	"\xcb\xca\xa10\xdfn\x1f\xde\xb5sta\x19\xca\x11<" +
+	"\xe1\x929\xc0\xe3\xc0\xec\xfa\xcaE\x809\x08\xe6\xc0\x8e" +
+	" I\x82k\xdc\x01\x8eH\xd2MY\x83\xb6Y\x8e\xc7" +
+	"&\xc2\xeat:\xdf \xba>/T\x03\xad\xe9\xa6l" +
+	"A\xba\xe0F&\xe2_&6\x92\xee\xc1@S\x8f\x90" +
+	"\xaaY:\xc0_\xe2\x07\x87\xedg\x92T\xfd\x82\x1e\xb9" +
+	"\xce\xbb\xd7R\xe9\x92T\xa7\x05\xcd\xa5FT\x9d\xae\xc5" +
+	"\x11R\xd3\xe5\xa9 \x09&\xeb\xdb\xba\xdeF~\xa8\x16" +
+	"J=\xbeE\xdf&\xbeWR\xf5l\xd2?\xd4\x97\x9a" +
+	"*D\xc1d\xb8A\xeb\x8a=\xb4E\xd0\x05\xff\x04\x00" +
+	"\x00\xff\xff\x9f\xdb\xc7\x93"
 
 func init() {
 	schemas.Register(schema_8ef99297a43a5e34,

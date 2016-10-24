@@ -43,9 +43,10 @@ func (m *Map) Find(id uint64) (schema.Node, error) {
 	if err != nil {
 		return schema.Node{}, err
 	}
-	nodes, err := req.Nodes()
-	if err != nil {
-		return schema.Node{}, err
+	var es capnp.ErrorSet
+	nodes := req.Nodes(&es)
+	if es != nil {
+		return schema.Node{}, es
 	}
 	if m.nodes == nil {
 		m.nodes = make(map[uint64]schema.Node)

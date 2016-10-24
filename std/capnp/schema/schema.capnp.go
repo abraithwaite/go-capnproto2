@@ -11,15 +11,15 @@ import (
 
 // Constants defined in schema.capnp.
 const (
-	Field_noDiscriminant = uint16(65535)
+	FieldnoDiscriminant = uint16(65535)
 )
 
 type Node struct{ capnp.Struct }
-type Node_structNode Node
-type Node_enum Node
-type Node_interface Node
-type Node_const Node
-type Node_annotation Node
+type NodestructNode Node
+type Nodeenum Node
+type Nodeinterface Node
+type Nodeconst Node
+type Nodeannotation Node
 type Node_Which uint16
 
 const (
@@ -80,9 +80,13 @@ func (s Node) SetId(v uint64) {
 	s.Struct.SetUint64(0, v)
 }
 
-func (s Node) DisplayName() (string, error) {
+func (s Node) DisplayName(e *capnp.ErrorSet) string {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	if err != nil {
+		*e = append(*e, err)
+		return ""
+	}
+	return p.Text()
 }
 
 func (s Node) HasDisplayName() bool {
@@ -119,9 +123,13 @@ func (s Node) SetScopeId(v uint64) {
 	s.Struct.SetUint64(16, v)
 }
 
-func (s Node) Parameters() (Node_Parameter_List, error) {
+func (s Node) Parameters(e *capnp.ErrorSet) NodeParameter_List {
 	p, err := s.Struct.Ptr(5)
-	return Node_Parameter_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return NodeParameter_List{}
+	}
+	return NodeParameter_List{List: p.List()}
 }
 
 func (s Node) HasParameters() bool {
@@ -129,16 +137,16 @@ func (s Node) HasParameters() bool {
 	return p.IsValid() || err != nil
 }
 
-func (s Node) SetParameters(v Node_Parameter_List) error {
+func (s Node) SetParameters(v NodeParameter_List) error {
 	return s.Struct.SetPtr(5, v.List.ToPtr())
 }
 
 // NewParameters sets the parameters field to a newly
-// allocated Node_Parameter_List, preferring placement in s's segment.
-func (s Node) NewParameters(n int32) (Node_Parameter_List, error) {
-	l, err := NewNode_Parameter_List(s.Struct.Segment(), n)
+// allocated NodeParameter_List, preferring placement in s's segment.
+func (s Node) NewParameters(n int32) (NodeParameter_List, error) {
+	l, err := NewNodeParameter_List(s.Struct.Segment(), n)
 	if err != nil {
-		return Node_Parameter_List{}, err
+		return NodeParameter_List{}, err
 	}
 	err = s.Struct.SetPtr(5, l.List.ToPtr())
 	return l, err
@@ -152,9 +160,13 @@ func (s Node) SetIsGeneric(v bool) {
 	s.Struct.SetBit(288, v)
 }
 
-func (s Node) NestedNodes() (Node_NestedNode_List, error) {
+func (s Node) NestedNodes(e *capnp.ErrorSet) NodeNestedNode_List {
 	p, err := s.Struct.Ptr(1)
-	return Node_NestedNode_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return NodeNestedNode_List{}
+	}
+	return NodeNestedNode_List{List: p.List()}
 }
 
 func (s Node) HasNestedNodes() bool {
@@ -162,24 +174,28 @@ func (s Node) HasNestedNodes() bool {
 	return p.IsValid() || err != nil
 }
 
-func (s Node) SetNestedNodes(v Node_NestedNode_List) error {
+func (s Node) SetNestedNodes(v NodeNestedNode_List) error {
 	return s.Struct.SetPtr(1, v.List.ToPtr())
 }
 
 // NewNestedNodes sets the nestedNodes field to a newly
-// allocated Node_NestedNode_List, preferring placement in s's segment.
-func (s Node) NewNestedNodes(n int32) (Node_NestedNode_List, error) {
-	l, err := NewNode_NestedNode_List(s.Struct.Segment(), n)
+// allocated NodeNestedNode_List, preferring placement in s's segment.
+func (s Node) NewNestedNodes(n int32) (NodeNestedNode_List, error) {
+	l, err := NewNodeNestedNode_List(s.Struct.Segment(), n)
 	if err != nil {
-		return Node_NestedNode_List{}, err
+		return NodeNestedNode_List{}, err
 	}
 	err = s.Struct.SetPtr(1, l.List.ToPtr())
 	return l, err
 }
 
-func (s Node) Annotations() (Annotation_List, error) {
+func (s Node) Annotations(e *capnp.ErrorSet) Annotation_List {
 	p, err := s.Struct.Ptr(2)
-	return Annotation_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Annotation_List{}
+	}
+	return Annotation_List{List: p.List()}
 }
 
 func (s Node) HasAnnotations() bool {
@@ -207,77 +223,81 @@ func (s Node) SetFile() {
 
 }
 
-func (s Node) StructNode() Node_structNode { return Node_structNode(s) }
+func (s Node) StructNode() NodestructNode { return NodestructNode(s) }
 
 func (s Node) SetStructNode() {
 	s.Struct.SetUint16(12, 1)
 }
 
-func (s Node_structNode) DataWordCount() uint16 {
+func (s NodestructNode) DataWordCount() uint16 {
 	return s.Struct.Uint16(14)
 }
 
-func (s Node_structNode) SetDataWordCount(v uint16) {
+func (s NodestructNode) SetDataWordCount(v uint16) {
 	s.Struct.SetUint16(14, v)
 }
 
-func (s Node_structNode) PointerCount() uint16 {
+func (s NodestructNode) PointerCount() uint16 {
 	return s.Struct.Uint16(24)
 }
 
-func (s Node_structNode) SetPointerCount(v uint16) {
+func (s NodestructNode) SetPointerCount(v uint16) {
 	s.Struct.SetUint16(24, v)
 }
 
-func (s Node_structNode) PreferredListEncoding() ElementSize {
+func (s NodestructNode) PreferredListEncoding() ElementSize {
 	return ElementSize(s.Struct.Uint16(26))
 }
 
-func (s Node_structNode) SetPreferredListEncoding(v ElementSize) {
+func (s NodestructNode) SetPreferredListEncoding(v ElementSize) {
 	s.Struct.SetUint16(26, uint16(v))
 }
 
-func (s Node_structNode) IsGroup() bool {
+func (s NodestructNode) IsGroup() bool {
 	return s.Struct.Bit(224)
 }
 
-func (s Node_structNode) SetIsGroup(v bool) {
+func (s NodestructNode) SetIsGroup(v bool) {
 	s.Struct.SetBit(224, v)
 }
 
-func (s Node_structNode) DiscriminantCount() uint16 {
+func (s NodestructNode) DiscriminantCount() uint16 {
 	return s.Struct.Uint16(30)
 }
 
-func (s Node_structNode) SetDiscriminantCount(v uint16) {
+func (s NodestructNode) SetDiscriminantCount(v uint16) {
 	s.Struct.SetUint16(30, v)
 }
 
-func (s Node_structNode) DiscriminantOffset() uint32 {
+func (s NodestructNode) DiscriminantOffset() uint32 {
 	return s.Struct.Uint32(32)
 }
 
-func (s Node_structNode) SetDiscriminantOffset(v uint32) {
+func (s NodestructNode) SetDiscriminantOffset(v uint32) {
 	s.Struct.SetUint32(32, v)
 }
 
-func (s Node_structNode) Fields() (Field_List, error) {
+func (s NodestructNode) Fields(e *capnp.ErrorSet) Field_List {
 	p, err := s.Struct.Ptr(3)
-	return Field_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Field_List{}
+	}
+	return Field_List{List: p.List()}
 }
 
-func (s Node_structNode) HasFields() bool {
+func (s NodestructNode) HasFields() bool {
 	p, err := s.Struct.Ptr(3)
 	return p.IsValid() || err != nil
 }
 
-func (s Node_structNode) SetFields(v Field_List) error {
+func (s NodestructNode) SetFields(v Field_List) error {
 	return s.Struct.SetPtr(3, v.List.ToPtr())
 }
 
 // NewFields sets the fields field to a newly
 // allocated Field_List, preferring placement in s's segment.
-func (s Node_structNode) NewFields(n int32) (Field_List, error) {
+func (s NodestructNode) NewFields(n int32) (Field_List, error) {
 	l, err := NewField_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Field_List{}, err
@@ -286,29 +306,33 @@ func (s Node_structNode) NewFields(n int32) (Field_List, error) {
 	return l, err
 }
 
-func (s Node) Enum() Node_enum { return Node_enum(s) }
+func (s Node) Enum() Nodeenum { return Nodeenum(s) }
 
 func (s Node) SetEnum() {
 	s.Struct.SetUint16(12, 2)
 }
 
-func (s Node_enum) Enumerants() (Enumerant_List, error) {
+func (s Nodeenum) Enumerants(e *capnp.ErrorSet) Enumerant_List {
 	p, err := s.Struct.Ptr(3)
-	return Enumerant_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Enumerant_List{}
+	}
+	return Enumerant_List{List: p.List()}
 }
 
-func (s Node_enum) HasEnumerants() bool {
+func (s Nodeenum) HasEnumerants() bool {
 	p, err := s.Struct.Ptr(3)
 	return p.IsValid() || err != nil
 }
 
-func (s Node_enum) SetEnumerants(v Enumerant_List) error {
+func (s Nodeenum) SetEnumerants(v Enumerant_List) error {
 	return s.Struct.SetPtr(3, v.List.ToPtr())
 }
 
 // NewEnumerants sets the enumerants field to a newly
 // allocated Enumerant_List, preferring placement in s's segment.
-func (s Node_enum) NewEnumerants(n int32) (Enumerant_List, error) {
+func (s Nodeenum) NewEnumerants(n int32) (Enumerant_List, error) {
 	l, err := NewEnumerant_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Enumerant_List{}, err
@@ -317,29 +341,33 @@ func (s Node_enum) NewEnumerants(n int32) (Enumerant_List, error) {
 	return l, err
 }
 
-func (s Node) Interface() Node_interface { return Node_interface(s) }
+func (s Node) Interface() Nodeinterface { return Nodeinterface(s) }
 
 func (s Node) SetInterface() {
 	s.Struct.SetUint16(12, 3)
 }
 
-func (s Node_interface) Methods() (Method_List, error) {
+func (s Nodeinterface) Methods(e *capnp.ErrorSet) Method_List {
 	p, err := s.Struct.Ptr(3)
-	return Method_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Method_List{}
+	}
+	return Method_List{List: p.List()}
 }
 
-func (s Node_interface) HasMethods() bool {
+func (s Nodeinterface) HasMethods() bool {
 	p, err := s.Struct.Ptr(3)
 	return p.IsValid() || err != nil
 }
 
-func (s Node_interface) SetMethods(v Method_List) error {
+func (s Nodeinterface) SetMethods(v Method_List) error {
 	return s.Struct.SetPtr(3, v.List.ToPtr())
 }
 
 // NewMethods sets the methods field to a newly
 // allocated Method_List, preferring placement in s's segment.
-func (s Node_interface) NewMethods(n int32) (Method_List, error) {
+func (s Nodeinterface) NewMethods(n int32) (Method_List, error) {
 	l, err := NewMethod_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Method_List{}, err
@@ -348,23 +376,27 @@ func (s Node_interface) NewMethods(n int32) (Method_List, error) {
 	return l, err
 }
 
-func (s Node_interface) Superclasses() (Superclass_List, error) {
+func (s Nodeinterface) Superclasses(e *capnp.ErrorSet) Superclass_List {
 	p, err := s.Struct.Ptr(4)
-	return Superclass_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Superclass_List{}
+	}
+	return Superclass_List{List: p.List()}
 }
 
-func (s Node_interface) HasSuperclasses() bool {
+func (s Nodeinterface) HasSuperclasses() bool {
 	p, err := s.Struct.Ptr(4)
 	return p.IsValid() || err != nil
 }
 
-func (s Node_interface) SetSuperclasses(v Superclass_List) error {
+func (s Nodeinterface) SetSuperclasses(v Superclass_List) error {
 	return s.Struct.SetPtr(4, v.List.ToPtr())
 }
 
 // NewSuperclasses sets the superclasses field to a newly
 // allocated Superclass_List, preferring placement in s's segment.
-func (s Node_interface) NewSuperclasses(n int32) (Superclass_List, error) {
+func (s Nodeinterface) NewSuperclasses(n int32) (Superclass_List, error) {
 	l, err := NewSuperclass_List(s.Struct.Segment(), n)
 	if err != nil {
 		return Superclass_List{}, err
@@ -373,29 +405,33 @@ func (s Node_interface) NewSuperclasses(n int32) (Superclass_List, error) {
 	return l, err
 }
 
-func (s Node) Const() Node_const { return Node_const(s) }
+func (s Node) Const() Nodeconst { return Nodeconst(s) }
 
 func (s Node) SetConst() {
 	s.Struct.SetUint16(12, 4)
 }
 
-func (s Node_const) Type() (Type, error) {
+func (s Nodeconst) Type(e *capnp.ErrorSet) Type {
 	p, err := s.Struct.Ptr(3)
-	return Type{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Type{}
+	}
+	return Type{Struct: p.Struct()}
 }
 
-func (s Node_const) HasType() bool {
+func (s Nodeconst) HasType() bool {
 	p, err := s.Struct.Ptr(3)
 	return p.IsValid() || err != nil
 }
 
-func (s Node_const) SetType(v Type) error {
+func (s Nodeconst) SetType(v Type) error {
 	return s.Struct.SetPtr(3, v.Struct.ToPtr())
 }
 
 // NewType sets the type field to a newly
 // allocated Type struct, preferring placement in s's segment.
-func (s Node_const) NewType() (Type, error) {
+func (s Nodeconst) NewType() (Type, error) {
 	ss, err := NewType(s.Struct.Segment())
 	if err != nil {
 		return Type{}, err
@@ -404,23 +440,27 @@ func (s Node_const) NewType() (Type, error) {
 	return ss, err
 }
 
-func (s Node_const) Value() (Value, error) {
+func (s Nodeconst) Value(e *capnp.ErrorSet) Value {
 	p, err := s.Struct.Ptr(4)
-	return Value{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Value{}
+	}
+	return Value{Struct: p.Struct()}
 }
 
-func (s Node_const) HasValue() bool {
+func (s Nodeconst) HasValue() bool {
 	p, err := s.Struct.Ptr(4)
 	return p.IsValid() || err != nil
 }
 
-func (s Node_const) SetValue(v Value) error {
+func (s Nodeconst) SetValue(v Value) error {
 	return s.Struct.SetPtr(4, v.Struct.ToPtr())
 }
 
 // NewValue sets the value field to a newly
 // allocated Value struct, preferring placement in s's segment.
-func (s Node_const) NewValue() (Value, error) {
+func (s Nodeconst) NewValue() (Value, error) {
 	ss, err := NewValue(s.Struct.Segment())
 	if err != nil {
 		return Value{}, err
@@ -429,29 +469,33 @@ func (s Node_const) NewValue() (Value, error) {
 	return ss, err
 }
 
-func (s Node) Annotation() Node_annotation { return Node_annotation(s) }
+func (s Node) Annotation() Nodeannotation { return Nodeannotation(s) }
 
 func (s Node) SetAnnotation() {
 	s.Struct.SetUint16(12, 5)
 }
 
-func (s Node_annotation) Type() (Type, error) {
+func (s Nodeannotation) Type(e *capnp.ErrorSet) Type {
 	p, err := s.Struct.Ptr(3)
-	return Type{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Type{}
+	}
+	return Type{Struct: p.Struct()}
 }
 
-func (s Node_annotation) HasType() bool {
+func (s Nodeannotation) HasType() bool {
 	p, err := s.Struct.Ptr(3)
 	return p.IsValid() || err != nil
 }
 
-func (s Node_annotation) SetType(v Type) error {
+func (s Nodeannotation) SetType(v Type) error {
 	return s.Struct.SetPtr(3, v.Struct.ToPtr())
 }
 
 // NewType sets the type field to a newly
 // allocated Type struct, preferring placement in s's segment.
-func (s Node_annotation) NewType() (Type, error) {
+func (s Nodeannotation) NewType() (Type, error) {
 	ss, err := NewType(s.Struct.Segment())
 	if err != nil {
 		return Type{}, err
@@ -460,99 +504,99 @@ func (s Node_annotation) NewType() (Type, error) {
 	return ss, err
 }
 
-func (s Node_annotation) TargetsFile() bool {
+func (s Nodeannotation) TargetsFile() bool {
 	return s.Struct.Bit(112)
 }
 
-func (s Node_annotation) SetTargetsFile(v bool) {
+func (s Nodeannotation) SetTargetsFile(v bool) {
 	s.Struct.SetBit(112, v)
 }
 
-func (s Node_annotation) TargetsConst() bool {
+func (s Nodeannotation) TargetsConst() bool {
 	return s.Struct.Bit(113)
 }
 
-func (s Node_annotation) SetTargetsConst(v bool) {
+func (s Nodeannotation) SetTargetsConst(v bool) {
 	s.Struct.SetBit(113, v)
 }
 
-func (s Node_annotation) TargetsEnum() bool {
+func (s Nodeannotation) TargetsEnum() bool {
 	return s.Struct.Bit(114)
 }
 
-func (s Node_annotation) SetTargetsEnum(v bool) {
+func (s Nodeannotation) SetTargetsEnum(v bool) {
 	s.Struct.SetBit(114, v)
 }
 
-func (s Node_annotation) TargetsEnumerant() bool {
+func (s Nodeannotation) TargetsEnumerant() bool {
 	return s.Struct.Bit(115)
 }
 
-func (s Node_annotation) SetTargetsEnumerant(v bool) {
+func (s Nodeannotation) SetTargetsEnumerant(v bool) {
 	s.Struct.SetBit(115, v)
 }
 
-func (s Node_annotation) TargetsStruct() bool {
+func (s Nodeannotation) TargetsStruct() bool {
 	return s.Struct.Bit(116)
 }
 
-func (s Node_annotation) SetTargetsStruct(v bool) {
+func (s Nodeannotation) SetTargetsStruct(v bool) {
 	s.Struct.SetBit(116, v)
 }
 
-func (s Node_annotation) TargetsField() bool {
+func (s Nodeannotation) TargetsField() bool {
 	return s.Struct.Bit(117)
 }
 
-func (s Node_annotation) SetTargetsField(v bool) {
+func (s Nodeannotation) SetTargetsField(v bool) {
 	s.Struct.SetBit(117, v)
 }
 
-func (s Node_annotation) TargetsUnion() bool {
+func (s Nodeannotation) TargetsUnion() bool {
 	return s.Struct.Bit(118)
 }
 
-func (s Node_annotation) SetTargetsUnion(v bool) {
+func (s Nodeannotation) SetTargetsUnion(v bool) {
 	s.Struct.SetBit(118, v)
 }
 
-func (s Node_annotation) TargetsGroup() bool {
+func (s Nodeannotation) TargetsGroup() bool {
 	return s.Struct.Bit(119)
 }
 
-func (s Node_annotation) SetTargetsGroup(v bool) {
+func (s Nodeannotation) SetTargetsGroup(v bool) {
 	s.Struct.SetBit(119, v)
 }
 
-func (s Node_annotation) TargetsInterface() bool {
+func (s Nodeannotation) TargetsInterface() bool {
 	return s.Struct.Bit(120)
 }
 
-func (s Node_annotation) SetTargetsInterface(v bool) {
+func (s Nodeannotation) SetTargetsInterface(v bool) {
 	s.Struct.SetBit(120, v)
 }
 
-func (s Node_annotation) TargetsMethod() bool {
+func (s Nodeannotation) TargetsMethod() bool {
 	return s.Struct.Bit(121)
 }
 
-func (s Node_annotation) SetTargetsMethod(v bool) {
+func (s Nodeannotation) SetTargetsMethod(v bool) {
 	s.Struct.SetBit(121, v)
 }
 
-func (s Node_annotation) TargetsParam() bool {
+func (s Nodeannotation) TargetsParam() bool {
 	return s.Struct.Bit(122)
 }
 
-func (s Node_annotation) SetTargetsParam(v bool) {
+func (s Nodeannotation) SetTargetsParam(v bool) {
 	s.Struct.SetBit(122, v)
 }
 
-func (s Node_annotation) TargetsAnnotation() bool {
+func (s Nodeannotation) TargetsAnnotation() bool {
 	return s.Struct.Bit(123)
 }
 
-func (s Node_annotation) SetTargetsAnnotation(v bool) {
+func (s Nodeannotation) SetTargetsAnnotation(v bool) {
 	s.Struct.SetBit(123, v)
 }
 
@@ -577,104 +621,108 @@ func (p Node_Promise) Struct() (Node, error) {
 	return Node{s}, err
 }
 
-func (p Node_Promise) StructNode() Node_structNode_Promise { return Node_structNode_Promise{p.Pipeline} }
+func (p Node_Promise) StructNode() NodestructNode_Promise { return NodestructNode_Promise{p.Pipeline} }
 
-// Node_structNode_Promise is a wrapper for a Node_structNode promised by a client call.
-type Node_structNode_Promise struct{ *capnp.Pipeline }
+// NodestructNode_Promise is a wrapper for a NodestructNode promised by a client call.
+type NodestructNode_Promise struct{ *capnp.Pipeline }
 
-func (p Node_structNode_Promise) Struct() (Node_structNode, error) {
+func (p NodestructNode_Promise) Struct() (NodestructNode, error) {
 	s, err := p.Pipeline.Struct()
-	return Node_structNode{s}, err
+	return NodestructNode{s}, err
 }
 
-func (p Node_Promise) Enum() Node_enum_Promise { return Node_enum_Promise{p.Pipeline} }
+func (p Node_Promise) Enum() Nodeenum_Promise { return Nodeenum_Promise{p.Pipeline} }
 
-// Node_enum_Promise is a wrapper for a Node_enum promised by a client call.
-type Node_enum_Promise struct{ *capnp.Pipeline }
+// Nodeenum_Promise is a wrapper for a Nodeenum promised by a client call.
+type Nodeenum_Promise struct{ *capnp.Pipeline }
 
-func (p Node_enum_Promise) Struct() (Node_enum, error) {
+func (p Nodeenum_Promise) Struct() (Nodeenum, error) {
 	s, err := p.Pipeline.Struct()
-	return Node_enum{s}, err
+	return Nodeenum{s}, err
 }
 
-func (p Node_Promise) Interface() Node_interface_Promise { return Node_interface_Promise{p.Pipeline} }
+func (p Node_Promise) Interface() Nodeinterface_Promise { return Nodeinterface_Promise{p.Pipeline} }
 
-// Node_interface_Promise is a wrapper for a Node_interface promised by a client call.
-type Node_interface_Promise struct{ *capnp.Pipeline }
+// Nodeinterface_Promise is a wrapper for a Nodeinterface promised by a client call.
+type Nodeinterface_Promise struct{ *capnp.Pipeline }
 
-func (p Node_interface_Promise) Struct() (Node_interface, error) {
+func (p Nodeinterface_Promise) Struct() (Nodeinterface, error) {
 	s, err := p.Pipeline.Struct()
-	return Node_interface{s}, err
+	return Nodeinterface{s}, err
 }
 
-func (p Node_Promise) Const() Node_const_Promise { return Node_const_Promise{p.Pipeline} }
+func (p Node_Promise) Const() Nodeconst_Promise { return Nodeconst_Promise{p.Pipeline} }
 
-// Node_const_Promise is a wrapper for a Node_const promised by a client call.
-type Node_const_Promise struct{ *capnp.Pipeline }
+// Nodeconst_Promise is a wrapper for a Nodeconst promised by a client call.
+type Nodeconst_Promise struct{ *capnp.Pipeline }
 
-func (p Node_const_Promise) Struct() (Node_const, error) {
+func (p Nodeconst_Promise) Struct() (Nodeconst, error) {
 	s, err := p.Pipeline.Struct()
-	return Node_const{s}, err
+	return Nodeconst{s}, err
 }
 
-func (p Node_const_Promise) Type() Type_Promise {
+func (p Nodeconst_Promise) Type() Type_Promise {
 	return Type_Promise{Pipeline: p.Pipeline.GetPipeline(3)}
 }
 
-func (p Node_const_Promise) Value() Value_Promise {
+func (p Nodeconst_Promise) Value() Value_Promise {
 	return Value_Promise{Pipeline: p.Pipeline.GetPipeline(4)}
 }
 
-func (p Node_Promise) Annotation() Node_annotation_Promise { return Node_annotation_Promise{p.Pipeline} }
+func (p Node_Promise) Annotation() Nodeannotation_Promise { return Nodeannotation_Promise{p.Pipeline} }
 
-// Node_annotation_Promise is a wrapper for a Node_annotation promised by a client call.
-type Node_annotation_Promise struct{ *capnp.Pipeline }
+// Nodeannotation_Promise is a wrapper for a Nodeannotation promised by a client call.
+type Nodeannotation_Promise struct{ *capnp.Pipeline }
 
-func (p Node_annotation_Promise) Struct() (Node_annotation, error) {
+func (p Nodeannotation_Promise) Struct() (Nodeannotation, error) {
 	s, err := p.Pipeline.Struct()
-	return Node_annotation{s}, err
+	return Nodeannotation{s}, err
 }
 
-func (p Node_annotation_Promise) Type() Type_Promise {
+func (p Nodeannotation_Promise) Type() Type_Promise {
 	return Type_Promise{Pipeline: p.Pipeline.GetPipeline(3)}
 }
 
-type Node_Parameter struct{ capnp.Struct }
+type NodeParameter struct{ capnp.Struct }
 
-// Node_Parameter_TypeID is the unique identifier for the type Node_Parameter.
-const Node_Parameter_TypeID = 0xb9521bccf10fa3b1
+// NodeParameter_TypeID is the unique identifier for the type NodeParameter.
+const NodeParameter_TypeID = 0xb9521bccf10fa3b1
 
-func NewNode_Parameter(s *capnp.Segment) (Node_Parameter, error) {
+func NewNodeParameter(s *capnp.Segment) (NodeParameter, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Node_Parameter{st}, err
+	return NodeParameter{st}, err
 }
 
-func NewRootNode_Parameter(s *capnp.Segment) (Node_Parameter, error) {
+func NewRootNodeParameter(s *capnp.Segment) (NodeParameter, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
-	return Node_Parameter{st}, err
+	return NodeParameter{st}, err
 }
 
-func ReadRootNode_Parameter(msg *capnp.Message) (Node_Parameter, error) {
+func ReadRootNodeParameter(msg *capnp.Message) (NodeParameter, error) {
 	root, err := msg.RootPtr()
-	return Node_Parameter{root.Struct()}, err
+	return NodeParameter{root.Struct()}, err
 }
 
-func (s Node_Parameter) Name() (string, error) {
+func (s NodeParameter) Name(e *capnp.ErrorSet) string {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	if err != nil {
+		*e = append(*e, err)
+		return ""
+	}
+	return p.Text()
 }
 
-func (s Node_Parameter) HasName() bool {
+func (s NodeParameter) HasName() bool {
 	p, err := s.Struct.Ptr(0)
 	return p.IsValid() || err != nil
 }
 
-func (s Node_Parameter) NameBytes() ([]byte, error) {
+func (s NodeParameter) NameBytes() ([]byte, error) {
 	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
-func (s Node_Parameter) SetName(v string) error {
+func (s NodeParameter) SetName(v string) error {
 	t, err := capnp.NewText(s.Struct.Segment(), v)
 	if err != nil {
 		return err
@@ -682,63 +730,67 @@ func (s Node_Parameter) SetName(v string) error {
 	return s.Struct.SetPtr(0, t.List.ToPtr())
 }
 
-// Node_Parameter_List is a list of Node_Parameter.
-type Node_Parameter_List struct{ capnp.List }
+// NodeParameter_List is a list of NodeParameter.
+type NodeParameter_List struct{ capnp.List }
 
-// NewNode_Parameter creates a new list of Node_Parameter.
-func NewNode_Parameter_List(s *capnp.Segment, sz int32) (Node_Parameter_List, error) {
+// NewNodeParameter creates a new list of NodeParameter.
+func NewNodeParameter_List(s *capnp.Segment, sz int32) (NodeParameter_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
-	return Node_Parameter_List{l}, err
+	return NodeParameter_List{l}, err
 }
 
-func (s Node_Parameter_List) At(i int) Node_Parameter { return Node_Parameter{s.List.Struct(i)} }
+func (s NodeParameter_List) At(i int) NodeParameter { return NodeParameter{s.List.Struct(i)} }
 
-func (s Node_Parameter_List) Set(i int, v Node_Parameter) error { return s.List.SetStruct(i, v.Struct) }
+func (s NodeParameter_List) Set(i int, v NodeParameter) error { return s.List.SetStruct(i, v.Struct) }
 
-// Node_Parameter_Promise is a wrapper for a Node_Parameter promised by a client call.
-type Node_Parameter_Promise struct{ *capnp.Pipeline }
+// NodeParameter_Promise is a wrapper for a NodeParameter promised by a client call.
+type NodeParameter_Promise struct{ *capnp.Pipeline }
 
-func (p Node_Parameter_Promise) Struct() (Node_Parameter, error) {
+func (p NodeParameter_Promise) Struct() (NodeParameter, error) {
 	s, err := p.Pipeline.Struct()
-	return Node_Parameter{s}, err
+	return NodeParameter{s}, err
 }
 
-type Node_NestedNode struct{ capnp.Struct }
+type NodeNestedNode struct{ capnp.Struct }
 
-// Node_NestedNode_TypeID is the unique identifier for the type Node_NestedNode.
-const Node_NestedNode_TypeID = 0xdebf55bbfa0fc242
+// NodeNestedNode_TypeID is the unique identifier for the type NodeNestedNode.
+const NodeNestedNode_TypeID = 0xdebf55bbfa0fc242
 
-func NewNode_NestedNode(s *capnp.Segment) (Node_NestedNode, error) {
+func NewNodeNestedNode(s *capnp.Segment) (NodeNestedNode, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Node_NestedNode{st}, err
+	return NodeNestedNode{st}, err
 }
 
-func NewRootNode_NestedNode(s *capnp.Segment) (Node_NestedNode, error) {
+func NewRootNodeNestedNode(s *capnp.Segment) (NodeNestedNode, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Node_NestedNode{st}, err
+	return NodeNestedNode{st}, err
 }
 
-func ReadRootNode_NestedNode(msg *capnp.Message) (Node_NestedNode, error) {
+func ReadRootNodeNestedNode(msg *capnp.Message) (NodeNestedNode, error) {
 	root, err := msg.RootPtr()
-	return Node_NestedNode{root.Struct()}, err
+	return NodeNestedNode{root.Struct()}, err
 }
 
-func (s Node_NestedNode) Name() (string, error) {
+func (s NodeNestedNode) Name(e *capnp.ErrorSet) string {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	if err != nil {
+		*e = append(*e, err)
+		return ""
+	}
+	return p.Text()
 }
 
-func (s Node_NestedNode) HasName() bool {
+func (s NodeNestedNode) HasName() bool {
 	p, err := s.Struct.Ptr(0)
 	return p.IsValid() || err != nil
 }
 
-func (s Node_NestedNode) NameBytes() ([]byte, error) {
+func (s NodeNestedNode) NameBytes() ([]byte, error) {
 	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
-func (s Node_NestedNode) SetName(v string) error {
+func (s NodeNestedNode) SetName(v string) error {
 	t, err := capnp.NewText(s.Struct.Segment(), v)
 	if err != nil {
 		return err
@@ -746,41 +798,39 @@ func (s Node_NestedNode) SetName(v string) error {
 	return s.Struct.SetPtr(0, t.List.ToPtr())
 }
 
-func (s Node_NestedNode) Id() uint64 {
+func (s NodeNestedNode) Id() uint64 {
 	return s.Struct.Uint64(0)
 }
 
-func (s Node_NestedNode) SetId(v uint64) {
+func (s NodeNestedNode) SetId(v uint64) {
 	s.Struct.SetUint64(0, v)
 }
 
-// Node_NestedNode_List is a list of Node_NestedNode.
-type Node_NestedNode_List struct{ capnp.List }
+// NodeNestedNode_List is a list of NodeNestedNode.
+type NodeNestedNode_List struct{ capnp.List }
 
-// NewNode_NestedNode creates a new list of Node_NestedNode.
-func NewNode_NestedNode_List(s *capnp.Segment, sz int32) (Node_NestedNode_List, error) {
+// NewNodeNestedNode creates a new list of NodeNestedNode.
+func NewNodeNestedNode_List(s *capnp.Segment, sz int32) (NodeNestedNode_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return Node_NestedNode_List{l}, err
+	return NodeNestedNode_List{l}, err
 }
 
-func (s Node_NestedNode_List) At(i int) Node_NestedNode { return Node_NestedNode{s.List.Struct(i)} }
+func (s NodeNestedNode_List) At(i int) NodeNestedNode { return NodeNestedNode{s.List.Struct(i)} }
 
-func (s Node_NestedNode_List) Set(i int, v Node_NestedNode) error {
-	return s.List.SetStruct(i, v.Struct)
-}
+func (s NodeNestedNode_List) Set(i int, v NodeNestedNode) error { return s.List.SetStruct(i, v.Struct) }
 
-// Node_NestedNode_Promise is a wrapper for a Node_NestedNode promised by a client call.
-type Node_NestedNode_Promise struct{ *capnp.Pipeline }
+// NodeNestedNode_Promise is a wrapper for a NodeNestedNode promised by a client call.
+type NodeNestedNode_Promise struct{ *capnp.Pipeline }
 
-func (p Node_NestedNode_Promise) Struct() (Node_NestedNode, error) {
+func (p NodeNestedNode_Promise) Struct() (NodeNestedNode, error) {
 	s, err := p.Pipeline.Struct()
-	return Node_NestedNode{s}, err
+	return NodeNestedNode{s}, err
 }
 
 type Field struct{ capnp.Struct }
-type Field_slot Field
-type Field_group Field
-type Field_ordinal Field
+type Fieldslot Field
+type Fieldgroup Field
+type Fieldordinal Field
 type Field_Which uint16
 
 const (
@@ -800,23 +850,23 @@ func (w Field_Which) String() string {
 	return "Field_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
 }
 
-type Field_ordinal_Which uint16
+type Fieldordinal_Which uint16
 
 const (
-	Field_ordinal_Which_implicit Field_ordinal_Which = 0
-	Field_ordinal_Which_explicit Field_ordinal_Which = 1
+	Fieldordinal_Which_implicit Fieldordinal_Which = 0
+	Fieldordinal_Which_explicit Fieldordinal_Which = 1
 )
 
-func (w Field_ordinal_Which) String() string {
+func (w Fieldordinal_Which) String() string {
 	const s = "implicitexplicit"
 	switch w {
-	case Field_ordinal_Which_implicit:
+	case Fieldordinal_Which_implicit:
 		return s[0:8]
-	case Field_ordinal_Which_explicit:
+	case Fieldordinal_Which_explicit:
 		return s[8:16]
 
 	}
-	return "Field_ordinal_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
+	return "Fieldordinal_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
 }
 
 // Field_TypeID is the unique identifier for the type Field.
@@ -840,9 +890,13 @@ func ReadRootField(msg *capnp.Message) (Field, error) {
 func (s Field) Which() Field_Which {
 	return Field_Which(s.Struct.Uint16(8))
 }
-func (s Field) Name() (string, error) {
+func (s Field) Name(e *capnp.ErrorSet) string {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	if err != nil {
+		*e = append(*e, err)
+		return ""
+	}
+	return p.Text()
 }
 
 func (s Field) HasName() bool {
@@ -871,9 +925,13 @@ func (s Field) SetCodeOrder(v uint16) {
 	s.Struct.SetUint16(0, v)
 }
 
-func (s Field) Annotations() (Annotation_List, error) {
+func (s Field) Annotations(e *capnp.ErrorSet) Annotation_List {
 	p, err := s.Struct.Ptr(1)
-	return Annotation_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Annotation_List{}
+	}
+	return Annotation_List{List: p.List()}
 }
 
 func (s Field) HasAnnotations() bool {
@@ -904,37 +962,41 @@ func (s Field) SetDiscriminantValue(v uint16) {
 	s.Struct.SetUint16(2, v^65535)
 }
 
-func (s Field) Slot() Field_slot { return Field_slot(s) }
+func (s Field) Slot() Fieldslot { return Fieldslot(s) }
 
 func (s Field) SetSlot() {
 	s.Struct.SetUint16(8, 0)
 }
 
-func (s Field_slot) Offset() uint32 {
+func (s Fieldslot) Offset() uint32 {
 	return s.Struct.Uint32(4)
 }
 
-func (s Field_slot) SetOffset(v uint32) {
+func (s Fieldslot) SetOffset(v uint32) {
 	s.Struct.SetUint32(4, v)
 }
 
-func (s Field_slot) Type() (Type, error) {
+func (s Fieldslot) Type(e *capnp.ErrorSet) Type {
 	p, err := s.Struct.Ptr(2)
-	return Type{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Type{}
+	}
+	return Type{Struct: p.Struct()}
 }
 
-func (s Field_slot) HasType() bool {
+func (s Fieldslot) HasType() bool {
 	p, err := s.Struct.Ptr(2)
 	return p.IsValid() || err != nil
 }
 
-func (s Field_slot) SetType(v Type) error {
+func (s Fieldslot) SetType(v Type) error {
 	return s.Struct.SetPtr(2, v.Struct.ToPtr())
 }
 
 // NewType sets the type field to a newly
 // allocated Type struct, preferring placement in s's segment.
-func (s Field_slot) NewType() (Type, error) {
+func (s Fieldslot) NewType() (Type, error) {
 	ss, err := NewType(s.Struct.Segment())
 	if err != nil {
 		return Type{}, err
@@ -943,23 +1005,27 @@ func (s Field_slot) NewType() (Type, error) {
 	return ss, err
 }
 
-func (s Field_slot) DefaultValue() (Value, error) {
+func (s Fieldslot) DefaultValue(e *capnp.ErrorSet) Value {
 	p, err := s.Struct.Ptr(3)
-	return Value{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Value{}
+	}
+	return Value{Struct: p.Struct()}
 }
 
-func (s Field_slot) HasDefaultValue() bool {
+func (s Fieldslot) HasDefaultValue() bool {
 	p, err := s.Struct.Ptr(3)
 	return p.IsValid() || err != nil
 }
 
-func (s Field_slot) SetDefaultValue(v Value) error {
+func (s Fieldslot) SetDefaultValue(v Value) error {
 	return s.Struct.SetPtr(3, v.Struct.ToPtr())
 }
 
 // NewDefaultValue sets the defaultValue field to a newly
 // allocated Value struct, preferring placement in s's segment.
-func (s Field_slot) NewDefaultValue() (Value, error) {
+func (s Fieldslot) NewDefaultValue() (Value, error) {
 	ss, err := NewValue(s.Struct.Segment())
 	if err != nil {
 		return Value{}, err
@@ -968,43 +1034,43 @@ func (s Field_slot) NewDefaultValue() (Value, error) {
 	return ss, err
 }
 
-func (s Field_slot) HadExplicitDefault() bool {
+func (s Fieldslot) HadExplicitDefault() bool {
 	return s.Struct.Bit(128)
 }
 
-func (s Field_slot) SetHadExplicitDefault(v bool) {
+func (s Fieldslot) SetHadExplicitDefault(v bool) {
 	s.Struct.SetBit(128, v)
 }
 
-func (s Field) Group() Field_group { return Field_group(s) }
+func (s Field) Group() Fieldgroup { return Fieldgroup(s) }
 
 func (s Field) SetGroup() {
 	s.Struct.SetUint16(8, 1)
 }
 
-func (s Field_group) TypeId() uint64 {
+func (s Fieldgroup) TypeId() uint64 {
 	return s.Struct.Uint64(16)
 }
 
-func (s Field_group) SetTypeId(v uint64) {
+func (s Fieldgroup) SetTypeId(v uint64) {
 	s.Struct.SetUint64(16, v)
 }
 
-func (s Field) Ordinal() Field_ordinal { return Field_ordinal(s) }
+func (s Field) Ordinal() Fieldordinal { return Fieldordinal(s) }
 
-func (s Field_ordinal) Which() Field_ordinal_Which {
-	return Field_ordinal_Which(s.Struct.Uint16(10))
+func (s Fieldordinal) Which() Fieldordinal_Which {
+	return Fieldordinal_Which(s.Struct.Uint16(10))
 }
-func (s Field_ordinal) SetImplicit() {
+func (s Fieldordinal) SetImplicit() {
 	s.Struct.SetUint16(10, 0)
 
 }
 
-func (s Field_ordinal) Explicit() uint16 {
+func (s Fieldordinal) Explicit() uint16 {
 	return s.Struct.Uint16(12)
 }
 
-func (s Field_ordinal) SetExplicit(v uint16) {
+func (s Fieldordinal) SetExplicit(v uint16) {
 	s.Struct.SetUint16(10, 1)
 	s.Struct.SetUint16(12, v)
 }
@@ -1030,42 +1096,42 @@ func (p Field_Promise) Struct() (Field, error) {
 	return Field{s}, err
 }
 
-func (p Field_Promise) Slot() Field_slot_Promise { return Field_slot_Promise{p.Pipeline} }
+func (p Field_Promise) Slot() Fieldslot_Promise { return Fieldslot_Promise{p.Pipeline} }
 
-// Field_slot_Promise is a wrapper for a Field_slot promised by a client call.
-type Field_slot_Promise struct{ *capnp.Pipeline }
+// Fieldslot_Promise is a wrapper for a Fieldslot promised by a client call.
+type Fieldslot_Promise struct{ *capnp.Pipeline }
 
-func (p Field_slot_Promise) Struct() (Field_slot, error) {
+func (p Fieldslot_Promise) Struct() (Fieldslot, error) {
 	s, err := p.Pipeline.Struct()
-	return Field_slot{s}, err
+	return Fieldslot{s}, err
 }
 
-func (p Field_slot_Promise) Type() Type_Promise {
+func (p Fieldslot_Promise) Type() Type_Promise {
 	return Type_Promise{Pipeline: p.Pipeline.GetPipeline(2)}
 }
 
-func (p Field_slot_Promise) DefaultValue() Value_Promise {
+func (p Fieldslot_Promise) DefaultValue() Value_Promise {
 	return Value_Promise{Pipeline: p.Pipeline.GetPipeline(3)}
 }
 
-func (p Field_Promise) Group() Field_group_Promise { return Field_group_Promise{p.Pipeline} }
+func (p Field_Promise) Group() Fieldgroup_Promise { return Fieldgroup_Promise{p.Pipeline} }
 
-// Field_group_Promise is a wrapper for a Field_group promised by a client call.
-type Field_group_Promise struct{ *capnp.Pipeline }
+// Fieldgroup_Promise is a wrapper for a Fieldgroup promised by a client call.
+type Fieldgroup_Promise struct{ *capnp.Pipeline }
 
-func (p Field_group_Promise) Struct() (Field_group, error) {
+func (p Fieldgroup_Promise) Struct() (Fieldgroup, error) {
 	s, err := p.Pipeline.Struct()
-	return Field_group{s}, err
+	return Fieldgroup{s}, err
 }
 
-func (p Field_Promise) Ordinal() Field_ordinal_Promise { return Field_ordinal_Promise{p.Pipeline} }
+func (p Field_Promise) Ordinal() Fieldordinal_Promise { return Fieldordinal_Promise{p.Pipeline} }
 
-// Field_ordinal_Promise is a wrapper for a Field_ordinal promised by a client call.
-type Field_ordinal_Promise struct{ *capnp.Pipeline }
+// Fieldordinal_Promise is a wrapper for a Fieldordinal promised by a client call.
+type Fieldordinal_Promise struct{ *capnp.Pipeline }
 
-func (p Field_ordinal_Promise) Struct() (Field_ordinal, error) {
+func (p Fieldordinal_Promise) Struct() (Fieldordinal, error) {
 	s, err := p.Pipeline.Struct()
-	return Field_ordinal{s}, err
+	return Fieldordinal{s}, err
 }
 
 type Enumerant struct{ capnp.Struct }
@@ -1088,9 +1154,13 @@ func ReadRootEnumerant(msg *capnp.Message) (Enumerant, error) {
 	return Enumerant{root.Struct()}, err
 }
 
-func (s Enumerant) Name() (string, error) {
+func (s Enumerant) Name(e *capnp.ErrorSet) string {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	if err != nil {
+		*e = append(*e, err)
+		return ""
+	}
+	return p.Text()
 }
 
 func (s Enumerant) HasName() bool {
@@ -1119,9 +1189,13 @@ func (s Enumerant) SetCodeOrder(v uint16) {
 	s.Struct.SetUint16(0, v)
 }
 
-func (s Enumerant) Annotations() (Annotation_List, error) {
+func (s Enumerant) Annotations(e *capnp.ErrorSet) Annotation_List {
 	p, err := s.Struct.Ptr(1)
-	return Annotation_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Annotation_List{}
+	}
+	return Annotation_List{List: p.List()}
 }
 
 func (s Enumerant) HasAnnotations() bool {
@@ -1193,9 +1267,13 @@ func (s Superclass) SetId(v uint64) {
 	s.Struct.SetUint64(0, v)
 }
 
-func (s Superclass) Brand() (Brand, error) {
+func (s Superclass) Brand(e *capnp.ErrorSet) Brand {
 	p, err := s.Struct.Ptr(0)
-	return Brand{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Brand{}
+	}
+	return Brand{Struct: p.Struct()}
 }
 
 func (s Superclass) HasBrand() bool {
@@ -1263,9 +1341,13 @@ func ReadRootMethod(msg *capnp.Message) (Method, error) {
 	return Method{root.Struct()}, err
 }
 
-func (s Method) Name() (string, error) {
+func (s Method) Name(e *capnp.ErrorSet) string {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	if err != nil {
+		*e = append(*e, err)
+		return ""
+	}
+	return p.Text()
 }
 
 func (s Method) HasName() bool {
@@ -1294,9 +1376,13 @@ func (s Method) SetCodeOrder(v uint16) {
 	s.Struct.SetUint16(0, v)
 }
 
-func (s Method) ImplicitParameters() (Node_Parameter_List, error) {
+func (s Method) ImplicitParameters(e *capnp.ErrorSet) NodeParameter_List {
 	p, err := s.Struct.Ptr(4)
-	return Node_Parameter_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return NodeParameter_List{}
+	}
+	return NodeParameter_List{List: p.List()}
 }
 
 func (s Method) HasImplicitParameters() bool {
@@ -1304,16 +1390,16 @@ func (s Method) HasImplicitParameters() bool {
 	return p.IsValid() || err != nil
 }
 
-func (s Method) SetImplicitParameters(v Node_Parameter_List) error {
+func (s Method) SetImplicitParameters(v NodeParameter_List) error {
 	return s.Struct.SetPtr(4, v.List.ToPtr())
 }
 
 // NewImplicitParameters sets the implicitParameters field to a newly
-// allocated Node_Parameter_List, preferring placement in s's segment.
-func (s Method) NewImplicitParameters(n int32) (Node_Parameter_List, error) {
-	l, err := NewNode_Parameter_List(s.Struct.Segment(), n)
+// allocated NodeParameter_List, preferring placement in s's segment.
+func (s Method) NewImplicitParameters(n int32) (NodeParameter_List, error) {
+	l, err := NewNodeParameter_List(s.Struct.Segment(), n)
 	if err != nil {
-		return Node_Parameter_List{}, err
+		return NodeParameter_List{}, err
 	}
 	err = s.Struct.SetPtr(4, l.List.ToPtr())
 	return l, err
@@ -1327,9 +1413,13 @@ func (s Method) SetParamStructType(v uint64) {
 	s.Struct.SetUint64(8, v)
 }
 
-func (s Method) ParamBrand() (Brand, error) {
+func (s Method) ParamBrand(e *capnp.ErrorSet) Brand {
 	p, err := s.Struct.Ptr(2)
-	return Brand{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Brand{}
+	}
+	return Brand{Struct: p.Struct()}
 }
 
 func (s Method) HasParamBrand() bool {
@@ -1360,9 +1450,13 @@ func (s Method) SetResultStructType(v uint64) {
 	s.Struct.SetUint64(16, v)
 }
 
-func (s Method) ResultBrand() (Brand, error) {
+func (s Method) ResultBrand(e *capnp.ErrorSet) Brand {
 	p, err := s.Struct.Ptr(3)
-	return Brand{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Brand{}
+	}
+	return Brand{Struct: p.Struct()}
 }
 
 func (s Method) HasResultBrand() bool {
@@ -1385,9 +1479,13 @@ func (s Method) NewResultBrand() (Brand, error) {
 	return ss, err
 }
 
-func (s Method) Annotations() (Annotation_List, error) {
+func (s Method) Annotations(e *capnp.ErrorSet) Annotation_List {
 	p, err := s.Struct.Ptr(1)
-	return Annotation_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Annotation_List{}
+	}
+	return Annotation_List{List: p.List()}
 }
 
 func (s Method) HasAnnotations() bool {
@@ -1440,14 +1538,14 @@ func (p Method_Promise) ResultBrand() Brand_Promise {
 }
 
 type Type struct{ capnp.Struct }
-type Type_list Type
-type Type_enum Type
-type Type_structType Type
-type Type_interface Type
-type Type_anyPointer Type
-type Type_anyPointer_unconstrained Type
-type Type_anyPointer_parameter Type
-type Type_anyPointer_implicitMethodParameter Type
+type Typelist Type
+type Typeenum Type
+type TypestructType Type
+type Typeinterface Type
+type TypeanyPointer Type
+type TypeanyPointerunconstrained Type
+type TypeanyPointerparameter Type
+type TypeanyPointerimplicitMethodParameter Type
 type Type_Which uint16
 
 const (
@@ -1518,63 +1616,63 @@ func (w Type_Which) String() string {
 	return "Type_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
 }
 
-type Type_anyPointer_Which uint16
+type TypeanyPointer_Which uint16
 
 const (
-	Type_anyPointer_Which_unconstrained           Type_anyPointer_Which = 0
-	Type_anyPointer_Which_parameter               Type_anyPointer_Which = 1
-	Type_anyPointer_Which_implicitMethodParameter Type_anyPointer_Which = 2
+	TypeanyPointer_Which_unconstrained           TypeanyPointer_Which = 0
+	TypeanyPointer_Which_parameter               TypeanyPointer_Which = 1
+	TypeanyPointer_Which_implicitMethodParameter TypeanyPointer_Which = 2
 )
 
-func (w Type_anyPointer_Which) String() string {
+func (w TypeanyPointer_Which) String() string {
 	const s = "unconstrainedparameterimplicitMethodParameter"
 	switch w {
-	case Type_anyPointer_Which_unconstrained:
+	case TypeanyPointer_Which_unconstrained:
 		return s[0:13]
-	case Type_anyPointer_Which_parameter:
+	case TypeanyPointer_Which_parameter:
 		return s[13:22]
-	case Type_anyPointer_Which_implicitMethodParameter:
+	case TypeanyPointer_Which_implicitMethodParameter:
 		return s[22:45]
 
 	}
-	return "Type_anyPointer_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
+	return "TypeanyPointer_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
 }
 
-type Type_anyPointer_unconstrained_Which uint16
+type TypeanyPointerunconstrained_Which uint16
 
 const (
-	Type_anyPointer_unconstrained_Which_anyKind    Type_anyPointer_unconstrained_Which = 0
-	Type_anyPointer_unconstrained_Which_struct     Type_anyPointer_unconstrained_Which = 1
-	Type_anyPointer_unconstrained_Which_list       Type_anyPointer_unconstrained_Which = 2
-	Type_anyPointer_unconstrained_Which_capability Type_anyPointer_unconstrained_Which = 3
+	TypeanyPointerunconstrained_Which_anyKind    TypeanyPointerunconstrained_Which = 0
+	TypeanyPointerunconstrained_Which_struct     TypeanyPointerunconstrained_Which = 1
+	TypeanyPointerunconstrained_Which_list       TypeanyPointerunconstrained_Which = 2
+	TypeanyPointerunconstrained_Which_capability TypeanyPointerunconstrained_Which = 3
 )
 
-func (w Type_anyPointer_unconstrained_Which) String() string {
+func (w TypeanyPointerunconstrained_Which) String() string {
 	const s = "anyKindstructlistcapability"
 	switch w {
-	case Type_anyPointer_unconstrained_Which_anyKind:
+	case TypeanyPointerunconstrained_Which_anyKind:
 		return s[0:7]
-	case Type_anyPointer_unconstrained_Which_struct:
+	case TypeanyPointerunconstrained_Which_struct:
 		return s[7:13]
-	case Type_anyPointer_unconstrained_Which_list:
+	case TypeanyPointerunconstrained_Which_list:
 		return s[13:17]
-	case Type_anyPointer_unconstrained_Which_capability:
+	case TypeanyPointerunconstrained_Which_capability:
 		return s[17:27]
 
 	}
-	return "Type_anyPointer_unconstrained_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
+	return "TypeanyPointerunconstrained_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
 }
 
 // Type_TypeID is the unique identifier for the type Type.
 const Type_TypeID = 0xd07378ede1f9cc60
 
 func NewType(s *capnp.Segment) (Type, error) {
-	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1})
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
 	return Type{st}, err
 }
 
 func NewRootType(s *capnp.Segment) (Type, error) {
-	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1})
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
 	return Type{st}, err
 }
 
@@ -1656,29 +1754,33 @@ func (s Type) SetData() {
 
 }
 
-func (s Type) List() Type_list { return Type_list(s) }
+func (s Type) List() Typelist { return Typelist(s) }
 
 func (s Type) SetList() {
 	s.Struct.SetUint16(0, 14)
 }
 
-func (s Type_list) ElementType() (Type, error) {
+func (s Typelist) ElementType(e *capnp.ErrorSet) Type {
 	p, err := s.Struct.Ptr(0)
-	return Type{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Type{}
+	}
+	return Type{Struct: p.Struct()}
 }
 
-func (s Type_list) HasElementType() bool {
+func (s Typelist) HasElementType() bool {
 	p, err := s.Struct.Ptr(0)
 	return p.IsValid() || err != nil
 }
 
-func (s Type_list) SetElementType(v Type) error {
+func (s Typelist) SetElementType(v Type) error {
 	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewElementType sets the elementType field to a newly
 // allocated Type struct, preferring placement in s's segment.
-func (s Type_list) NewElementType() (Type, error) {
+func (s Typelist) NewElementType() (Type, error) {
 	ss, err := NewType(s.Struct.Segment())
 	if err != nil {
 		return Type{}, err
@@ -1687,37 +1789,41 @@ func (s Type_list) NewElementType() (Type, error) {
 	return ss, err
 }
 
-func (s Type) Enum() Type_enum { return Type_enum(s) }
+func (s Type) Enum() Typeenum { return Typeenum(s) }
 
 func (s Type) SetEnum() {
 	s.Struct.SetUint16(0, 15)
 }
 
-func (s Type_enum) TypeId() uint64 {
+func (s Typeenum) TypeId() uint64 {
 	return s.Struct.Uint64(8)
 }
 
-func (s Type_enum) SetTypeId(v uint64) {
+func (s Typeenum) SetTypeId(v uint64) {
 	s.Struct.SetUint64(8, v)
 }
 
-func (s Type_enum) Brand() (Brand, error) {
+func (s Typeenum) Brand(e *capnp.ErrorSet) Brand {
 	p, err := s.Struct.Ptr(0)
-	return Brand{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Brand{}
+	}
+	return Brand{Struct: p.Struct()}
 }
 
-func (s Type_enum) HasBrand() bool {
+func (s Typeenum) HasBrand() bool {
 	p, err := s.Struct.Ptr(0)
 	return p.IsValid() || err != nil
 }
 
-func (s Type_enum) SetBrand(v Brand) error {
+func (s Typeenum) SetBrand(v Brand) error {
 	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewBrand sets the brand field to a newly
 // allocated Brand struct, preferring placement in s's segment.
-func (s Type_enum) NewBrand() (Brand, error) {
+func (s Typeenum) NewBrand() (Brand, error) {
 	ss, err := NewBrand(s.Struct.Segment())
 	if err != nil {
 		return Brand{}, err
@@ -1726,37 +1832,41 @@ func (s Type_enum) NewBrand() (Brand, error) {
 	return ss, err
 }
 
-func (s Type) StructType() Type_structType { return Type_structType(s) }
+func (s Type) StructType() TypestructType { return TypestructType(s) }
 
 func (s Type) SetStructType() {
 	s.Struct.SetUint16(0, 16)
 }
 
-func (s Type_structType) TypeId() uint64 {
+func (s TypestructType) TypeId() uint64 {
 	return s.Struct.Uint64(8)
 }
 
-func (s Type_structType) SetTypeId(v uint64) {
+func (s TypestructType) SetTypeId(v uint64) {
 	s.Struct.SetUint64(8, v)
 }
 
-func (s Type_structType) Brand() (Brand, error) {
+func (s TypestructType) Brand(e *capnp.ErrorSet) Brand {
 	p, err := s.Struct.Ptr(0)
-	return Brand{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Brand{}
+	}
+	return Brand{Struct: p.Struct()}
 }
 
-func (s Type_structType) HasBrand() bool {
+func (s TypestructType) HasBrand() bool {
 	p, err := s.Struct.Ptr(0)
 	return p.IsValid() || err != nil
 }
 
-func (s Type_structType) SetBrand(v Brand) error {
+func (s TypestructType) SetBrand(v Brand) error {
 	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewBrand sets the brand field to a newly
 // allocated Brand struct, preferring placement in s's segment.
-func (s Type_structType) NewBrand() (Brand, error) {
+func (s TypestructType) NewBrand() (Brand, error) {
 	ss, err := NewBrand(s.Struct.Segment())
 	if err != nil {
 		return Brand{}, err
@@ -1765,37 +1875,41 @@ func (s Type_structType) NewBrand() (Brand, error) {
 	return ss, err
 }
 
-func (s Type) Interface() Type_interface { return Type_interface(s) }
+func (s Type) Interface() Typeinterface { return Typeinterface(s) }
 
 func (s Type) SetInterface() {
 	s.Struct.SetUint16(0, 17)
 }
 
-func (s Type_interface) TypeId() uint64 {
+func (s Typeinterface) TypeId() uint64 {
 	return s.Struct.Uint64(8)
 }
 
-func (s Type_interface) SetTypeId(v uint64) {
+func (s Typeinterface) SetTypeId(v uint64) {
 	s.Struct.SetUint64(8, v)
 }
 
-func (s Type_interface) Brand() (Brand, error) {
+func (s Typeinterface) Brand(e *capnp.ErrorSet) Brand {
 	p, err := s.Struct.Ptr(0)
-	return Brand{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Brand{}
+	}
+	return Brand{Struct: p.Struct()}
 }
 
-func (s Type_interface) HasBrand() bool {
+func (s Typeinterface) HasBrand() bool {
 	p, err := s.Struct.Ptr(0)
 	return p.IsValid() || err != nil
 }
 
-func (s Type_interface) SetBrand(v Brand) error {
+func (s Typeinterface) SetBrand(v Brand) error {
 	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewBrand sets the brand field to a newly
 // allocated Brand struct, preferring placement in s's segment.
-func (s Type_interface) NewBrand() (Brand, error) {
+func (s Typeinterface) NewBrand() (Brand, error) {
 	ss, err := NewBrand(s.Struct.Segment())
 	if err != nil {
 		return Brand{}, err
@@ -1804,82 +1918,82 @@ func (s Type_interface) NewBrand() (Brand, error) {
 	return ss, err
 }
 
-func (s Type) AnyPointer() Type_anyPointer { return Type_anyPointer(s) }
+func (s Type) AnyPointer() TypeanyPointer { return TypeanyPointer(s) }
 
 func (s Type) SetAnyPointer() {
 	s.Struct.SetUint16(0, 18)
 }
 
-func (s Type_anyPointer) Which() Type_anyPointer_Which {
-	return Type_anyPointer_Which(s.Struct.Uint16(8))
+func (s TypeanyPointer) Which() TypeanyPointer_Which {
+	return TypeanyPointer_Which(s.Struct.Uint16(4))
 }
-func (s Type_anyPointer) Unconstrained() Type_anyPointer_unconstrained {
-	return Type_anyPointer_unconstrained(s)
-}
-
-func (s Type_anyPointer) SetUnconstrained() {
-	s.Struct.SetUint16(8, 0)
+func (s TypeanyPointer) Unconstrained() TypeanyPointerunconstrained {
+	return TypeanyPointerunconstrained(s)
 }
 
-func (s Type_anyPointer_unconstrained) Which() Type_anyPointer_unconstrained_Which {
-	return Type_anyPointer_unconstrained_Which(s.Struct.Uint16(10))
-}
-func (s Type_anyPointer_unconstrained) SetAnyKind() {
-	s.Struct.SetUint16(10, 0)
-
+func (s TypeanyPointer) SetUnconstrained() {
+	s.Struct.SetUint16(4, 0)
 }
 
-func (s Type_anyPointer_unconstrained) SetStruct() {
-	s.Struct.SetUint16(10, 1)
+func (s TypeanyPointerunconstrained) Which() TypeanyPointerunconstrained_Which {
+	return TypeanyPointerunconstrained_Which(s.Struct.Uint16(2))
+}
+func (s TypeanyPointerunconstrained) SetAnyKind() {
+	s.Struct.SetUint16(2, 0)
 
 }
 
-func (s Type_anyPointer_unconstrained) SetList() {
-	s.Struct.SetUint16(10, 2)
+func (s TypeanyPointerunconstrained) SetStruct() {
+	s.Struct.SetUint16(2, 1)
 
 }
 
-func (s Type_anyPointer_unconstrained) SetCapability() {
-	s.Struct.SetUint16(10, 3)
+func (s TypeanyPointerunconstrained) SetList() {
+	s.Struct.SetUint16(2, 2)
 
 }
 
-func (s Type_anyPointer) Parameter() Type_anyPointer_parameter { return Type_anyPointer_parameter(s) }
+func (s TypeanyPointerunconstrained) SetCapability() {
+	s.Struct.SetUint16(2, 3)
 
-func (s Type_anyPointer) SetParameter() {
-	s.Struct.SetUint16(8, 1)
 }
 
-func (s Type_anyPointer_parameter) ScopeId() uint64 {
-	return s.Struct.Uint64(16)
+func (s TypeanyPointer) Parameter() TypeanyPointerparameter { return TypeanyPointerparameter(s) }
+
+func (s TypeanyPointer) SetParameter() {
+	s.Struct.SetUint16(4, 1)
 }
 
-func (s Type_anyPointer_parameter) SetScopeId(v uint64) {
-	s.Struct.SetUint64(16, v)
+func (s TypeanyPointerparameter) ScopeId() uint64 {
+	return s.Struct.Uint64(8)
 }
 
-func (s Type_anyPointer_parameter) ParameterIndex() uint16 {
-	return s.Struct.Uint16(10)
+func (s TypeanyPointerparameter) SetScopeId(v uint64) {
+	s.Struct.SetUint64(8, v)
 }
 
-func (s Type_anyPointer_parameter) SetParameterIndex(v uint16) {
-	s.Struct.SetUint16(10, v)
+func (s TypeanyPointerparameter) ParameterIndex() uint16 {
+	return s.Struct.Uint16(2)
 }
 
-func (s Type_anyPointer) ImplicitMethodParameter() Type_anyPointer_implicitMethodParameter {
-	return Type_anyPointer_implicitMethodParameter(s)
+func (s TypeanyPointerparameter) SetParameterIndex(v uint16) {
+	s.Struct.SetUint16(2, v)
 }
 
-func (s Type_anyPointer) SetImplicitMethodParameter() {
-	s.Struct.SetUint16(8, 2)
+func (s TypeanyPointer) ImplicitMethodParameter() TypeanyPointerimplicitMethodParameter {
+	return TypeanyPointerimplicitMethodParameter(s)
 }
 
-func (s Type_anyPointer_implicitMethodParameter) ParameterIndex() uint16 {
-	return s.Struct.Uint16(10)
+func (s TypeanyPointer) SetImplicitMethodParameter() {
+	s.Struct.SetUint16(4, 2)
 }
 
-func (s Type_anyPointer_implicitMethodParameter) SetParameterIndex(v uint16) {
-	s.Struct.SetUint16(10, v)
+func (s TypeanyPointerimplicitMethodParameter) ParameterIndex() uint16 {
+	return s.Struct.Uint16(2)
+}
+
+func (s TypeanyPointerimplicitMethodParameter) SetParameterIndex(v uint16) {
+	s.Struct.SetUint16(2, v)
 }
 
 // Type_List is a list of Type.
@@ -1887,7 +2001,7 @@ type Type_List struct{ capnp.List }
 
 // NewType creates a new list of Type.
 func NewType_List(s *capnp.Segment, sz int32) (Type_List, error) {
-	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 24, PointerCount: 1}, sz)
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1}, sz)
 	return Type_List{l}, err
 }
 
@@ -1903,106 +2017,106 @@ func (p Type_Promise) Struct() (Type, error) {
 	return Type{s}, err
 }
 
-func (p Type_Promise) List() Type_list_Promise { return Type_list_Promise{p.Pipeline} }
+func (p Type_Promise) List() Typelist_Promise { return Typelist_Promise{p.Pipeline} }
 
-// Type_list_Promise is a wrapper for a Type_list promised by a client call.
-type Type_list_Promise struct{ *capnp.Pipeline }
+// Typelist_Promise is a wrapper for a Typelist promised by a client call.
+type Typelist_Promise struct{ *capnp.Pipeline }
 
-func (p Type_list_Promise) Struct() (Type_list, error) {
+func (p Typelist_Promise) Struct() (Typelist, error) {
 	s, err := p.Pipeline.Struct()
-	return Type_list{s}, err
+	return Typelist{s}, err
 }
 
-func (p Type_list_Promise) ElementType() Type_Promise {
+func (p Typelist_Promise) ElementType() Type_Promise {
 	return Type_Promise{Pipeline: p.Pipeline.GetPipeline(0)}
 }
 
-func (p Type_Promise) Enum() Type_enum_Promise { return Type_enum_Promise{p.Pipeline} }
+func (p Type_Promise) Enum() Typeenum_Promise { return Typeenum_Promise{p.Pipeline} }
 
-// Type_enum_Promise is a wrapper for a Type_enum promised by a client call.
-type Type_enum_Promise struct{ *capnp.Pipeline }
+// Typeenum_Promise is a wrapper for a Typeenum promised by a client call.
+type Typeenum_Promise struct{ *capnp.Pipeline }
 
-func (p Type_enum_Promise) Struct() (Type_enum, error) {
+func (p Typeenum_Promise) Struct() (Typeenum, error) {
 	s, err := p.Pipeline.Struct()
-	return Type_enum{s}, err
+	return Typeenum{s}, err
 }
 
-func (p Type_enum_Promise) Brand() Brand_Promise {
+func (p Typeenum_Promise) Brand() Brand_Promise {
 	return Brand_Promise{Pipeline: p.Pipeline.GetPipeline(0)}
 }
 
-func (p Type_Promise) StructType() Type_structType_Promise { return Type_structType_Promise{p.Pipeline} }
+func (p Type_Promise) StructType() TypestructType_Promise { return TypestructType_Promise{p.Pipeline} }
 
-// Type_structType_Promise is a wrapper for a Type_structType promised by a client call.
-type Type_structType_Promise struct{ *capnp.Pipeline }
+// TypestructType_Promise is a wrapper for a TypestructType promised by a client call.
+type TypestructType_Promise struct{ *capnp.Pipeline }
 
-func (p Type_structType_Promise) Struct() (Type_structType, error) {
+func (p TypestructType_Promise) Struct() (TypestructType, error) {
 	s, err := p.Pipeline.Struct()
-	return Type_structType{s}, err
+	return TypestructType{s}, err
 }
 
-func (p Type_structType_Promise) Brand() Brand_Promise {
+func (p TypestructType_Promise) Brand() Brand_Promise {
 	return Brand_Promise{Pipeline: p.Pipeline.GetPipeline(0)}
 }
 
-func (p Type_Promise) Interface() Type_interface_Promise { return Type_interface_Promise{p.Pipeline} }
+func (p Type_Promise) Interface() Typeinterface_Promise { return Typeinterface_Promise{p.Pipeline} }
 
-// Type_interface_Promise is a wrapper for a Type_interface promised by a client call.
-type Type_interface_Promise struct{ *capnp.Pipeline }
+// Typeinterface_Promise is a wrapper for a Typeinterface promised by a client call.
+type Typeinterface_Promise struct{ *capnp.Pipeline }
 
-func (p Type_interface_Promise) Struct() (Type_interface, error) {
+func (p Typeinterface_Promise) Struct() (Typeinterface, error) {
 	s, err := p.Pipeline.Struct()
-	return Type_interface{s}, err
+	return Typeinterface{s}, err
 }
 
-func (p Type_interface_Promise) Brand() Brand_Promise {
+func (p Typeinterface_Promise) Brand() Brand_Promise {
 	return Brand_Promise{Pipeline: p.Pipeline.GetPipeline(0)}
 }
 
-func (p Type_Promise) AnyPointer() Type_anyPointer_Promise { return Type_anyPointer_Promise{p.Pipeline} }
+func (p Type_Promise) AnyPointer() TypeanyPointer_Promise { return TypeanyPointer_Promise{p.Pipeline} }
 
-// Type_anyPointer_Promise is a wrapper for a Type_anyPointer promised by a client call.
-type Type_anyPointer_Promise struct{ *capnp.Pipeline }
+// TypeanyPointer_Promise is a wrapper for a TypeanyPointer promised by a client call.
+type TypeanyPointer_Promise struct{ *capnp.Pipeline }
 
-func (p Type_anyPointer_Promise) Struct() (Type_anyPointer, error) {
+func (p TypeanyPointer_Promise) Struct() (TypeanyPointer, error) {
 	s, err := p.Pipeline.Struct()
-	return Type_anyPointer{s}, err
+	return TypeanyPointer{s}, err
 }
 
-func (p Type_anyPointer_Promise) Unconstrained() Type_anyPointer_unconstrained_Promise {
-	return Type_anyPointer_unconstrained_Promise{p.Pipeline}
+func (p TypeanyPointer_Promise) Unconstrained() TypeanyPointerunconstrained_Promise {
+	return TypeanyPointerunconstrained_Promise{p.Pipeline}
 }
 
-// Type_anyPointer_unconstrained_Promise is a wrapper for a Type_anyPointer_unconstrained promised by a client call.
-type Type_anyPointer_unconstrained_Promise struct{ *capnp.Pipeline }
+// TypeanyPointerunconstrained_Promise is a wrapper for a TypeanyPointerunconstrained promised by a client call.
+type TypeanyPointerunconstrained_Promise struct{ *capnp.Pipeline }
 
-func (p Type_anyPointer_unconstrained_Promise) Struct() (Type_anyPointer_unconstrained, error) {
+func (p TypeanyPointerunconstrained_Promise) Struct() (TypeanyPointerunconstrained, error) {
 	s, err := p.Pipeline.Struct()
-	return Type_anyPointer_unconstrained{s}, err
+	return TypeanyPointerunconstrained{s}, err
 }
 
-func (p Type_anyPointer_Promise) Parameter() Type_anyPointer_parameter_Promise {
-	return Type_anyPointer_parameter_Promise{p.Pipeline}
+func (p TypeanyPointer_Promise) Parameter() TypeanyPointerparameter_Promise {
+	return TypeanyPointerparameter_Promise{p.Pipeline}
 }
 
-// Type_anyPointer_parameter_Promise is a wrapper for a Type_anyPointer_parameter promised by a client call.
-type Type_anyPointer_parameter_Promise struct{ *capnp.Pipeline }
+// TypeanyPointerparameter_Promise is a wrapper for a TypeanyPointerparameter promised by a client call.
+type TypeanyPointerparameter_Promise struct{ *capnp.Pipeline }
 
-func (p Type_anyPointer_parameter_Promise) Struct() (Type_anyPointer_parameter, error) {
+func (p TypeanyPointerparameter_Promise) Struct() (TypeanyPointerparameter, error) {
 	s, err := p.Pipeline.Struct()
-	return Type_anyPointer_parameter{s}, err
+	return TypeanyPointerparameter{s}, err
 }
 
-func (p Type_anyPointer_Promise) ImplicitMethodParameter() Type_anyPointer_implicitMethodParameter_Promise {
-	return Type_anyPointer_implicitMethodParameter_Promise{p.Pipeline}
+func (p TypeanyPointer_Promise) ImplicitMethodParameter() TypeanyPointerimplicitMethodParameter_Promise {
+	return TypeanyPointerimplicitMethodParameter_Promise{p.Pipeline}
 }
 
-// Type_anyPointer_implicitMethodParameter_Promise is a wrapper for a Type_anyPointer_implicitMethodParameter promised by a client call.
-type Type_anyPointer_implicitMethodParameter_Promise struct{ *capnp.Pipeline }
+// TypeanyPointerimplicitMethodParameter_Promise is a wrapper for a TypeanyPointerimplicitMethodParameter promised by a client call.
+type TypeanyPointerimplicitMethodParameter_Promise struct{ *capnp.Pipeline }
 
-func (p Type_anyPointer_implicitMethodParameter_Promise) Struct() (Type_anyPointer_implicitMethodParameter, error) {
+func (p TypeanyPointerimplicitMethodParameter_Promise) Struct() (TypeanyPointerimplicitMethodParameter, error) {
 	s, err := p.Pipeline.Struct()
-	return Type_anyPointer_implicitMethodParameter{s}, err
+	return TypeanyPointerimplicitMethodParameter{s}, err
 }
 
 type Brand struct{ capnp.Struct }
@@ -2025,9 +2139,13 @@ func ReadRootBrand(msg *capnp.Message) (Brand, error) {
 	return Brand{root.Struct()}, err
 }
 
-func (s Brand) Scopes() (Brand_Scope_List, error) {
+func (s Brand) Scopes(e *capnp.ErrorSet) BrandScope_List {
 	p, err := s.Struct.Ptr(0)
-	return Brand_Scope_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return BrandScope_List{}
+	}
+	return BrandScope_List{List: p.List()}
 }
 
 func (s Brand) HasScopes() bool {
@@ -2035,16 +2153,16 @@ func (s Brand) HasScopes() bool {
 	return p.IsValid() || err != nil
 }
 
-func (s Brand) SetScopes(v Brand_Scope_List) error {
+func (s Brand) SetScopes(v BrandScope_List) error {
 	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewScopes sets the scopes field to a newly
-// allocated Brand_Scope_List, preferring placement in s's segment.
-func (s Brand) NewScopes(n int32) (Brand_Scope_List, error) {
-	l, err := NewBrand_Scope_List(s.Struct.Segment(), n)
+// allocated BrandScope_List, preferring placement in s's segment.
+func (s Brand) NewScopes(n int32) (BrandScope_List, error) {
+	l, err := NewBrandScope_List(s.Struct.Segment(), n)
 	if err != nil {
-		return Brand_Scope_List{}, err
+		return BrandScope_List{}, err
 	}
 	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
@@ -2071,172 +2189,180 @@ func (p Brand_Promise) Struct() (Brand, error) {
 	return Brand{s}, err
 }
 
-type Brand_Scope struct{ capnp.Struct }
-type Brand_Scope_Which uint16
+type BrandScope struct{ capnp.Struct }
+type BrandScope_Which uint16
 
 const (
-	Brand_Scope_Which_bind    Brand_Scope_Which = 0
-	Brand_Scope_Which_inherit Brand_Scope_Which = 1
+	BrandScope_Which_bind    BrandScope_Which = 0
+	BrandScope_Which_inherit BrandScope_Which = 1
 )
 
-func (w Brand_Scope_Which) String() string {
+func (w BrandScope_Which) String() string {
 	const s = "bindinherit"
 	switch w {
-	case Brand_Scope_Which_bind:
+	case BrandScope_Which_bind:
 		return s[0:4]
-	case Brand_Scope_Which_inherit:
+	case BrandScope_Which_inherit:
 		return s[4:11]
 
 	}
-	return "Brand_Scope_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
+	return "BrandScope_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
 }
 
-// Brand_Scope_TypeID is the unique identifier for the type Brand_Scope.
-const Brand_Scope_TypeID = 0xabd73485a9636bc9
+// BrandScope_TypeID is the unique identifier for the type BrandScope.
+const BrandScope_TypeID = 0xabd73485a9636bc9
 
-func NewBrand_Scope(s *capnp.Segment) (Brand_Scope, error) {
+func NewBrandScope(s *capnp.Segment) (BrandScope, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
-	return Brand_Scope{st}, err
+	return BrandScope{st}, err
 }
 
-func NewRootBrand_Scope(s *capnp.Segment) (Brand_Scope, error) {
+func NewRootBrandScope(s *capnp.Segment) (BrandScope, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1})
-	return Brand_Scope{st}, err
+	return BrandScope{st}, err
 }
 
-func ReadRootBrand_Scope(msg *capnp.Message) (Brand_Scope, error) {
+func ReadRootBrandScope(msg *capnp.Message) (BrandScope, error) {
 	root, err := msg.RootPtr()
-	return Brand_Scope{root.Struct()}, err
+	return BrandScope{root.Struct()}, err
 }
 
-func (s Brand_Scope) Which() Brand_Scope_Which {
-	return Brand_Scope_Which(s.Struct.Uint16(8))
+func (s BrandScope) Which() BrandScope_Which {
+	return BrandScope_Which(s.Struct.Uint16(8))
 }
-func (s Brand_Scope) ScopeId() uint64 {
+func (s BrandScope) ScopeId() uint64 {
 	return s.Struct.Uint64(0)
 }
 
-func (s Brand_Scope) SetScopeId(v uint64) {
+func (s BrandScope) SetScopeId(v uint64) {
 	s.Struct.SetUint64(0, v)
 }
 
-func (s Brand_Scope) Bind() (Brand_Binding_List, error) {
+func (s BrandScope) Bind(e *capnp.ErrorSet) BrandBinding_List {
 	p, err := s.Struct.Ptr(0)
-	return Brand_Binding_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return BrandBinding_List{}
+	}
+	return BrandBinding_List{List: p.List()}
 }
 
-func (s Brand_Scope) HasBind() bool {
+func (s BrandScope) HasBind() bool {
 	p, err := s.Struct.Ptr(0)
 	return p.IsValid() || err != nil
 }
 
-func (s Brand_Scope) SetBind(v Brand_Binding_List) error {
+func (s BrandScope) SetBind(v BrandBinding_List) error {
 	s.Struct.SetUint16(8, 0)
 	return s.Struct.SetPtr(0, v.List.ToPtr())
 }
 
 // NewBind sets the bind field to a newly
-// allocated Brand_Binding_List, preferring placement in s's segment.
-func (s Brand_Scope) NewBind(n int32) (Brand_Binding_List, error) {
+// allocated BrandBinding_List, preferring placement in s's segment.
+func (s BrandScope) NewBind(n int32) (BrandBinding_List, error) {
 	s.Struct.SetUint16(8, 0)
-	l, err := NewBrand_Binding_List(s.Struct.Segment(), n)
+	l, err := NewBrandBinding_List(s.Struct.Segment(), n)
 	if err != nil {
-		return Brand_Binding_List{}, err
+		return BrandBinding_List{}, err
 	}
 	err = s.Struct.SetPtr(0, l.List.ToPtr())
 	return l, err
 }
 
-func (s Brand_Scope) SetInherit() {
+func (s BrandScope) SetInherit() {
 	s.Struct.SetUint16(8, 1)
 
 }
 
-// Brand_Scope_List is a list of Brand_Scope.
-type Brand_Scope_List struct{ capnp.List }
+// BrandScope_List is a list of BrandScope.
+type BrandScope_List struct{ capnp.List }
 
-// NewBrand_Scope creates a new list of Brand_Scope.
-func NewBrand_Scope_List(s *capnp.Segment, sz int32) (Brand_Scope_List, error) {
+// NewBrandScope creates a new list of BrandScope.
+func NewBrandScope_List(s *capnp.Segment, sz int32) (BrandScope_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 16, PointerCount: 1}, sz)
-	return Brand_Scope_List{l}, err
+	return BrandScope_List{l}, err
 }
 
-func (s Brand_Scope_List) At(i int) Brand_Scope { return Brand_Scope{s.List.Struct(i)} }
+func (s BrandScope_List) At(i int) BrandScope { return BrandScope{s.List.Struct(i)} }
 
-func (s Brand_Scope_List) Set(i int, v Brand_Scope) error { return s.List.SetStruct(i, v.Struct) }
+func (s BrandScope_List) Set(i int, v BrandScope) error { return s.List.SetStruct(i, v.Struct) }
 
-// Brand_Scope_Promise is a wrapper for a Brand_Scope promised by a client call.
-type Brand_Scope_Promise struct{ *capnp.Pipeline }
+// BrandScope_Promise is a wrapper for a BrandScope promised by a client call.
+type BrandScope_Promise struct{ *capnp.Pipeline }
 
-func (p Brand_Scope_Promise) Struct() (Brand_Scope, error) {
+func (p BrandScope_Promise) Struct() (BrandScope, error) {
 	s, err := p.Pipeline.Struct()
-	return Brand_Scope{s}, err
+	return BrandScope{s}, err
 }
 
-type Brand_Binding struct{ capnp.Struct }
-type Brand_Binding_Which uint16
+type BrandBinding struct{ capnp.Struct }
+type BrandBinding_Which uint16
 
 const (
-	Brand_Binding_Which_unbound Brand_Binding_Which = 0
-	Brand_Binding_Which_type    Brand_Binding_Which = 1
+	BrandBinding_Which_unbound BrandBinding_Which = 0
+	BrandBinding_Which_type    BrandBinding_Which = 1
 )
 
-func (w Brand_Binding_Which) String() string {
+func (w BrandBinding_Which) String() string {
 	const s = "unboundtype"
 	switch w {
-	case Brand_Binding_Which_unbound:
+	case BrandBinding_Which_unbound:
 		return s[0:7]
-	case Brand_Binding_Which_type:
+	case BrandBinding_Which_type:
 		return s[7:11]
 
 	}
-	return "Brand_Binding_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
+	return "BrandBinding_Which(" + strconv.FormatUint(uint64(w), 10) + ")"
 }
 
-// Brand_Binding_TypeID is the unique identifier for the type Brand_Binding.
-const Brand_Binding_TypeID = 0xc863cd16969ee7fc
+// BrandBinding_TypeID is the unique identifier for the type BrandBinding.
+const BrandBinding_TypeID = 0xc863cd16969ee7fc
 
-func NewBrand_Binding(s *capnp.Segment) (Brand_Binding, error) {
+func NewBrandBinding(s *capnp.Segment) (BrandBinding, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Brand_Binding{st}, err
+	return BrandBinding{st}, err
 }
 
-func NewRootBrand_Binding(s *capnp.Segment) (Brand_Binding, error) {
+func NewRootBrandBinding(s *capnp.Segment) (BrandBinding, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return Brand_Binding{st}, err
+	return BrandBinding{st}, err
 }
 
-func ReadRootBrand_Binding(msg *capnp.Message) (Brand_Binding, error) {
+func ReadRootBrandBinding(msg *capnp.Message) (BrandBinding, error) {
 	root, err := msg.RootPtr()
-	return Brand_Binding{root.Struct()}, err
+	return BrandBinding{root.Struct()}, err
 }
 
-func (s Brand_Binding) Which() Brand_Binding_Which {
-	return Brand_Binding_Which(s.Struct.Uint16(0))
+func (s BrandBinding) Which() BrandBinding_Which {
+	return BrandBinding_Which(s.Struct.Uint16(0))
 }
-func (s Brand_Binding) SetUnbound() {
+func (s BrandBinding) SetUnbound() {
 	s.Struct.SetUint16(0, 0)
 
 }
 
-func (s Brand_Binding) Type() (Type, error) {
+func (s BrandBinding) Type(e *capnp.ErrorSet) Type {
 	p, err := s.Struct.Ptr(0)
-	return Type{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Type{}
+	}
+	return Type{Struct: p.Struct()}
 }
 
-func (s Brand_Binding) HasType() bool {
+func (s BrandBinding) HasType() bool {
 	p, err := s.Struct.Ptr(0)
 	return p.IsValid() || err != nil
 }
 
-func (s Brand_Binding) SetType(v Type) error {
+func (s BrandBinding) SetType(v Type) error {
 	s.Struct.SetUint16(0, 1)
 	return s.Struct.SetPtr(0, v.Struct.ToPtr())
 }
 
 // NewType sets the type field to a newly
 // allocated Type struct, preferring placement in s's segment.
-func (s Brand_Binding) NewType() (Type, error) {
+func (s BrandBinding) NewType() (Type, error) {
 	s.Struct.SetUint16(0, 1)
 	ss, err := NewType(s.Struct.Segment())
 	if err != nil {
@@ -2246,28 +2372,28 @@ func (s Brand_Binding) NewType() (Type, error) {
 	return ss, err
 }
 
-// Brand_Binding_List is a list of Brand_Binding.
-type Brand_Binding_List struct{ capnp.List }
+// BrandBinding_List is a list of BrandBinding.
+type BrandBinding_List struct{ capnp.List }
 
-// NewBrand_Binding creates a new list of Brand_Binding.
-func NewBrand_Binding_List(s *capnp.Segment, sz int32) (Brand_Binding_List, error) {
+// NewBrandBinding creates a new list of BrandBinding.
+func NewBrandBinding_List(s *capnp.Segment, sz int32) (BrandBinding_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return Brand_Binding_List{l}, err
+	return BrandBinding_List{l}, err
 }
 
-func (s Brand_Binding_List) At(i int) Brand_Binding { return Brand_Binding{s.List.Struct(i)} }
+func (s BrandBinding_List) At(i int) BrandBinding { return BrandBinding{s.List.Struct(i)} }
 
-func (s Brand_Binding_List) Set(i int, v Brand_Binding) error { return s.List.SetStruct(i, v.Struct) }
+func (s BrandBinding_List) Set(i int, v BrandBinding) error { return s.List.SetStruct(i, v.Struct) }
 
-// Brand_Binding_Promise is a wrapper for a Brand_Binding promised by a client call.
-type Brand_Binding_Promise struct{ *capnp.Pipeline }
+// BrandBinding_Promise is a wrapper for a BrandBinding promised by a client call.
+type BrandBinding_Promise struct{ *capnp.Pipeline }
 
-func (p Brand_Binding_Promise) Struct() (Brand_Binding, error) {
+func (p BrandBinding_Promise) Struct() (BrandBinding, error) {
 	s, err := p.Pipeline.Struct()
-	return Brand_Binding{s}, err
+	return BrandBinding{s}, err
 }
 
-func (p Brand_Binding_Promise) Type() Type_Promise {
+func (p BrandBinding_Promise) Type() Type_Promise {
 	return Type_Promise{Pipeline: p.Pipeline.GetPipeline(0)}
 }
 
@@ -2467,9 +2593,13 @@ func (s Value) SetFloat64(v float64) {
 	s.Struct.SetUint64(8, math.Float64bits(v))
 }
 
-func (s Value) Text() (string, error) {
+func (s Value) Text(e *capnp.ErrorSet) string {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	if err != nil {
+		*e = append(*e, err)
+		return ""
+	}
+	return p.Text()
 }
 
 func (s Value) HasText() bool {
@@ -2491,9 +2621,13 @@ func (s Value) SetText(v string) error {
 	return s.Struct.SetPtr(0, t.List.ToPtr())
 }
 
-func (s Value) Data() ([]byte, error) {
+func (s Value) Data(e *capnp.ErrorSet) []byte {
 	p, err := s.Struct.Ptr(0)
-	return []byte(p.Data()), err
+	if err != nil {
+		*e = append(*e, err)
+		return []byte(nil)
+	}
+	return []byte(p.Data())
 }
 
 func (s Value) HasData() bool {
@@ -2510,8 +2644,13 @@ func (s Value) SetData(v []byte) error {
 	return s.Struct.SetPtr(0, d.List.ToPtr())
 }
 
-func (s Value) List() (capnp.Pointer, error) {
-	return s.Struct.Pointer(0)
+func (s Value) List(e *capnp.ErrorSet) capnp.Pointer {
+	p, err := s.Struct.Pointer(0)
+	if err != nil {
+		*e = append(*e, err)
+		return nil
+	}
+	return p
 }
 
 func (s Value) HasList() bool {
@@ -2542,8 +2681,13 @@ func (s Value) SetEnum(v uint16) {
 	s.Struct.SetUint16(2, v)
 }
 
-func (s Value) StructValue() (capnp.Pointer, error) {
-	return s.Struct.Pointer(0)
+func (s Value) StructValue(e *capnp.ErrorSet) capnp.Pointer {
+	p, err := s.Struct.Pointer(0)
+	if err != nil {
+		*e = append(*e, err)
+		return nil
+	}
+	return p
 }
 
 func (s Value) HasStructValue() bool {
@@ -2570,8 +2714,13 @@ func (s Value) SetInterface() {
 
 }
 
-func (s Value) AnyPointer() (capnp.Pointer, error) {
-	return s.Struct.Pointer(0)
+func (s Value) AnyPointer(e *capnp.ErrorSet) capnp.Pointer {
+	p, err := s.Struct.Pointer(0)
+	if err != nil {
+		*e = append(*e, err)
+		return nil
+	}
+	return p
 }
 
 func (s Value) HasAnyPointer() bool {
@@ -2654,9 +2803,13 @@ func (s Annotation) SetId(v uint64) {
 	s.Struct.SetUint64(0, v)
 }
 
-func (s Annotation) Brand() (Brand, error) {
+func (s Annotation) Brand(e *capnp.ErrorSet) Brand {
 	p, err := s.Struct.Ptr(1)
-	return Brand{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Brand{}
+	}
+	return Brand{Struct: p.Struct()}
 }
 
 func (s Annotation) HasBrand() bool {
@@ -2679,9 +2832,13 @@ func (s Annotation) NewBrand() (Brand, error) {
 	return ss, err
 }
 
-func (s Annotation) Value() (Value, error) {
+func (s Annotation) Value(e *capnp.ErrorSet) Value {
 	p, err := s.Struct.Ptr(0)
-	return Value{Struct: p.Struct()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Value{}
+	}
+	return Value{Struct: p.Struct()}
 }
 
 func (s Annotation) HasValue() bool {
@@ -2737,34 +2894,34 @@ type ElementSize uint16
 
 // Values of ElementSize.
 const (
-	ElementSize_empty           ElementSize = 0
-	ElementSize_bit             ElementSize = 1
-	ElementSize_byte            ElementSize = 2
-	ElementSize_twoBytes        ElementSize = 3
-	ElementSize_fourBytes       ElementSize = 4
-	ElementSize_eightBytes      ElementSize = 5
-	ElementSize_pointer         ElementSize = 6
-	ElementSize_inlineComposite ElementSize = 7
+	ELEMENTSIZE_EMPTY           ElementSize = 0
+	ELEMENTSIZE_BIT             ElementSize = 1
+	ELEMENTSIZE_BYTE            ElementSize = 2
+	ELEMENTSIZE_TWOBYTES        ElementSize = 3
+	ELEMENTSIZE_FOURBYTES       ElementSize = 4
+	ELEMENTSIZE_EIGHTBYTES      ElementSize = 5
+	ELEMENTSIZE_POINTER         ElementSize = 6
+	ELEMENTSIZE_INLINECOMPOSITE ElementSize = 7
 )
 
 // String returns the enum's constant name.
 func (c ElementSize) String() string {
 	switch c {
-	case ElementSize_empty:
+	case ELEMENTSIZE_EMPTY:
 		return "empty"
-	case ElementSize_bit:
+	case ELEMENTSIZE_BIT:
 		return "bit"
-	case ElementSize_byte:
+	case ELEMENTSIZE_BYTE:
 		return "byte"
-	case ElementSize_twoBytes:
+	case ELEMENTSIZE_TWOBYTES:
 		return "twoBytes"
-	case ElementSize_fourBytes:
+	case ELEMENTSIZE_FOURBYTES:
 		return "fourBytes"
-	case ElementSize_eightBytes:
+	case ELEMENTSIZE_EIGHTBYTES:
 		return "eightBytes"
-	case ElementSize_pointer:
+	case ELEMENTSIZE_POINTER:
 		return "pointer"
-	case ElementSize_inlineComposite:
+	case ELEMENTSIZE_INLINECOMPOSITE:
 		return "inlineComposite"
 
 	default:
@@ -2777,21 +2934,21 @@ func (c ElementSize) String() string {
 func ElementSizeFromString(c string) ElementSize {
 	switch c {
 	case "empty":
-		return ElementSize_empty
+		return ELEMENTSIZE_EMPTY
 	case "bit":
-		return ElementSize_bit
+		return ELEMENTSIZE_BIT
 	case "byte":
-		return ElementSize_byte
+		return ELEMENTSIZE_BYTE
 	case "twoBytes":
-		return ElementSize_twoBytes
+		return ELEMENTSIZE_TWOBYTES
 	case "fourBytes":
-		return ElementSize_fourBytes
+		return ELEMENTSIZE_FOURBYTES
 	case "eightBytes":
-		return ElementSize_eightBytes
+		return ELEMENTSIZE_EIGHTBYTES
 	case "pointer":
-		return ElementSize_pointer
+		return ELEMENTSIZE_POINTER
 	case "inlineComposite":
-		return ElementSize_inlineComposite
+		return ELEMENTSIZE_INLINECOMPOSITE
 
 	default:
 		return 0
@@ -2835,9 +2992,13 @@ func ReadRootCodeGeneratorRequest(msg *capnp.Message) (CodeGeneratorRequest, err
 	return CodeGeneratorRequest{root.Struct()}, err
 }
 
-func (s CodeGeneratorRequest) Nodes() (Node_List, error) {
+func (s CodeGeneratorRequest) Nodes(e *capnp.ErrorSet) Node_List {
 	p, err := s.Struct.Ptr(0)
-	return Node_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return Node_List{}
+	}
+	return Node_List{List: p.List()}
 }
 
 func (s CodeGeneratorRequest) HasNodes() bool {
@@ -2860,9 +3021,13 @@ func (s CodeGeneratorRequest) NewNodes(n int32) (Node_List, error) {
 	return l, err
 }
 
-func (s CodeGeneratorRequest) RequestedFiles() (CodeGeneratorRequest_RequestedFile_List, error) {
+func (s CodeGeneratorRequest) RequestedFiles(e *capnp.ErrorSet) CodeGeneratorRequestRequestedFile_List {
 	p, err := s.Struct.Ptr(1)
-	return CodeGeneratorRequest_RequestedFile_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return CodeGeneratorRequestRequestedFile_List{}
+	}
+	return CodeGeneratorRequestRequestedFile_List{List: p.List()}
 }
 
 func (s CodeGeneratorRequest) HasRequestedFiles() bool {
@@ -2870,16 +3035,16 @@ func (s CodeGeneratorRequest) HasRequestedFiles() bool {
 	return p.IsValid() || err != nil
 }
 
-func (s CodeGeneratorRequest) SetRequestedFiles(v CodeGeneratorRequest_RequestedFile_List) error {
+func (s CodeGeneratorRequest) SetRequestedFiles(v CodeGeneratorRequestRequestedFile_List) error {
 	return s.Struct.SetPtr(1, v.List.ToPtr())
 }
 
 // NewRequestedFiles sets the requestedFiles field to a newly
-// allocated CodeGeneratorRequest_RequestedFile_List, preferring placement in s's segment.
-func (s CodeGeneratorRequest) NewRequestedFiles(n int32) (CodeGeneratorRequest_RequestedFile_List, error) {
-	l, err := NewCodeGeneratorRequest_RequestedFile_List(s.Struct.Segment(), n)
+// allocated CodeGeneratorRequestRequestedFile_List, preferring placement in s's segment.
+func (s CodeGeneratorRequest) NewRequestedFiles(n int32) (CodeGeneratorRequestRequestedFile_List, error) {
+	l, err := NewCodeGeneratorRequestRequestedFile_List(s.Struct.Segment(), n)
 	if err != nil {
-		return CodeGeneratorRequest_RequestedFile_List{}, err
+		return CodeGeneratorRequestRequestedFile_List{}, err
 	}
 	err = s.Struct.SetPtr(1, l.List.ToPtr())
 	return l, err
@@ -2910,50 +3075,54 @@ func (p CodeGeneratorRequest_Promise) Struct() (CodeGeneratorRequest, error) {
 	return CodeGeneratorRequest{s}, err
 }
 
-type CodeGeneratorRequest_RequestedFile struct{ capnp.Struct }
+type CodeGeneratorRequestRequestedFile struct{ capnp.Struct }
 
-// CodeGeneratorRequest_RequestedFile_TypeID is the unique identifier for the type CodeGeneratorRequest_RequestedFile.
-const CodeGeneratorRequest_RequestedFile_TypeID = 0xcfea0eb02e810062
+// CodeGeneratorRequestRequestedFile_TypeID is the unique identifier for the type CodeGeneratorRequestRequestedFile.
+const CodeGeneratorRequestRequestedFile_TypeID = 0xcfea0eb02e810062
 
-func NewCodeGeneratorRequest_RequestedFile(s *capnp.Segment) (CodeGeneratorRequest_RequestedFile, error) {
+func NewCodeGeneratorRequestRequestedFile(s *capnp.Segment) (CodeGeneratorRequestRequestedFile, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
-	return CodeGeneratorRequest_RequestedFile{st}, err
+	return CodeGeneratorRequestRequestedFile{st}, err
 }
 
-func NewRootCodeGeneratorRequest_RequestedFile(s *capnp.Segment) (CodeGeneratorRequest_RequestedFile, error) {
+func NewRootCodeGeneratorRequestRequestedFile(s *capnp.Segment) (CodeGeneratorRequestRequestedFile, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2})
-	return CodeGeneratorRequest_RequestedFile{st}, err
+	return CodeGeneratorRequestRequestedFile{st}, err
 }
 
-func ReadRootCodeGeneratorRequest_RequestedFile(msg *capnp.Message) (CodeGeneratorRequest_RequestedFile, error) {
+func ReadRootCodeGeneratorRequestRequestedFile(msg *capnp.Message) (CodeGeneratorRequestRequestedFile, error) {
 	root, err := msg.RootPtr()
-	return CodeGeneratorRequest_RequestedFile{root.Struct()}, err
+	return CodeGeneratorRequestRequestedFile{root.Struct()}, err
 }
 
-func (s CodeGeneratorRequest_RequestedFile) Id() uint64 {
+func (s CodeGeneratorRequestRequestedFile) Id() uint64 {
 	return s.Struct.Uint64(0)
 }
 
-func (s CodeGeneratorRequest_RequestedFile) SetId(v uint64) {
+func (s CodeGeneratorRequestRequestedFile) SetId(v uint64) {
 	s.Struct.SetUint64(0, v)
 }
 
-func (s CodeGeneratorRequest_RequestedFile) Filename() (string, error) {
+func (s CodeGeneratorRequestRequestedFile) Filename(e *capnp.ErrorSet) string {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	if err != nil {
+		*e = append(*e, err)
+		return ""
+	}
+	return p.Text()
 }
 
-func (s CodeGeneratorRequest_RequestedFile) HasFilename() bool {
+func (s CodeGeneratorRequestRequestedFile) HasFilename() bool {
 	p, err := s.Struct.Ptr(0)
 	return p.IsValid() || err != nil
 }
 
-func (s CodeGeneratorRequest_RequestedFile) FilenameBytes() ([]byte, error) {
+func (s CodeGeneratorRequestRequestedFile) FilenameBytes() ([]byte, error) {
 	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
-func (s CodeGeneratorRequest_RequestedFile) SetFilename(v string) error {
+func (s CodeGeneratorRequestRequestedFile) SetFilename(v string) error {
 	t, err := capnp.NewText(s.Struct.Segment(), v)
 	if err != nil {
 		return err
@@ -2961,100 +3130,108 @@ func (s CodeGeneratorRequest_RequestedFile) SetFilename(v string) error {
 	return s.Struct.SetPtr(0, t.List.ToPtr())
 }
 
-func (s CodeGeneratorRequest_RequestedFile) Imports() (CodeGeneratorRequest_RequestedFile_Import_List, error) {
+func (s CodeGeneratorRequestRequestedFile) Imports(e *capnp.ErrorSet) CodeGeneratorRequestRequestedFileImport_List {
 	p, err := s.Struct.Ptr(1)
-	return CodeGeneratorRequest_RequestedFile_Import_List{List: p.List()}, err
+	if err != nil {
+		*e = append(*e, err)
+		return CodeGeneratorRequestRequestedFileImport_List{}
+	}
+	return CodeGeneratorRequestRequestedFileImport_List{List: p.List()}
 }
 
-func (s CodeGeneratorRequest_RequestedFile) HasImports() bool {
+func (s CodeGeneratorRequestRequestedFile) HasImports() bool {
 	p, err := s.Struct.Ptr(1)
 	return p.IsValid() || err != nil
 }
 
-func (s CodeGeneratorRequest_RequestedFile) SetImports(v CodeGeneratorRequest_RequestedFile_Import_List) error {
+func (s CodeGeneratorRequestRequestedFile) SetImports(v CodeGeneratorRequestRequestedFileImport_List) error {
 	return s.Struct.SetPtr(1, v.List.ToPtr())
 }
 
 // NewImports sets the imports field to a newly
-// allocated CodeGeneratorRequest_RequestedFile_Import_List, preferring placement in s's segment.
-func (s CodeGeneratorRequest_RequestedFile) NewImports(n int32) (CodeGeneratorRequest_RequestedFile_Import_List, error) {
-	l, err := NewCodeGeneratorRequest_RequestedFile_Import_List(s.Struct.Segment(), n)
+// allocated CodeGeneratorRequestRequestedFileImport_List, preferring placement in s's segment.
+func (s CodeGeneratorRequestRequestedFile) NewImports(n int32) (CodeGeneratorRequestRequestedFileImport_List, error) {
+	l, err := NewCodeGeneratorRequestRequestedFileImport_List(s.Struct.Segment(), n)
 	if err != nil {
-		return CodeGeneratorRequest_RequestedFile_Import_List{}, err
+		return CodeGeneratorRequestRequestedFileImport_List{}, err
 	}
 	err = s.Struct.SetPtr(1, l.List.ToPtr())
 	return l, err
 }
 
-// CodeGeneratorRequest_RequestedFile_List is a list of CodeGeneratorRequest_RequestedFile.
-type CodeGeneratorRequest_RequestedFile_List struct{ capnp.List }
+// CodeGeneratorRequestRequestedFile_List is a list of CodeGeneratorRequestRequestedFile.
+type CodeGeneratorRequestRequestedFile_List struct{ capnp.List }
 
-// NewCodeGeneratorRequest_RequestedFile creates a new list of CodeGeneratorRequest_RequestedFile.
-func NewCodeGeneratorRequest_RequestedFile_List(s *capnp.Segment, sz int32) (CodeGeneratorRequest_RequestedFile_List, error) {
+// NewCodeGeneratorRequestRequestedFile creates a new list of CodeGeneratorRequestRequestedFile.
+func NewCodeGeneratorRequestRequestedFile_List(s *capnp.Segment, sz int32) (CodeGeneratorRequestRequestedFile_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 2}, sz)
-	return CodeGeneratorRequest_RequestedFile_List{l}, err
+	return CodeGeneratorRequestRequestedFile_List{l}, err
 }
 
-func (s CodeGeneratorRequest_RequestedFile_List) At(i int) CodeGeneratorRequest_RequestedFile {
-	return CodeGeneratorRequest_RequestedFile{s.List.Struct(i)}
+func (s CodeGeneratorRequestRequestedFile_List) At(i int) CodeGeneratorRequestRequestedFile {
+	return CodeGeneratorRequestRequestedFile{s.List.Struct(i)}
 }
 
-func (s CodeGeneratorRequest_RequestedFile_List) Set(i int, v CodeGeneratorRequest_RequestedFile) error {
+func (s CodeGeneratorRequestRequestedFile_List) Set(i int, v CodeGeneratorRequestRequestedFile) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
-// CodeGeneratorRequest_RequestedFile_Promise is a wrapper for a CodeGeneratorRequest_RequestedFile promised by a client call.
-type CodeGeneratorRequest_RequestedFile_Promise struct{ *capnp.Pipeline }
+// CodeGeneratorRequestRequestedFile_Promise is a wrapper for a CodeGeneratorRequestRequestedFile promised by a client call.
+type CodeGeneratorRequestRequestedFile_Promise struct{ *capnp.Pipeline }
 
-func (p CodeGeneratorRequest_RequestedFile_Promise) Struct() (CodeGeneratorRequest_RequestedFile, error) {
+func (p CodeGeneratorRequestRequestedFile_Promise) Struct() (CodeGeneratorRequestRequestedFile, error) {
 	s, err := p.Pipeline.Struct()
-	return CodeGeneratorRequest_RequestedFile{s}, err
+	return CodeGeneratorRequestRequestedFile{s}, err
 }
 
-type CodeGeneratorRequest_RequestedFile_Import struct{ capnp.Struct }
+type CodeGeneratorRequestRequestedFileImport struct{ capnp.Struct }
 
-// CodeGeneratorRequest_RequestedFile_Import_TypeID is the unique identifier for the type CodeGeneratorRequest_RequestedFile_Import.
-const CodeGeneratorRequest_RequestedFile_Import_TypeID = 0xae504193122357e5
+// CodeGeneratorRequestRequestedFileImport_TypeID is the unique identifier for the type CodeGeneratorRequestRequestedFileImport.
+const CodeGeneratorRequestRequestedFileImport_TypeID = 0xae504193122357e5
 
-func NewCodeGeneratorRequest_RequestedFile_Import(s *capnp.Segment) (CodeGeneratorRequest_RequestedFile_Import, error) {
+func NewCodeGeneratorRequestRequestedFileImport(s *capnp.Segment) (CodeGeneratorRequestRequestedFileImport, error) {
 	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return CodeGeneratorRequest_RequestedFile_Import{st}, err
+	return CodeGeneratorRequestRequestedFileImport{st}, err
 }
 
-func NewRootCodeGeneratorRequest_RequestedFile_Import(s *capnp.Segment) (CodeGeneratorRequest_RequestedFile_Import, error) {
+func NewRootCodeGeneratorRequestRequestedFileImport(s *capnp.Segment) (CodeGeneratorRequestRequestedFileImport, error) {
 	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1})
-	return CodeGeneratorRequest_RequestedFile_Import{st}, err
+	return CodeGeneratorRequestRequestedFileImport{st}, err
 }
 
-func ReadRootCodeGeneratorRequest_RequestedFile_Import(msg *capnp.Message) (CodeGeneratorRequest_RequestedFile_Import, error) {
+func ReadRootCodeGeneratorRequestRequestedFileImport(msg *capnp.Message) (CodeGeneratorRequestRequestedFileImport, error) {
 	root, err := msg.RootPtr()
-	return CodeGeneratorRequest_RequestedFile_Import{root.Struct()}, err
+	return CodeGeneratorRequestRequestedFileImport{root.Struct()}, err
 }
 
-func (s CodeGeneratorRequest_RequestedFile_Import) Id() uint64 {
+func (s CodeGeneratorRequestRequestedFileImport) Id() uint64 {
 	return s.Struct.Uint64(0)
 }
 
-func (s CodeGeneratorRequest_RequestedFile_Import) SetId(v uint64) {
+func (s CodeGeneratorRequestRequestedFileImport) SetId(v uint64) {
 	s.Struct.SetUint64(0, v)
 }
 
-func (s CodeGeneratorRequest_RequestedFile_Import) Name() (string, error) {
+func (s CodeGeneratorRequestRequestedFileImport) Name(e *capnp.ErrorSet) string {
 	p, err := s.Struct.Ptr(0)
-	return p.Text(), err
+	if err != nil {
+		*e = append(*e, err)
+		return ""
+	}
+	return p.Text()
 }
 
-func (s CodeGeneratorRequest_RequestedFile_Import) HasName() bool {
+func (s CodeGeneratorRequestRequestedFileImport) HasName() bool {
 	p, err := s.Struct.Ptr(0)
 	return p.IsValid() || err != nil
 }
 
-func (s CodeGeneratorRequest_RequestedFile_Import) NameBytes() ([]byte, error) {
+func (s CodeGeneratorRequestRequestedFileImport) NameBytes() ([]byte, error) {
 	p, err := s.Struct.Ptr(0)
 	return p.TextBytes(), err
 }
 
-func (s CodeGeneratorRequest_RequestedFile_Import) SetName(v string) error {
+func (s CodeGeneratorRequestRequestedFileImport) SetName(v string) error {
 	t, err := capnp.NewText(s.Struct.Segment(), v)
 	if err != nil {
 		return err
@@ -3062,283 +3239,286 @@ func (s CodeGeneratorRequest_RequestedFile_Import) SetName(v string) error {
 	return s.Struct.SetPtr(0, t.List.ToPtr())
 }
 
-// CodeGeneratorRequest_RequestedFile_Import_List is a list of CodeGeneratorRequest_RequestedFile_Import.
-type CodeGeneratorRequest_RequestedFile_Import_List struct{ capnp.List }
+// CodeGeneratorRequestRequestedFileImport_List is a list of CodeGeneratorRequestRequestedFileImport.
+type CodeGeneratorRequestRequestedFileImport_List struct{ capnp.List }
 
-// NewCodeGeneratorRequest_RequestedFile_Import creates a new list of CodeGeneratorRequest_RequestedFile_Import.
-func NewCodeGeneratorRequest_RequestedFile_Import_List(s *capnp.Segment, sz int32) (CodeGeneratorRequest_RequestedFile_Import_List, error) {
+// NewCodeGeneratorRequestRequestedFileImport creates a new list of CodeGeneratorRequestRequestedFileImport.
+func NewCodeGeneratorRequestRequestedFileImport_List(s *capnp.Segment, sz int32) (CodeGeneratorRequestRequestedFileImport_List, error) {
 	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 8, PointerCount: 1}, sz)
-	return CodeGeneratorRequest_RequestedFile_Import_List{l}, err
+	return CodeGeneratorRequestRequestedFileImport_List{l}, err
 }
 
-func (s CodeGeneratorRequest_RequestedFile_Import_List) At(i int) CodeGeneratorRequest_RequestedFile_Import {
-	return CodeGeneratorRequest_RequestedFile_Import{s.List.Struct(i)}
+func (s CodeGeneratorRequestRequestedFileImport_List) At(i int) CodeGeneratorRequestRequestedFileImport {
+	return CodeGeneratorRequestRequestedFileImport{s.List.Struct(i)}
 }
 
-func (s CodeGeneratorRequest_RequestedFile_Import_List) Set(i int, v CodeGeneratorRequest_RequestedFile_Import) error {
+func (s CodeGeneratorRequestRequestedFileImport_List) Set(i int, v CodeGeneratorRequestRequestedFileImport) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
-// CodeGeneratorRequest_RequestedFile_Import_Promise is a wrapper for a CodeGeneratorRequest_RequestedFile_Import promised by a client call.
-type CodeGeneratorRequest_RequestedFile_Import_Promise struct{ *capnp.Pipeline }
+// CodeGeneratorRequestRequestedFileImport_Promise is a wrapper for a CodeGeneratorRequestRequestedFileImport promised by a client call.
+type CodeGeneratorRequestRequestedFileImport_Promise struct{ *capnp.Pipeline }
 
-func (p CodeGeneratorRequest_RequestedFile_Import_Promise) Struct() (CodeGeneratorRequest_RequestedFile_Import, error) {
+func (p CodeGeneratorRequestRequestedFileImport_Promise) Struct() (CodeGeneratorRequestRequestedFileImport, error) {
 	s, err := p.Pipeline.Struct()
-	return CodeGeneratorRequest_RequestedFile_Import{s}, err
+	return CodeGeneratorRequestRequestedFileImport{s}, err
 }
 
-const schema_a93fc509624c72d9 = "x\xda\xacY}\x90\x14\xe5\x99\x7f\xdf\x9e\xaf\xfd\x1af" +
-	"z{\x10\x97\x08\x03\x08*D7\xb0\x0b\x1cn\xe4\x16" +
-	"\x16\x16\x03\xb7\x90\x1d\x06P\xa8\xb3B\xefN/\xdbf" +
-	"\xb6g\xe8\xe9\xd1]\x0ek\xd1\x8ae\xce;\xcf\x8f\xd3" +
-	"\xe8\x91\xc4\xca\xe5HU<\xcd\x05\xee\xa4*\x12s\x9a" +
-	"-9\x81\xc2D\xefL\x19\x12\xbd\x0bV\x88\x9ew\x9e" +
-	"p\xa71~\xf6\xfd\x9e\xb7{\xba{\x87\xde\xa8\x15\xff" +
-	"\x98\xdd\xe9\xdf\xf3\xce\xfb\xf1<\xcf\xef\xf9x{\xf1g" +
-	"\x9bWIKb\xd9i\x8c\xe5\x0e\xc4\xe2\xf6\xfd\xaf\xed" +
-	"lZp\xe5+\xb7\xb1\\+\x8f\xd8;O\xbes\xfa" +
-	"\xf5\xd1\xca\xb3l:Op\xc6\x94\xb7\xe2G\x18\xc7\xdf" +
-	"n\xc6\xedm\xcb\xb7\x7f8\xf6\xa5\xcf\xff\x15\xcb\xcd\xc2" +
-	"\xc8s\xeb\xff\xf8\xdb\xafv_3\xc1\xb6bd\x94\xc7" +
-	":\xdb\x12;8\xc6.H\xbc\x82\xb1\x9f\xed\xd1v\x9e" +
-	"\xdd\xba\xf4.&'\xb9}\xca\xec\x1bh<\xda\xfd\x10" +
-	"\x8b\xf1\x04\xe6\xfc \xb1_\x895\\\x8aom\x0d\x98" +
-	"\xf7\x89}\x1b;?\xff\xf2\xc9\xfbrI\xcc\xea\x0f\x8d" +
-	"\xd1\xd0\xf5\x0d\xdfVr\x0d\xf8\xd6\xb9\xb1\xe1i\xccn" +
-	"o\xdc\xbf\xe5\xc5\xff\xda{\xfb\xfd\x0c\xa3\x83\x13K4" +
-	"zk\xd3\x11\xe5\xba&\xfa\xb6\xbd\xe9\xfb\x18\xdc\xfa\xf4" +
-	"\x87{\xff\xb9\xef\xd0\xfdLV\xa2\xf6\x97\xde\xdc\x90=" +
-	"\xd0\xff\xbd\xfd\x8c\xf1\xce\xc6\xe6V\xae\xb45cd>" +
-	"\xd3\x1c\xe1\xf99\xcd\x12\x0e\xeb\x0f\x99\xbc\x95\xdehB" +
-	"\xe2QEn\xde\x8f\xdf\xcc\xc0^\x164\xdfI{\xb9" +
-	"u\x83\xfa\xe6\xfc\xb7\x9f\xfbf\x9d>\x1c\xcdu\x8e\xb5" +
-	"t\x91:nn\xb9\x11C\x1f\xbam|\xe6\xee\xd1i" +
-	"\x0f\x86+\xf9t\x0b)\xf9\xb4\x18\xb9l\xed{\x7f\xf4" +
-	"\xf5C\xdf\x12#c\xf6\x8c\x03\x17\xbf\xd3\xf7\xf0-\xbf" +
-	"a\xd3\xe3b\xe4\xca\xe4\x09l\x7fuR\xac\xff\xbb\x17" +
-	"\x0e<\xfb\xe0\xa2\xaf=T\xaf\x0b\xa1\xe4w\xa6M(" +
-	"<%\xd4=\x8d\xe6=\xfe\xe5\xc1\x87n]\xfa\xc2\xc3" +
-	",\xa7p\xc97O/\x17g\xdb\x9e:\xa1hb\xb4" +
-	"\x9a\"\xcd\xfd\xdb\xbf\xf4\xbd\xb1\xb3\xd4\xf5H\xf8~\x1b" +
-	"\xd3\xd8\x85\x92L\xd3\xbcg\xae\xb9\xb8\xf5\xafW\xf7\xff" +
-	"\x03\xcb-\xe6\xfc\x83\x81\x9b\xdb\x0fN{\xed\xa7b\x0b" +
-	"\x9dz\xfa\x08\xce\x9f\xa6Yo\x12c\xe7\xdc\x9b\xdc\xf3" +
-	"\xc8wn?\x14~\xb6S\xe9\x09\xcczJ\x8c|\xe0" +
-	"\xad\xce5\xcb\xffi\xc3\xe1\xf0\x91\xcbd\xd2\xd72\x99" +
-	"\x9c\xf2\xd0\xdf\xa5\xce\x9d\xfc\xcc\xe6\xc7\x98\xdc\xca\xfd\x81" +
-	"\x8e\x0et\xf9e\xa5*\xd3\xb7\xddb\xac\xf5\xf2\xb6\x96" +
-	"\xd6\xe3o\x1c\x097\xd8\xdd\xf2\xdf\x93\xc1\xfeV\x0c\xfd" +
-	"M\xf3m\xb7M\xfc\xec\xae\x1f\x92\xba\"\xbecl\x8d" +
-	"&\xb8\xc4c\xcaQ\xf9\x17\x18z\\\xa6\xbd\xfe\xe4\x85" +
-	"\xa6\xb9\xbf]w\xf4\x89:W'\x8f\xec\xbc\xa2\x15\x8e" +
-	"\xb6\xb2u\x06\xb9r+\x0d\xf6\x16\x9d\xacX\xe2P\x04" +
-	"v8\xde\xfa\x1a\xe6}\xa6\x95lP\xb2\x1e\xfd\xf2\xd5" +
-	"\xb1\x8b\x9f\xaa\xdb\xc2\xf4\xa8\xd0\xc1\\\x85\xb45W!" +
-	"\xb2\xbd\xff\xca\x83_\xbb\xe0\x99\xc1c4\x92O\xb6-" +
-	"F\xf2\xcc/\x94d\x86\xb4\xd0\x98\xa1-\xc8\xb3~9" +
-	"\xfc\xcbg\xde?\x11>\xaf\x96!\xdb\xea\x19R\xc2\xd7" +
-	"[\x0e\xbe\xf0\xaf/^\xfc\x13r0)\xc0\x07\x9eP" +
-	"0\xf2\xcf3\xfb\x95\xbbi\xde\xce;2\x9f\x8b2\xcf" +
-	"\xf8\xb9y<\xa0\x14G\x0f\xd3\xdbn\xe1\xca\xc26\xd2" +
-	"\xc3\x926:\x9cw\xf2:\xaa9S\xbf\xd4v\x8fr" +
-	"\xa6\x8d~x\xba\x8d\xa6\xb6/i\xdb|\xe4\xa6;\xef" +
-	"{\x0e:\x0el\x04\x1b}i\xd6\x09\xe5?g\xd1\xe1" +
-	"\xce\xccz\x1a\x03{&R\xef\xfep\xeb\x13\xffN\xfa" +
-	"=\xcf\x1f\xb6\xcf~M\xd1f\x0b/\x9fM\x9a\xf0\xc4" +
-	"\xd8D,\xb0\x89x\"\xce\xe3\xca\x8ff\xdf\xa3\x1c\x9d" +
-	"})mb\xf6\x8c\x08\x86\xdf9w\xe2\xecO\xf3\x97" +
-	"\xbe\x1a\xee\x94\x1f\xcc}\x19\xfb\xe1\xf3h\xe2\xbb\xa4\xa6" +
-	"U\xcf\xb7]\xf0\xdf\xe1#o\x9e\x07#w\xde:\xef" +
-	"?$\x0c}\xa2\xe5\xbd\xb7\xf5\x13\x7f\xf1z8\xd3\x0e" +
-	"-\xa0I\x0f/\xa0I{\xaa\x0b\x1eN\xdew\xec\\" +
-	"h\xe8\x93/\x99P\xda.\xa1o\xd3/\xf9>\xdbd" +
-	"W\x06\x87\xb5\x11\xb5}\x90\xabe\xa3\xdc\xb5e\xac\xdc" +
-	"\xad\xb5\x17\xf5\x8a\x95\x8bF\xa2\x8ce8\xa2\xbf\x9c\x1c" +
-	"@\x0ah\x89\xf0\xdc\x85\x12\xb7\xb5\xa26\xa2\x19\xd6\x16" +
-	"\x96\x18+k<\xed\xef\x84q\x9e\xc6\xea\xb5\x09\xa3\xb5" +
-	"\x09\xb5v\xd5\x18\xeb/\xe9\x86\xa5\x99\xedUc\xb0d" +
-	"T,S\xd5\x8d\x88V\xc8\xa5#\xd1\x16\xdb\xce\xf0V" +
-	"\xac\xa2\xf6`\x95?\xc5*\xc3\x12O\xf2\x0f\x81\xb6\x01" +
-	"\xd5\xba\x80\xee\x04Z\x04*}\x00t&P}\x11\xd0" +
-	"\x02\xd02\xd0\xc8\xfb@?\x03td\x07\xd0\"\xd0Q" +
-	"\x89\x8fc\xd1?\xd1\x8d\x02\x8bwc\xb9\xea\xa0\xc5\xe2" +
-	"):\x17\x8b\xdb\x83jY\x1d\xd0\x8b:\x8bXcx" +
-	"\x9c\xac\x81\x1eS\x8d\x18\x85\\\x03\x0fDB\xb9\xb1\xc3" +
-	"\xa7\x8e\x1c\xeb\xc9\xe6\x07Kem\xbc\x07\xd3\xeb\xc6." +
-	"GSQN\x8a\xa2\xcd6`\x03\xf3%\xde]\xa1A" +
-	"\x15(\x90\xf7G\xa0\x1a\x7f:(jZ@Q\xce\xba" +
-	"\x1b5+1\\*\xf4s\x9e\x9b\xe3\xcd\xf7\x1c\x1d\xf3" +
-	"$\xe6\xfb\xb9\xc49\xcfp\xc2~\xb6\x19\xd8\xf3\xc0~" +
-	"%q9\x02\x10\xd4\x95_\xba\x05\xe0\x8b\x00_\x05\x18" +
-	"\x932<\x02\xf0\xcc\xed\x00_\x05\xf8&\xc0\x04Fb" +
-	"Z\xf9\x1c\xd9\xf2,RY\x0b\xe2\x93\x1c\xc5\xd0\x18\x11" +
-	"\x9eCu\xf9\x06\x84\x96|\x86\xf0x$\xc3\xe3\xe4-" +
-	"\x1c\xc3\xf3i\xc2/\"\\\x8af\x04A\xda8\xd2#" +
-	" \xe0+\x80\xa7\x0cuD\xe3-L\xc2\x87\xdb\x83\xa5" +
-	"\x82\xf6E\xb3\xa01nb\xb0\x84\x0f\xb7\xcb\xaa\xa9\x8e" +
-	"\xe4-\x93\xc3\x12\xe4\x13\x8c7B\xd2\x08\x89\xa9U\xaa" +
-	"E+oq\xb3&\xf2e\xaaa\x94,\xd5\xd2Y\x02" +
-	"N\xe3k\xd2spW\x93br\x18\x8e\xc1r\x10{" +
-	"q\xcd\xf5Hg\x85\x1e\x93%\xd4P\xb9>R.\xea" +
-	"\x83\xba\xc5\xfbi\x1e\xcd\xd2\"f`1/o\x84\x9a" +
-	"\xad\xd7\xa8v\x8fh\xa6jXd\xb9\x16\xcfr\xbdd" +
-	"\xb9U\xd0}\x9fo\xb9\xf5d\xb9/\x00\xdbB\x9at" +
-	"-\x97#{\xf4;\xfe\xfd\xd1j\xfc\x98\x0a\xa9\xed1" +
-	"\"\xf6\xb8N\xd7\x8a\x85v\xa3\xb4V\xaf\x0c\x9a\xfa\x88" +
-	"n\xa8\x06\xa7\xed\xd2\xac\xc9\x84m\x9fw(\xfc R" +
-	",\xe4\xa2<X\x19\xf1=vm\x0a\xd6-&\xb1r" +
-	"\x17y\xe7=L\xe7=\x88c<\xee\x9f\xf71:\xef" +
-	"\x0f\x80=\x158\xef\x8f\xe9\xbcO\x02|\xd1u_\x1c" +
-	"@>u\x8f\xef\xbe\xc9\xa8m\xf3@R\x93\xcf,\xc2" +
-	"6c\x1f\x12\xe8e$\xf9\x99\x0eh$\xce\x03\xf9W" +
-	">\xdc\xc3\xa4OM\x83\x05WW\x9c\xce\xb9M-V" +
-	"\xb9\xe6\xab+U)\x96\xac\xec.\xb3T-\x8f\x97L" +
-	"\xc4\x00\xb5X\xa7\xf2\xfa\xb0\x07\x0f\xed\x16\xaee\"<" +
-	"D\xd3`\x1d\xb2\x97\xbc\x90\"\xde|\x1c{1t\xc1" +
-	"c\x19\x9e\x01x\xc5\x1e\x80\x97\x03\\\x81 &b\xc8" +
-	"\xfa\x82G\x88\xb2\xeb\xa1\xac\xdb\\o\x14\xb4Q\xefX" +
-	"aa\\3\xaa#b9h9E\xcbu\xf9\xcb\x91" +
-	"\x8d\xa6\xd3j\x1d\xc0.\x03\xb6\x14\x11\xcb\x1a\x0b.\x96" +
-	"\x1d0\xc3\xf9R[K\x12km\x82\x92\xdb\xdd\x10\xcb" +
-	"\xc8#\xd2\x09\x11#\xe4\xc3&\x9e\x1f\xc5\xd4O\xd2\xe9" +
-	"Z2\xbc\x01\xe0\x8f\xae\x07\xf88\xc0c\xe4\x13\xc9\x0c" +
-	"\x16b\xf2\xd1\x7f\x04x\x0c\xe0\xf3\xe4\x13\xbf\xca\xf0&" +
-	"\x8a}=~\xec\x93\xa3\xa9\x0co\xa6\xe0G\x8e\xf2s" +
-	"\x80\xbf\xa68\xd7\x90\x81\x99\x99|\x1a\xb1(\xf7k\x80" +
-	"g\xdd\xc8\x95\x04\xf8z\x97\x13\xfc\xf2Q\xc4'\xbb\xa0" +
-	"Z\xea50\x15\xcb\xae)U\x0d\xcb\x0fK\x8e}\xd6" +
-	"\xb0\xd4d\xd8\xd4\x864\xd3\xd4x\xa1\x0f)\xa3\xd7\x18" +
-	"\xcc\x96(\xd2\xf3\x94__@\x17)\xc6\xc7\xf5\xca\xd5" +
-	"\xe4\x06\xf0w\xe8\xb4\xdeoh-\xee\xcf:I\xf6\xc5" +
-	"\xa1\xa1JD\xb3\xa0\x14\x09\x1f\xde=D$\x0d8d" +
-	"\xa0\x0b\x99DiG\xe9\xf9jY3\x07\x8bj\xa5\xc2" +
-	"(\xee4x<\\8s\xb2\x8dy\x9d\x8d#\xfa'" +
-	"\xb5o\x0f\x8dj\x17\x19\x8f\xb1\xba \xd7\xe3\x079\x94" +
-	"\xb4\xb6\x1b\xe6(\x14\xac\x05\xba\x9326\xe5q\xe2\xfd" +
-	"u4\xf6Z\xa0\x85\xf3\xdd:5\x80L\xea\x1f\xddK" +
-	"\xb5\xce\xd1\xc7ucX3u+\x90\xaa%\x9fd\x9e" +
-	"\xe7\xb9\x8e\x9e\x0eq\xf4\x0b\xfe@G\x8f\x89\xe5\xd6\xc0" +
-	"\xd1\xaf\xd6\x0c\x04{\xabdn\xd6vW\xb5\x8a\xd5\xee" +
-	"\xfe\xd7\x0a\xeb\xf4\xa2\xd6\xde\xbd~\xa4\\2\xad\x8fa" +
-	"\x92E\xa1&\x99\x1c\xbeBx&\x8a'\xe7\xac\x11\xf7" +
-	"\xac\x8b\x821\x04\xe9Y\xae;l\xca\x0a\xad\xd3\xb27" +
-	" \xa8\x11\xee\xd5\xeeu\x87\xe6\xb5Uk\x91$\xea," +
-	"*\x0a\xc2\x1dnAx\x19\x15\x84\x10R\x06D9\x15" +
-	"\xf0_\xaf\xff\x0e\xf5_q\x18'\xdd&\xc0?RX" +
-	"\xa0\x8aZ\xe4VQ\x19i\x0a\x8d\xc4B\x83l-\x8f" +
-	"\xa3\x94\xa2J\x8afO\x89\x90K;Gt\xbd\x90\xe6" +
-	"\xde\x13(e?2\x9aJ\x81\xfc)\x02}D-\x92" +
-	"\xf2E\xcdJ\xe1l\xe1\x06_\xd1\xb3P\xb3\xc6\x9d\x80" +
-	"\xb6\x84\xe0\xc5\x80\xaf\x92\xfc\xf2\x82\xb1\x84\xad\x8d\xd6\xbe" +
-	"\xb3\xf3\x16\x8bL\xe5e\xdc\xa2T\\\xeb\x9adn\xda" +
-	"5\xafcY\xe1wAg\xebp\xdda\x15\xb9\x83\xeb" +
-	"m+\xe9\xd0W\x01\xbcV\xe2Y\x03\x0b\x04\xec\xe4\xf5" +
-	"\x1c\xae\x9d\xcc\xda\xd4\xddbj\x7fdm\xfdP{\x06" +
-	"L\x91\"[P\x90h\x11y\xdc\xbb\x0b\x92{M\xe4" +
-	"O.\xf2\xb8w!\"/\xd9\x0c\x10e=\x0f4\xdd" +
-	"\xf2\xac\x09&\xd9\xb5N\x81e\xd1+h\x05\xdfX8" +
-	"\x7fM\xa5\xb1\x80\xa9\xc9\xd2\xac\xb6\xab\x80\xdd(W3" +
-	"j4\xd2n\x05\xacv\xf9}\x86\xcc\x9d\x02X\xd6\x16" +
-	"\xf9m\x86,9\xd5\xaf\xacS\xb2\x1a\x06hQ^\xda" +
-	"\xe7\xe4\xa5\xdd\x94m,\x80\xfb\x10HJ\x88\xe2~\x10" +
-	"\x9f\x82jvA\x1bRQ\x81nc\xa9)87\xac" +
-	"\x16z\xc938\xce\xb4\x96\x06G\x8a\x96\x97R\xc2\xc2" +
-	"\xb1h=\"\xc6.7\xd2@\xd5\x8e\xf5\x03\x05\x85\xd3" +
-	"B\xd5\x07\x9b\xf1\xaa1\x80\xac\x84\xb6h\xaa\xcd\x86\xf9" +
-	"\xbe(u0I\xd4\xa9]\x12\xc1V's^<\xad" +
-	"\x0b!\xa8\x9e\"U\x8dv\xda\xe7\xedT\x89I\xd8\xd4" +
-	"f\x89\xfa\x10\xc9\xa1NZlVi$A>J\x92" +
-	"4I\xe0\x1b\x92\xc8 JRH\x1aH\x92!\x09\xda" +
-	">.\x1a\x1dE\x96\xe0\xf5\x98\x08\x92\x0bI\x12}\xcf" +
-	"vl\xadL\x17\x924I.\"I\xec]\x92P\xc7" +
-	"\xd3&$\x19\x92\xcc!I\xfc\x1dZ\x87z\x9eYB" +
-	"r!I\xe6\x93$\xf1;\xfa\x0du=s\xa5.\xea" +
-	"zHr\x19I\x1a\xde&\x09\xe2\x80\xb2@H\xe6\x90" +
-	"\xe4r\x924\xfe\x96$\x08\x05\xcaB!\x99O\x92\xc5" +
-	"$iz\x8b$p$\xe5\x0a\x09\xd6\xc2D\x90,%" +
-	"I\xf3\x9b$i\xa6\x9b\x0f!\xb9\x9c$+ I\xb6" +
-	"\xfc\x9f-*\x1de\x99P\xc1b\x12\\E\x82\xe4\xff" +
-	"\xda\xa2\xdaQ\xae\x14\x82\xa5$XE\x82i\xe7l\x11" +
-	"\xa9\x95\x95B\xb0\x82\x04ki\x91\xd4Y\xdb\xa9\x06\x95" +
-	"\xd5Br\x15I\xbe@?I\xbfa\x8b\x8c\xa2\xf4J" +
-	"]\xf8d\xf3\xc3$\xb2H$\xff\x8f-\xf2\x8a\xb2[" +
-	"BI\x9f/\x93`/\x09Z_wzweL\xa2" +
-	"\xfeq\x94\x04_\x81 uCI'\x17\x1b(\x95\x8a" +
-	"5?N!H\xa3W\xc4\x83\x84\xec\x83\x87%\xcba" +
-	"<\xa4?\xe7\xa9\xb3\x03\x06\x93\xf0\x11O\xcb\x97\xc2H" +
-	"\x12><[\x15\xbf\x8bS\xb9\x8f2\xa9\xea\xfc\xd0\x8d" +
-	"\x9d\xe2\x11\xbf\xac\x15QU\xe7\xa7\xae\x1f\x8e\x0f\x15K" +
-	"*\x89\x9b\xf0\xdcT{\x86\xbc\x19\xcf\xcdDWm\xd4" +
-	"\xaa\xe5\x96\x14\x95\x88\xd0%N\x85\x07\xba)\xc0\xc1$" +
-	"|x\x8a\x12\x9c\xb7\xa2So  K\xf6\xb9;>" +
-	"7\xa3u\xe7c\x13\xe0\x85\xc4W\xc3}\xa9\x18\xe5\x03" +
-	"\xb63d\x9b\xca\x12`;h\xe5\xcec\x8b,5\xa4" +
-	"\x0e2\xae\xa1\x96\xa9%.\x16\xd1Lo\xc8'\xad8" +
-	"\x98h\xd2\xbc\xabU\x99w\xb9%H\xb0J\x9b\x19\xd2" +
-	"\x8an\x08kE)z\xf49\x811P\x94\xd8CX" +
-	"\x88\xd20%-W[\xe3\xbaX%\x90G\xbc=\x84" +
-	"\xb6\xc9\xc8\x0f\xfc\xf7\x87\x00/\\\xd5G\x00\xe7\xd2'" +
-	"$\x008\xf7>!\xfcO\x82\xff\xa1\xf4O\x82\xfe\xa1" +
-	"\xecO\x82\xfd\xa1\xe4O\x82\xfc\xa1\xdcO\x82\xfb\xa1\xd4" +
-	"O\x82\xfa\xa1\xccO\x82\xf9\xa1\xc4O\x82\xf8\x9f\"\xef" +
-	"\xe1\x0f\xde\x9b\x1aA\x7f)I\xa4\x0f\xbcZ\xc0\x96\x09" +
-	"\x05\xe1y\xe0\x02\x1f\xea\xed\xc2'\xcb\x04\xdfy\xe0\xc2" +
-	"\x11J\xa1,\x0d\xb2\xf3\xc0\xbd4\xec\xb4\x03\x0dw\x80" +
-	"\xe9\xf8G\\eq\x87\xdd\xce\xff\xce\x0e\xe7\xff\xf2\xa5" +
-	"\xf8_u\xe4.\x8b\xdd/4\xc2e.\x8b\xd78[" +
-	"\xfbF\x98\xe0)\xfe\x11C\xdd[<\xc1\xc9\x8f\xe6\xe2" +
-	"\x0e\x97\x8b[\xc6X\x84\xda\x97 \x05'\x11\xb0.\xeb" +
-	"\xf5:w\x9cy}\x8f\xdb\xf3\xcc\x11\x04\xd9\xdeA\xde" +
-	"-\xe7\xe6\xe1\x9f$\xfa\x1c\x1e\x91W\x83J<*\xaf" +
-	"Dd\xe41\xf9J\xc4A\x1e\x97\x97\xf5P\x81'_" +
-	"q\x0bcYm\xa4l\x8d%\x06t+50fi" +
-	"\xb6uc\xa9\x07\xff+`\x93=T\xaa\x9a\xf4\xc0x" +
-	"\xc5\xd6\xf4]\xc3\x16\x1e\xb0\x9d\xca\xb8\xdb\x97b\xbfE" +
-	"\x14?kJQ\xd0\xad\xa2c\xe0\xa4\x02GT\xd1\x9b" +
-	"D0H\xd1\xf7\xba\xbecQH\xdf13\xd0\x18\x04" +
-	"K\xeb \xdf\xcf\xeb\x00\xb8&\xeeC\xfd7(\x8d\x9b" +
-	"\xfd\xfbs\xb9q\x87\xdd\x1f\xa8\xcd\x9c\xfdl*\xb1H" +
-	"A\xcb\xad\xa8\xedF\x19\xa3{\xdb\xbcE7\x86\xfb\xb8" +
-	"\xb7!\xe5&q\xc1\xb8\x97\xe0\xaf\x8a\x0bF7\xd9\xdf" +
-	"\xca'\x80\x7f\x95\xf0{\x09\x8f8w\x9a\xca\xdd\x9c(" +
-	"\xf2\x97\x84? .*\xddD\x7f\x9f\x98\xe7^\xc2\x0f" +
-	"\x12\x9ep/6\xbf'\xf0G\x08?\xc6\x89\xb6\xb6K" +
-	"\xf4\xa3\x9c\x98\xf3$\x09N\x92\xa0Q\x14\xa6\xdeK5" +
-	"\xe58\xef\xc2\x87\xd8\xd0$\xaaS\xefE\x93r\x8a\x13" +
-	"{\x9a\xdf'\xd4\xbb\xe9W~\xcc\x89#-\xef\x11\xea" +
-	"\xbd\xbe\xc2\xf2\x1d@\x93\xef\x12\xea\xdd\xf5c\xb3`\x8e" +
-	"\x1cEK2\x87n\xf9\xc5\xdd\xeb>\xda\xc97\xb0\x93" +
-	"%\xb198\xd3\\\x08\xfe\x86S\xb6}\x80\x04\x07\xf8" +
-	"\xe4\x90\\\xd0+\xe5\xa2:\xb6\x89%\x82\xedQ\x0d\x95" +
-	"\x00\xf6\x9b\xda\x90>\xda\xa7\x19\xbb\xacaVK\x90\xe7" +
-	"\xdd'\x195c%&5\x05\x9eq\xdd`\xfe\xf1." +
-	"\xcdR\x94(\xbc\xfb\xf6\x8fAK\xc7I\x18\x13l\x0e" +
-	"r3+J\x7f\x7f\xd9H\xc9\xf0\xeb\xff\xdf{;\xab" +
-	"WD\xc2\xd4\x19\x1f\x9c\xa2\x80\x16\xa4q\xd6J\xa8\x83" +
-	"Z\xad\x97N\x05\xcb\xe7Un/\x9d\xa5\xe6\xe9z\xbf" +
-	"y\x1a\x1f\x11\xfd\x86\xbf~\xed\x95t-\xe9\xb9\xd72" +
-	",U\xa9\x04\xf5\xe9\xbd\x80\x9d\xba\x19v\xce\x9a\xb2\xf4" +
-	"\x92\x91[\xeal\x89\x0a\xab\xeb\x84\x9b^K>P " +
-	"\xbf\xe6equ\xa8\xa8\xc2\xafw\x12^\x14\xbc\xd9-" +
-	"n\x0f\x15\x9dc\xbb\xf9a\xc2-\xc1\x1bS\xdc\xf3)" +
-	"\xbb\xc5\xf82\xe1{\xc5\xc5\x7fE\\\x8b\x80\x96\xb7O" +
-	"\xe2_\xcc\xca\xf0\x19\x82\x7f&\xf0\xaf\x10~\x97\xe0Y" +
-	"U\xf4\xcf\xca\x1db~\x9f\x7f\x89\x1b\xc4k\x1a\xb8\xf4" +
-	"\xf55\xfe}\x8b\xf0\x86\x1b\xc5\x8b\x1a\xe5\x9b\x02\xff\x06" +
-	"\xe1\xdf%\xbcqT\xbc\xaaQ\xbe#\xd6\xfd.\xe1\x8f" +
-	"\x12\xde4\x96\xe1\x17\xd1{,\xb1\xeeA\xc2\x1f'\xbc" +
-	"yO\x86\xcf\x02\xfe\x98\x98\xe7\x07\x84?Ex\xcb\x9f" +
-	"e\xf8lF\xb4\xbb\x07\xf8S\x84?\xcb\xa7\xbc\xec\xb0" +
-	"-\xd5\xdc\xa5Y\x95u,\x01\x17\xf5\x1c\xc3E\xe9\xf6" +
-	"\x0f\xeeV\x0f\xf7\xb2\x04\x15~\xf5(w\xaf;,\x9a" +
-	"{\xb2,\xcf\xb2\xc2\xaf\xeb\xf1u,EmT=\xbc" +
-	"\x95\xa5\x0c\x98\xbb\x1e\xbe\x9a\xa5&])\xba\xf0z\xee" +
-	"\xf2C;\x7f\xe1\x8d\xc82\xe4\x98\xf5x?:N\xb0" +
-	"\xa6\x1e^\xcd]b\x95\xb81\x05KDC_\xc7\x12" +
-	"\xee\\.\xd5\xdf\xae\xcd\xf8T\xae\x91W\xd7\xb6d\xd4" +
-	"_2\x06\xcbW\xc9-_;\xdc+\xc6~\xf7\x96\x83" +
-	"\xb2\xf3\xc6\x0e\xbf\xa6\x0d^sNq\xd15\xd5\xbe\xfe" +
-	"?\x00\x00\xff\xff\\\xb8\xbc\xd5"
+const schema_a93fc509624c72d9 = "x\xda\xacY}\x94\x14\xd5\x95\xbf\xf7U\x7f\xccG\x17" +
+	"\xdd5\xaf\x10\x8784\xa8\xa8\x10\x9d\xc0\x0c\xb08\x91" +
+	"\x1d\x18\x18\x0c,\x90)\x1aP8\xeb\x095\xd35L" +
+	"\x99\x9e\xea\xa6\xbaZi\x16\xcf\x80'\x1e\xb3\xee\xba~" +
+	"\xacD\x97$\x9el\x96\x9c\x13W\xdd\xc0\xae\x9c\x13\x89" +
+	"Y\xcd\x1cY\x81\x83\x89\xee\x9acHt7xBt" +
+	"\xd9e\x85]P\x91\x8f\xdas_UW\xd74=\xd1" +
+	"\x9c\xf8WW\xdf\xfb\xea\xbe\xf7\xee\xbd\xbf\xfbU\xb3>" +
+	"\xdf\xbc\x90\xcd\x8e\xa6'\x00h\xbb\xa31\xf7\xf1\x13\x1b" +
+	"\x9b\xa6\xdf\xfc\xee\xfd\xa0\xb5 s7\x1e9w\xec\xe4" +
+	"\x96\xe2k0\x11\xe3\x08\xc0\xcf\xc6\xf6\x03\xf2\xb3\xb1n" +
+	"@w\xdd\xbc\xf5\x97\xca_\xf9\xe2_\x81\xd6\x86\xcc=" +
+	"\xbd\xec\x8f\xbf\xfb^\xf7m\xa3\xb0\x16\xe3\x18A\xecl" +
+	"\x8do@@>=\xfe.\xa0\xfb\xf9\x1ec\xe3\xa9\xb5" +
+	"s\x1e\x06EF\xf7\xa8\xbd\xa2\xbf\xf1@\xf7S\x10\xc5" +
+	"8\x00\xbf\x18\xdf\xc5\xa3\x0d\xd7\x03\xf0\xd6\x86n\xc0\x17" +
+	"\xb7\xaf\xec\xfc\xe2;Gvj2J\xa1\xa5QZ\xba" +
+	"\xac\xe1\xbb\\k\x88\x03t\xaelx\x05\x01\xdd\x95\xbb" +
+	"\xd6\xbc\xf5_\xdb\x1ex\x1c4\x19\xc3\x82\x19\xad^\xdb" +
+	"\xb4\x9f\xdf\xd1DO\xeb\x9b~\x00\xe8\xb6\xbcri\xdb" +
+	"?\xaf\xd8\xfb8(<\xe2~\xe5\xcc\xf2\xf4\xee\xbeg" +
+	"w\x01`gcs\x0b\xf2\xd6\xe68@Fm\x960" +
+	"3\xb5\x99!@u\xc9\xd8\xa3\xf4F\xe2\x0c#\\i" +
+	"\xde\xc5[\x9b'\x01tNo~\x88\xcer\xdfr\xfd" +
+	"\xcc\xb5\x1f\xbe\xfe\xed\x1a}x\x9a\xeb,'\xbaH\x1d" +
+	";\x12w\x03\xbaO\xdd?2y\xf3\x96\x09O\xd6W" +
+	"\xf2\xb1\x04)\xf9\x98X9w\xc9\xf9?\xfa\xe6\xde\xef" +
+	"\x88\x95Qw\xd2\xeek\xce\xadx\xfa\xde\xdf\xc2\xc4\x98" +
+	"X\xb9@>\x0c\xd8\xb9H\x16\xfb\x7f\xf4\xe6\xee\xd7\x9e" +
+	"\x9c\xf9\x8d\xa7ju!\x94|n\xc2(\xc7\xa4P\xf7" +
+	"\x04\x92{\xe8\xab\x03O\xdd7\xe7\xcd\xa7A\xe3\xc8\xaa" +
+	"\xe6\xe9Eq\xb7\xf5\xc9\xc3\xdc\x10\xab\xf5$i\xee\xdf" +
+	"\xfee\xc5\xfb\x1b\xf3]\xcf\xd4?oc\xea0 \x97" +
+	"S$\xf7\xf8m\xd7\xb4\xfc\xf5\xa2\xbe\x7f\x00m\x16\xe2" +
+	"\xc5\xfe\x1d\xed{&\x9c\xf8\x998B\xa7\x99\xda\x8f|" +
+	"G\x8a\xa4\xde#\xd6N}L\xde\xfa\xcc\xf7\x1e\xd8[" +
+	"\xffnGS\xa3\x80\xfc\xa8X\xf9\xc4\xd9\xce\xc5\xf3\xfe" +
+	"i\xf9\xbe\xfa+\xe7*\xa4\xaf\xb9\x0a9\xe5\xde\xbfK" +
+	"\x9e>\xf2\xb9\xd5\xcf\x83\xd2\x82\xd5\x85\x9e\x0eL\xe5\x1d" +
+	"^R\xe8i\xb3X\xeb\xbc\xb3.\xd1r\xe8\xfd\xfd\xf5" +
+	"\x0d\xf6\x88\xf2\xf7d\xb0\xbf\x15K\x7f\xdb|\xff\xfd\xa3" +
+	"?\x7f\xf8G\xa4.\xa9\xea\x18k#qd\x18\xe5\x07" +
+	"\x94_\x02\xf2C\x0a\x9d\xf5\xa7o6M\xfb`\xe9\x81" +
+	"\x17k\\\x9d<\xb2\xf3\xa6\x96\x16\xe4\x0bZ&\x91+" +
+	"\xb7\xd0\xe2`\xd3\xb1\x8a%\x0cI\xc8\xf8\xa1\x96\x13\x80" +
+	"\xfc\xd5\x16\xb2A\xdey\xee\xab\xb7F\xafy\xb9\xe6\x08" +
+	"\x13#B\x07\xd38ik\x1a'\xb0]x\xf7\xc9o" +
+	"\\\xf1\xea\xc0AZ\x89cm\x0b\xc0Q\xfd%\x97U" +
+	"\xd2B\xa3JGP\xda~5\xf4\xabW/\x1c\xae/" +
+	"\xd7P\xc9\xb6\xa6JJ\xf8fb\xcf\x9b\xff\xfa\xd65" +
+	"?%\x07c!<`\x9c\x03\xf0?Ww\xf1GH" +
+	"n\xe7\x83\xea\x17\"\x10\x18_\xbb\x1aCJ\xf1\xf40" +
+	"\xb1\xf5^\xe43ZI\x0f\xb3[\xe9r\xc1\xcd\xeb\x8a" +
+	"~\xbb\xf5Q~\xbc\x95^<\xd6J\xa2\xdd\xebZW" +
+	"\xef\xbf\xe7\xa1\x9d\xaf\x83\"\x87V\x03\xf2\xb7\xdb\x0e\xf3" +
+	"\xffl\xa3\xcb\x1do{\x05\xd0\xed\x19M~\xfc\xa3\xb5" +
+	"/\xfe;\xe9\xf72\x7fX?\xe5\x047\xa6\x08/\x9f" +
+	"B\x9a\x08\xd8\x9a\x8c\xd1\xd0!b\xf1\x18\xc6\xf8\x8f\xa7" +
+	"<\xca\x0fL\xb9\x9e\x0e1e\x92\x04\xe8>4m\xf4" +
+	"\xd4\xcf2\xd7\xbfW\xdf)/N{\x07\x90\xe3\xd5$" +
+	"\xf8a\xd6\xb4\xf0\x8d\xd6+\xfe\xbb\xfe\xca\x1dW\x9f\x00" +
+	"\xec\xbc\xef\xea\xff`\x80\xee\x8b\x89\xf3\x1f\x9a\x87\xff\xe2" +
+	"d}\xa4\xed\x9dNB\xf7M'\xa1=\xa5\xe9O\xcb" +
+	";\x0f\x9e\xae\x1b\xfa\x94\xebFy\xebu\xf44\xf1\xba" +
+	"\x1f\xc0*\xb780d\x0c\xeb\xed\x03\xa8\x17\xacB\xd7" +
+	"\x9ar\xa1\xdbh\xcf\x99EG\x8bH\x11\x00\x15'\x00" +
+	"(r?\x80\x96\x90P\xbb\x92\xa1k\xe4\x8ca\xc3r" +
+	"\xd6@\xbc\\00U=\x09 \xa6\x00\x03\x81\x91\x8a" +
+	"@\xa3]\xb7\xca}y\xd3r\x0c\xbb\xbdd\x0d\xe4\xad" +
+	"\xa2c\xeb\xa6%\x19Y-%E\x12\xae\xabb\x0b\x80" +
+	"\xa2\xf7\x00h\x7f*\xa16\xc4P\xc6K\xae\x8a\xad\x00" +
+	"\x8a\xd1\x05\xa0m\x94P\xcb1\x94\xd9EW\xc5\xc9\x00" +
+	"\x8a9\x13@\xcbJ\xa8\x15\x18\xca\xd2\x05W\xc5\xcf\x01" +
+	"(\xc3\x1b\x00\xb4\x9c\x84\xda\x16\x86#\xbaU\xfe\x13\xd3" +
+	"\xcaB\xac\xbb\xe8\xd8\xa5\x01\x07bI\xba\x17\xc4\xdc\x01" +
+	"\xbd\xa0\xf7\x9b9\x13$\xa7\x0c\xb1\x1a\x0d\xf4\xd8\xbad" +
+	"e\xb5\x06\x0cEB\xa5\xb1\xa3\x0a\x1d%\xda\x93\xce\x0c" +
+	"\xe4\x0b\xc6H\x8fieMk\x93\xa7\xa9\x08\x92\xa2\xe8" +
+	"\xb0\x0d\x12j\xd72\xec.\xd2\xa2\"N\x00\xec\x93\x10" +
+	"SUq\x80D\xac\xd9w\xa5\xe1\xc4\x87\xf2\xd9>D" +
+	"mj \xefu\xba\xe6\x11\x09\xb5_0DT\x91h" +
+	"?_\x0d\xa0\xbd!\xa1\xf6k\x86\x8a\x84*2\x00\xe5" +
+	"\xed{\x01\xb4\xb7$\xd4\xdec\xa8D\x99\x8a\x12\x80r" +
+	"\xfc\x01\x00\xed=\x09\xb53\x0c\x958\xaa\x18\x01PN" +
+	"\x93-OI\x98I C%\xc2T\x8c\x12\xe0q\x03" +
+	"@\xa6\x01%\xcc\xa8D\x8fI*\xc6\xc8[\xb0\x1f " +
+	"\x93\"\xfaUDg\x11U\x00\xa4\x15w\x01d\xae\"" +
+	"\xfa|d\x98\xb4\xf4a\x03\x13\xc00\x01\xe8\x0e\xe4\xb3" +
+	"\xc6\x97\xed\xac\x01hc\x1c\x18\xc6\x01\xdd\x82n\xeb\xc3" +
+	"\x19\xc7\xc6\xd2\x80C>\x01\xd8\x08\x0c\x1b\x01]\xdb(" +
+	"\x96rN\xc6A\xbb\xc2\xaa\xf2t\xcb\xca;\xbacB" +
+	"<o\x854\x198\xb8\xafI!\xbc\xc7\xd6A\xb2\xb2" +
+	"\x98\xaa\xc65\xdf#\xbd\x1dzl\x88\xebu\xf9\xe6p" +
+	"!g\x0e\x98\x0e\xf6\x91\x1c\xc31$;\xb4Y\x907" +
+	"\xea\x9a\xad\xd7*u\x0f\x1b\xb6n9d\xb9D`\xb9" +
+	"^\xb2\xdcB\x09\xb5\x15U\xcb-#\xcb}IBm" +
+	"\x0di\xd2\xb7\x9cF\xf6\xe8\xf3\xfc\xfb\x93\xd5\xf8)\x15" +
+	"R9\xa3$\xce\xb8\xd44r\xd9v+\xbf\xc4,\x0e" +
+	"\xd8\xe6\xb0i\xe9\x16\xd2qI\xaa\x1cw\xdd\xcb.\xb5" +
+	"\xd44\xa4\\V\x8b`\xb82\xc2\xadnE\x04t\x0b" +
+	"!\x8evUp\xdf}t\xdf=\x12j/T\xef\xfb" +
+	"<\xdd\xf7\x87\x12j/\x87\xee\xfb\x13\xba\xefK\x12j" +
+	"o\xf9\xee+!*G\x1f\xad\xba\xaf\x1cq]\x0c%" +
+	"5\xe5\xf8L`r\xf4\x12\x11\x83\x8c\xa4\xbc\xda\x01\x0c" +
+	"c\x18\xca\xbf\xca\xbe\x1e`\x9f\x99\x06\xb3\xbe\xae\x90\xee" +
+	"\xb9N\xcf\x95\xd0\xa8\xaa+Y\xcc\xe5\x9d\xf4&;_" +
+	"*\x8c\xe4\xed\xaci\xe9\xb9\x1a\x95\xd7\x86\xbd\x82nw" +
+	"\x0b\xd7\xb2\xb5\x06)\x92B\x159\x802\x83\"\xde\xb5" +
+	"\x12j\xb3\x18*\xa45\x15@\xb9i+\x80v\xa3\x84" +
+	"\xda|\x86#\"\x86,\xcb\x06\x80(\xf8\x1e\x0a\xdd\xf6" +
+	"2+kl\x09\xaeU/\x8c\x1bVi\xb8\xb2]\x92" +
+	"\xb6\xeb\xaanG\xbbM\xa4\xdd:\x00\xb4\x1b$\xd4\xe6" +
+	"0\xecv\xca\xe1\xcd\xd2\xfdv}\xbcT\xf6bb\xaf" +
+	"U\xf9\xac\xd1\xee\x87X \x8fH\xc5E\x8cP\xf6\xd9" +
+	"\x00\xdas\x12j/\xd1\xed\x12*6\x00(?\xbe\x13" +
+	"@{AB\xed \xf9\x84\xacb#\x80r\xe0\x1f\x01" +
+	"\xb4\x83\x12jo\x90O\xfcZ\xc5&\x8a}=\xd5\xd8" +
+	"\xa7D\x92*6S\xf0#G\xf9\x85\x84\xdao(\xce" +
+	"5\xa8\x98\x00P\x8e\xed\x02\xd0~#\xa1v\xca\x8f\\" +
+	"2\x80r\xb2\xcb\x0b~\x99\x082t\xb3\xba\xa3\xdf\x96" +
+	"\xb7\xb3\x90^\x9c/YN5,y\xf6Y\x0c\xc9\xb1" +
+	"d\xdb\x184l\xdb\xc0\xec\x0a\xb3\xe8\xf4Z\x03\xe9<" +
+	"EzLV\xeb\x0b@L\x02\x8e\x98\xc5[\xc9\x0d\x10" +
+	"\x81!\xd6\xfa\x0d\xed\x85U\xa9cx_\x1e\x1c,J" +
+	"\x86\x83\x0d\xc0\xb0\x01\xb0{\x90@\x1ar\xc8P\x172" +
+	"\x06\xd2\x9e\xd23\xa5\x82a\x0f\xe4\xf4b\x11(\xee4" +
+	"\x048\x9c1y\xac\x8d\xb1\xc6\xc6\x92\xf9\xfb\xda\xb7\x87" +
+	"V\xb5\x8b\x8c\x07P\x13\xe4z\xaaANF\xca\xe3\"" +
+	"\xccQ(X\"\xa1\xb6\x9126\xe5q\xc2\xfd\x1d\xb4" +
+	"\xf6v\x09\xb5\xec\xe5n\x9d\xec7\xadl\xf5\xeaA\xaa" +
+	"\xf5\xae>bZC\x86m:\xa1T\xcd\xaa \x0b<" +
+	"\xcfw\xf4T\x1dG\xbf\xe2\x0ft\xf4\xa8\xd8nq>" +
+	"k\xdcjX\x86\xad;y{\xb5\xb1\xb9d\x14\x9dv" +
+	"\xff\xd7\xc8.5sF{\xf7\xb2\xe1B\xdev>\x85" +
+	"If\xd65\xc9\xd8\xf0U\x07g\xa2x\xf2\xee*\xf9" +
+	"w\x9d\x19\x8e!\x11\x15\x95\x9a\xcb&\x9d\xbauZ\xfa" +
+	".=W\"zP\xbb\xd7\\\x1a+\xbbV\"I\xc4" +
+	"\xdbT\x14\x84\x1b\xfc\x82\xf0\x06*\x08\xad\x92\xc8\x80 " +
+	"9!\xff\x0d\xfa\xef\xba\xfe+.\xe3\xa5\xdb\xb8c\xd8" +
+	"\xa4\xb0P\x155\xd3\xaf\xa2T6\x8eF\xa2u\x83l" +
+	"%\x8f\xaf4\x1c\xaa\xa4HzR\x84\xdc\x88\xe7\x1aW" +
+	"\x92\xec\xad\xa1R\xf6\x13\xa3)\x0b\xe5O\x11\xe8%=" +
+	"G\xca\x175+\x85\xb3\x19\xcb\xab\x8an\xc3Kn\xcc" +
+	"\x0bh\xb3\x89<KB\xed\x16V-/\x00\xe2\xae\xb1" +
+	"\xa5\xf2\x0c\x97m&\x8d\xe7e\xe8P*\xaetM\x0a" +
+	"\xdan\xc5\xeb -\xfc.\xecl\x1d\xbe;,\xf4S" +
+	"\x0a\x11\x17\xd0\xa5o\x91P\xbb\x9da\xda\xcag\xc3U" +
+	"i\xd0s\xf8v\xb2+\xa2\xbb\x85\xe8\xea\xca\xca\xfeu" +
+	"\xed\x192E\x92lAA\"!\xf2x0\x0bRz" +
+	"m`T\xd7ch \xa2\xcc^\x0d\x8c\xcaz\x0c5" +
+	"\xddJ\xdb(0\xb7\xd2)@Z7-#[5\x16" +
+	"\xda\x81J\xa3!S\x93\xa5\xa1r\xaa\x90\xdd(W\x03" +
+	"5\x1a)\xbf\x02\xd6\xbb\xaa}\x86\x82^\x01\xac\x183" +
+	"\xabm\x86\xc2\xbc\xeaW1)Y\x0dI\xa89\x94\x97" +
+	"\xb6{yi3e\x1bGBm;\xc3\xee\xfc\xe0`" +
+	"\xb1\x1a\xc4\xc7\x81\x9a\x9b5\x06\xf5R\xceY\x07\xc9q" +
+	"07\xa4g{\xc93p\xc0t\x96\xd0b)\xe7\x04" +
+	")\xa5^8\x16\xad\x87dm\xf2#M\xc2u=\xeb" +
+	"\x87\x0a\x0a\xaf\x85\xaa\x0d6#%\xab?_\xa2\xb6h" +
+	"\xbc\xc3\xd6\xf3}Q\xea\x00\x08 1/\xbb\x07\xad\x8e" +
+	"zY<\xad\x09!\xeb\xf4\x9cT2\xe8\xa4+\x82\x93" +
+	"\xf2(\x9b\x09\xb0\x9aQ\x1f\xc2<\xe8\xa4\xc4ay#" +
+	"12\x11\xe2\xa4\x88\xc3.\xbaLd\x10.\x0bN\x03" +
+	"qT\xe2H\x17\\\x14\x8d\x0eWX\x07@&A\x9c" +
+	"+\x89\x139\xefz\xb6\xe6\x13\x05'E\x9c\xab\x88\x13" +
+	"\xfd\x988\xd4\xf1\xb4\x0a\x8eJ\x9c\xa9\xc4\x89\x9d\xa3}" +
+	"\xa8\xe7i\x13\x9c+\x89s-q\xe2\x1f\xd1;\xd4\xf5" +
+	"Lc]\xd4\xf5\x10\xe7\x06\xe24|H\x9c\x06\x00>" +
+	"]p\xa6\x12\xe7F\xe24~@\x9cF\x00>Cp" +
+	"\xae%\xce,\xe24\x9d%N\x13\x00\xbf\x89\xf5\x00d" +
+	"n \xce\x1c\xe24\x9f!N3\x00\x9f-87\x12" +
+	"g>c('\xfe\xcf\x15\x95\x0e\x9f+T0\x8b\x18" +
+	"\xb7\x10C\xfe_WT;\xfcf\xc1\x98C\x8c\x85\xc4" +
+	"\x98p\xda\x15\x91\x9a/\x10\x8c\xf9\xc4XB\x9b$O" +
+	"\xb9^5\xc8\x17\x09\xce-\xc4\xf9\x12\xbd\x92z\xdf\x15" +
+	"\x19\x85\xf7\xb2.\xde\xcb\xd2\x99!b9\xc4R\xfe\xc7" +
+	"\x15y\x85of\xab\x012\x05bl#F\xcbI\xaf" +
+	"w\xe7eF\xfd\xe3\x16b|\x8d1L\xde\x957\xc9" +
+	"\xc5\xfa\xf3\xf9\\\xc5\x8f\x93\xa6\xe5\xccG\x06\x0c\x19`" +
+	"\xda\xb4\x9c\xd9\xf3P\x02\x86\x92\xf7\xaf\xb3\x03#\xc00" +
+	"\xe2\xfd\x9b7\x07\xa3\xc00\x0a\x98.\x89\xf7bT\xee" +
+	"\x03v\x97\xbc\x17\xfd\xd8)\xfevv\x04ET\xc9{" +
+	"\xd5\xf7\xc3\x91\xc1\\^'v\x130l\xaa\xfc\x9f7" +
+	"\x07\x9b\x81a3\xc1\xd5\xd8\xe2TrK\x92JD\x94" +
+	"\x81\xa1\x0c(&\x05\xd8\x02\x0c[\x00\x93\x94\xe0\x82\x1d" +
+	"\xbdzC\x8b sO?\xf8\x85I-\x1b\x9f\x1f\x05" +
+	"-\xc2p\x91\x8a\xa2\x18\xc5~\xd7[\xb2N\x87x\xae" +
+	"D\xdd\xac/\xc7\x15YjP\x1f\x004 \xe6V\x12" +
+	"\x17H\x86\x1d,\xf9}+\x0e\x10MZ0ZU\xb0" +
+	"\xcb/A\xc2U\xda\xe4:\xad\xe8\xf2z\xad(E\x8f" +
+	"\x15^`\x0c\x15%\xee\xa0\x993(\x0dS\xd2\xf2\xb5" +
+	"5b\x8a]By$8C\xdd6yM\xb9\x80\xbf" +
+	";\x04\x04\xe1\xaa6\x02xC\x9f:\x01\xc0\x9b\xfb\xd4" +
+	"\xc1\xbf\x1c9\xef\xd6\x85\xbf\x1c\xfd\xd8\xad\x8b~9v" +
+	"\xce\xad\x0b~9\xfe\x91[\x17\xfbr\xc3\x87n]\xe8" +
+	"\xcb\x8d\x1f\xb8u\x91/7\x9du\xeb\x02_n>\xe3" +
+	"~\x86\xb8G\xac~\xa9\x11\xf0g2\x81>\xf4i\x81" +
+	"O\x17\xd4\xd4\xfbD\x0d\x06\xf8\\f]\\fi\x10" +
+	"x\xc7\xd0\xc0\x91\xb71\xca\xd2-'\x89\x1a\xcc\xa5y" +
+	"#\xdb\x00,\x8ct\x88\x09\x8cC\xccC\xb7\xf7\xdb\xd9" +
+	"\xe1\xfd\xce\x9b\x031\x0f\xcb\x10\xf3Q\xec?\xd0\x0a\x1f" +
+	"\xb9\x10\xab`\xb6\xf2D4\x81S\x88\x09\x84\xfaS<" +
+	"\x81\xc9O\xc6\xe2\x06\x1f\x8bk\xca Q\xfb\x12\x86\xe0" +
+	"\x18\x00\xd6d\xbd^o\xc6\x991\xb7\xfa=\xcfT\x01" +
+	"\x90\xf5\x1d\xe4\xdd\x8av5\x002\xd1\xe7\xa0\xa4,Z" +
+	"\x0e\x80\x11e\xc1j\x00\x8c*7o\x00\xc0\x982\xb7" +
+	"\x87\x0a<\xe5\xa6{\x01\xd2\xc6p\xc1)\xc7\xfbM'" +
+	"\xd9_v\x0c\xd7\xb9;\xdfSv\x8c\"\x00\xb8\x83\xf9" +
+	"\x92M\x7f\x00\x8b\xaean\x1arz\xcat\x9c\xe2\x88" +
+	"\xdf\x97\xba\xa6\x953-cq>2\\\xc8\x17M\xc7" +
+	"\x18[\xe0\x88*z\x95\x08\x06Iz\xae\xe9;f\xd6" +
+	"\xe9;&\x87\x1a\x83pi\x1d\xc6\xfbe\x1d\x00\x1ab" +
+	"\x1eZ\xfd\x82\xd2\xb8\xba:?W\x1a7\xb8}\xa1\xda" +
+	"\xcc;\xcf\xaa<HYC\x9b_9\x0d/\xe3d\x80" +
+	"\x8c\x83\x12f\xb6cp ~\x8f\x180n#\xf2\xd7" +
+	"\xc5\x80\xd1O\xf6\xf7\xe1(@\xe6\xebD\x7f\x8c\xe8\x92" +
+	"7\xd3\xe4\x8f A\xe4/\x89\xfe\x84\x18T\xfa\x89~" +
+	"\xa7\x90\xf3\x18\xd1\xf7\x10=\xee\x0f6\x9f\x15\xf4g\x88" +
+	"~\x10\x09\xb6\xae\x0f\xf4\x03H\xc8y\x89\x18G\x88\xd1" +
+	"(\x0a\xd3\xe0\xa3\x1a?\x84]\xfc\x10\x12\x1a\x9aDu" +
+	"\x1a|h\xe2G\x91\xd0\xd3|\x81\xa8\xc1\xa4\x9f\xff\x04" +
+	"\x09#\x89\xf3D\x0d>_\xf1g\xb1\x03\x98,\x7fL" +
+	"\xd4`\xd6\xcfw\xe2\x06`J$\xaa\xe2T\x00\xbeC" +
+	"\xcc^\xb7\xd3I\xbe\x85\x0cgG\xa7\xa2\x8a\xd3\x00\xf8" +
+	"\xdf e\xdb'\x88\xb1\x1b\xc7\x86\xe4\xacY,\xe4\xf4" +
+	"\xf2*\x88\x87\xdb\xa3\x0a\x95\xe9\xc3F\x9fm\x0c\x9a[" +
+	"V\x18\xd6&g\x08*\x09\xf2\xb2y\x92U1V|" +
+	"LS\x10\x18\xd7\x0f\xe6\x9fnh\x96\xa4D\x11\xcc\xdb" +
+	"?\x05,='\x01\x10h\x0ec3-J\xff\xea\xb6" +
+	"R\xde\xaa\xd6\xff\xbfs:k\x16E\xc24\x01\x07\xc6" +
+	")\xa0\x05h\xbc\xbd\xe2\xfa\x80Q\xe9\xa5\x93\xe1\xf2y" +
+	"\xa1\xdfK\xa7\xa9y\xba\xb3\xda<\x8d\x0c\x8b~\xa3\xba" +
+	"\x7f\xe5\x93t%\xe9\xf9c\x19H\x16\x8ba}\x06\x1f" +
+	"`\xc7o\x86\xbd\xbb&\x1d3ois\xbc#Qa" +
+	"u\x87p\xd3\xdb\xc9\x07\xb2\xe4\xd7X\x10\xa3C\xae\x0b" +
+	"\xbf\xdeH\xf4\x9c\xc0\xcdf1=\xe4&\xde\x09\x90\x19" +
+	"\"\xba#pc\x8b9\x1f\xdf,\xd6\x17\x88\xbeM\x0c" +
+	"\xfe\x8bb,\xc2\xcb\xf8\xc0\x18\xfcE\x1d\x15'\x09\xfc" +
+	"\xd9\x00\x99\xaf\x11\xfda\x81\xb3\x92\xe8\x9f\xf9\x83B~" +
+	"\x15\x7f\xf1\xbb\xc4g\x1a\xbeS\xd0\x05\xfe\xbeC\xf4\x86" +
+	"\xbb\xc5\x87\x1a\xfemA\xff\x16\xd1\xbfO\xf4\xc6-\xe2" +
+	"S\x0d\xff\x9e\xd8\xf7\xfbD\x7f\x8e\xe8Me\x15\xaf\x02" +
+	"\xe0{\xc5\xbe{\x88\xfe\x02\xd1\x9b\xb7\xaa\xd8\x06\xc0\x9f" +
+	"\x17r~H\xf4\x97\x89\x9e\xf83\x15\xa7\x00\xc1\xeeQ" +
+	"\x80\xcc\xcbD\x7f\x0d\xc7\x1dv\xb8\x8eno2\x9c\xe2" +
+	"R\x88\x9b9#p\x0c\x9f\xba\x18\x92\xe4n\xb5\xe4^" +
+	"\x88S\xe1WKE\x7f\xdc\xe1\x90\xec\xb1\xbc\x0c\xa4\x85" +
+	"_\xd7\xd2\x97B\x92\xda\xa8Z\xf2ZHZf\xde\xaa" +
+	"%\xdf\x0a\xc91#E\x9f\xbc\x0c}|\x18\x97o\xbc" +
+	"\x12\xd2\xc21k\xe9}\x90$\xd4\xd4\x92\x17\xa1\x0f\xac" +
+	"<Z\xe3\xa0D4\xf45(Ao\xb8T;]\x9b" +
+	"\xf4\x99\x8c\x91\x17U\x8ed\xd5\x0e\x19\xc3\xe5+\xf3\xcb" +
+	"\xd7\x0e\x7f\xc4\xd8\xe7O9(;\xaf\xec\xa8\xd6\xb4\xe1" +
+	"1\xe78\x83\xae\xf1\xce\xf5\xff\x01\x00\x00\xff\xff\xb0p" +
+	"\xbc\xbd"
 
 func init() {
 	schemas.Register(schema_a93fc509624c72d9,

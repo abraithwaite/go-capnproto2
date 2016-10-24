@@ -1,13 +1,13 @@
-func (s {{.Node.Name}}) {{.Field.Name|title}}(e ErrorSet) {{.G.Capnp}}.Pointer {
-	{{if .Default.IsValid -}}
+func (s {{.Node.Name}}) {{.Field.Name|title}}(e *capnp.ErrorSet) {{.G.Capnp}}.Pointer {
 	p, err := s.Struct.Pointer({{.Field.Slot.Offset}})
 	if err != nil {
-		e = append(e, err)
+		*e = append(*e, err)
 		return nil
 	}
+	{{if .Default.IsValid -}}
 	return {{.G.Capnp}}.PointerDefault(p, {{.Default}})
 	{{- else -}}
-	return s.Struct.Pointer({{.Field.Slot.Offset}})
+	return p
 	{{- end}}
 }
 

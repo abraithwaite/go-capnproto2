@@ -1,13 +1,13 @@
-func (s {{.Node.Name}}) {{.Field.Name|title}}(e ErrorSet) {{.FieldType}} {
+func (s {{.Node.Name}}) {{.Field.Name|title}}(e *capnp.ErrorSet) {{.FieldType}} {
 	p, err := s.Struct.Ptr({{.Field.Slot.Offset}})
-	{{if .Default.IsValid -}}
 	if err != nil {
-		e = append(e, err)
+		*e = append(*e, err)
 		return {{.FieldType}}{}
 	}
+	{{if .Default.IsValid -}}
 	l, err := p.ListDefault({{.Default}})
 	if err != nil {
-		e = append(e, err)
+		*e = append(*e, err)
 		return {{.FieldType}}{}
 	}
 	return {{.FieldType}}{List: l}

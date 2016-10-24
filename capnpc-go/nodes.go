@@ -18,7 +18,7 @@ type node struct {
 }
 
 func (n *node) codeOrderFields() []field {
-	fields, _ := n.StructNode().Fields()
+	fields := n.StructNode().Fields(nil)
 	numFields := fields.Len()
 	mbrs := make([]field, numFields)
 	for i := 0; i < numFields; i++ {
@@ -43,7 +43,7 @@ func (n *node) DiscriminantOffset() (uint32, error) {
 }
 
 func (n *node) shortDisplayName() string {
-	dn, _ := n.DisplayName()
+	dn := n.DisplayName(nil)
 	return dn[n.DisplayNamePrefixLength():]
 }
 

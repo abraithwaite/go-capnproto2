@@ -92,9 +92,10 @@ func (g *generator) Basename() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	dn, err := f.DisplayName()
-	if err != nil {
-		return "", err
+	var es capnp.ErrorSet
+	dn := f.DisplayName(&es)
+	if es != nil {
+		return "", error(es)
 	}
 	return filepath.Base(dn), nil
 }
@@ -244,13 +245,13 @@ func (g *generator) RemoteTypeName(t schema.Type, rel *node) (string, error) {
 }
 
 func (g *generator) defineEnum(n *node) error {
-	es, _ := n.Enum().Enumerants()
+	es := n.Enum().Enumerants(nil)
 	ev := make([]enumval, es.Len())
 	for i := 0; i < es.Len(); i++ {
 		e := es.At(i)
 		ev[e.CodeOrder()] = makeEnumval(n, i, e)
 	}
-	nann, _ := n.Annotations()
+	nann := n.Annotations(nil)
 	err := renderEnum(g.r, enumParams{
 		G:           g,
 		Node:        n,
@@ -302,13 +303,13 @@ func (g *generator) Value(rel *node, t schema.Type, v schema.Value) (string, err
 		return fmt.Sprintf("%s.Float64frombits(0x%x)", g.imports.Math(), math.Float64bits(v.Float64())), nil
 
 	case schema.Type_Which_text:
-		text, _ := v.Text()
+		text := v.Text(nil)
 		return strconv.Quote(text), nil
 
 	case schema.Type_Which_data:
 		buf := make([]byte, 0, 1024)
 		buf = append(buf, "[]byte{"...)
-		data, _ := v.Data()
+		data := v.Data(nil)
 		for i, b := range data {
 			if i > 0 {
 				buf = append(buf, ',', ' ')
@@ -323,7 +324,7 @@ func (g *generator) Value(rel *node, t schema.Type, v schema.Value) (string, err
 		if en == nil || !en.IsValid() || en.Which() != schema.Node_Which_enum {
 			return "", errors.New("expected enum type")
 		}
-		enums, _ := en.Enum().Enumerants()
+		enums := en.Enum().Enumerants(nil)
 		val := int(v.Enum())
 		if val >= enums.Len() {
 			rn, err := g.RemoteNodeName(en, rel)
@@ -429,7 +430,7 @@ func (g *generator) defineConstNodes(nodes []*node) error {
 		if n.Which() != schema.Node_Which_const {
 			continue
 		}
-		t, _ := n.Const().Type()
+		t := n.Const().Type(nil)
 		if isGoConstType(t) {
 			constNodes = append(constNodes, n)
 		}
@@ -439,7 +440,7 @@ func (g *generator) defineConstNodes(nodes []*node) error {
 		if n.Which() != schema.Node_Which_const {
 			continue
 		}
-		t, _ := n.Const().Type()
+		t := n.Const().Type(nil)
 		if !isGoConstType(t) {
 			constNodes = append(constNodes, n)
 		}
@@ -466,10 +467,10 @@ func (g *generator) defineField(n *node, f field) (err error) {
 		}
 	}()
 
-	fann, _ := f.Annotations()
+	fann := f.Annotations(nil)
 	ann := parseAnnotations(fann)
-	t, _ := f.Slot().Type()
-	def, _ := f.Slot().DefaultValue()
+	t := f.Slot().Type(nil)
+	def := f.Slot().DefaultValue(nil)
 	if !isValueOfType(def, t) {
 		return fmt.Errorf("default value type is %v, but found %v value", t.Which(), def.Which())
 	}
@@ -537,9 +538,10 @@ func (g *generator) defineField(n *node, f field) (err error) {
 		})
 
 	case schema.Type_Which_text:
-		d, err := def.Text()
-		if err != nil {
-			return err
+		var es capnp.ErrorSet
+		d := def.Text(&es)
+		if es != nil {
+			return es
 		}
 		return renderStructTextField(g.r, structTextFieldParams{
 			structFieldParams: params,
@@ -547,9 +549,10 @@ func (g *generator) defineField(n *node, f field) (err error) {
 		})
 
 	case schema.Type_Which_data:
-		d, err := def.Data()
-		if err != nil {
-			return err
+		var es capnp.ErrorSet
+		d := def.Data(&es)
+		if es != nil {
+			return es
 		}
 		return renderStructDataField(g.r, structDataFieldParams{
 			structFieldParams: params,
@@ -698,7 +701,7 @@ func makeTypeRef(t schema.Type, rel *node, nodes nodeMap) (typeRef, error) {
 	case schema.Type_Which_interface:
 		return nodeRef(t.Interface().TypeId())
 	case schema.Type_Which_list:
-		lt, _ := t.List().ElementType()
+		lt := t.List().ElementType(nil)
 		if ref, ok := staticListTypeRefs[lt.Which()]; ok {
 			return ref, nil
 		}
@@ -814,7 +817,7 @@ func (g *generator) defineStruct(n *node) error {
 }
 
 func (g *generator) defineStructTypes(n, baseNode *node) error {
-	nann, _ := n.Annotations()
+	nann := n.Annotations(nil)
 	ann := parseAnnotations(nann)
 	err := renderStructTypes(g.r, structTypesParams{
 		G:           g,
@@ -823,7 +826,7 @@ func (g *generator) defineStructTypes(n, baseNode *node) error {
 		BaseNode:    baseNode,
 	})
 	if err != nil {
-		dn, _ := n.DisplayName()
+		dn := n.DisplayName(nil)
 		return fmt.Errorf("struct type for %s: %v", dn, err)
 	}
 
@@ -846,7 +849,7 @@ func (g *generator) defineStructEnums(n *node) error {
 	members := make([]field, 0, len(fields))
 	es := make(enumString, 0, len(fields))
 	for _, f := range fields {
-		if f.DiscriminantValue() != schema.Field_noDiscriminant {
+		if f.DiscriminantValue() != schema.FieldnoDiscriminant {
 			members = append(members, f)
 			es = append(es, f.Name)
 		}
@@ -959,7 +962,7 @@ func (g *generator) defineStructPromise(n *node) error {
 	for _, f := range n.codeOrderFields() {
 		switch f.Which() {
 		case schema.Field_Which_slot:
-			t, _ := f.Slot().Type()
+			t := f.Slot().Type(nil)
 			if tw := t.Which(); tw != schema.Type_Which_structType && tw != schema.Type_Which_interface && tw != schema.Type_Which_anyPointer {
 				continue
 			}
@@ -990,7 +993,7 @@ func (g *generator) defineStructPromise(n *node) error {
 
 func (g *generator) definePromiseField(n *node, f field) error {
 	slot := f.Slot()
-	switch t, _ := slot.Type(); t.Which() {
+	switch t := slot.Type(nil); t.Which() {
 	case schema.Type_Which_structType:
 		ni, err := g.nodes.mustFind(t.StructType().TypeId())
 		if err != nil {
@@ -1002,7 +1005,7 @@ func (g *generator) definePromiseField(n *node, f field) error {
 			Field:  f,
 			Struct: ni,
 		}
-		if def, _ := slot.DefaultValue(); def.IsValid() && def.Which() == schema.Value_Which_structValue {
+		if def := slot.DefaultValue(nil); def.IsValid() && def.Which() == schema.Value_Which_structValue {
 			if sf, _ := def.StructValuePtr(); sf.IsValid() {
 				params.Default, err = g.data.copyData(sf)
 				if err != nil {
@@ -1038,7 +1041,7 @@ func (g *generator) defineInterface(n *node) error {
 	if err != nil {
 		return fmt.Errorf("building method set of interface %s: %v", n, err)
 	}
-	nann, _ := n.Annotations()
+	nann := n.Annotations(nil)
 	err = renderInterfaceClient(g.r, interfaceClientParams{
 		G:           g,
 		Node:        n,
@@ -1117,12 +1120,12 @@ func (g *generator) defineFile() error {
 	return nil
 }
 
-func generateFile(reqf schema.CodeGeneratorRequest_RequestedFile, nodes nodeMap, opts genoptions) error {
+func generateFile(reqf schema.CodeGeneratorRequestRequestedFile, nodes nodeMap, opts genoptions) error {
 	if opts.structStrings && !opts.schemas {
 		return errors.New("cannot generate struct String() methods without embedding schemas")
 	}
 	id := reqf.Id()
-	fname, _ := reqf.Filename()
+	fname := reqf.Filename(nil)
 	g := newGenerator(id, nodes, opts)
 	if err := g.defineFile(); err != nil {
 		return err
@@ -1182,12 +1185,12 @@ func main() {
 		os.Exit(1)
 	}
 	success := true
-	reqFiles, _ := req.RequestedFiles()
+	reqFiles := req.RequestedFiles(nil)
 	for i := 0; i < reqFiles.Len(); i++ {
 		reqf := reqFiles.At(i)
 		err := generateFile(reqf, nodes, opts)
 		if err != nil {
-			fname, _ := reqf.Filename()
+			fname := reqf.Filename(nil)
 			fmt.Fprintf(os.Stderr, "capnpc-go: generating %s: %v\n", fname, err)
 			success = false
 		}

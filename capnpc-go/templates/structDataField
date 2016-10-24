@@ -1,7 +1,7 @@
-func (s {{.Node.Name}}) {{.Field.Name|title}}(e ErrorSet) {{.FieldType}} {
+func (s {{.Node.Name}}) {{.Field.Name|title}}(e *capnp.ErrorSet) {{.FieldType}} {
 	p, err := s.Struct.Ptr({{.Field.Slot.Offset}})
 	if err != nil {
-		e = append(e, err)
+		*e = append(*e, err)
 		return {{.FieldType}}(nil)
 	}
 	{{with .Default -}}
