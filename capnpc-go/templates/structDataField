@@ -1,9 +1,13 @@
-func (s {{.Node.Name}}) {{.Field.Name|title}}() ({{.FieldType}}, error) {
+func (s {{.Node.Name}}) {{.Field.Name|title}}(e ErrorSet) {{.FieldType}} {
 	p, err := s.Struct.Ptr({{.Field.Slot.Offset}})
+	if err != nil {
+		e = append(e, err)
+		return {{.FieldType}}(nil)
+	}
 	{{with .Default -}}
-	return {{$.FieldType}}(p.DataDefault({{printf "%#v" .}})), err
+	return {{$.FieldType}}(p.DataDefault({{printf "%#v" .}}))
 	{{- else -}}
-	return {{.FieldType}}(p.Data()), err
+	return {{.FieldType}}(p.Data())
 	{{- end}}
 }
 
