@@ -69,7 +69,7 @@ func (a *answer) fulfill(obj capnp.Ptr) error {
 	// TODO(light): populate resultCaps
 
 	retmsg := newReturnMessage(nil, a.id)
-	ret, _ := retmsg.Return()
+	ret := retmsg.Return(nil)
 	payload, _ := ret.NewResults()
 	payload.SetContentPtr(obj)
 	var firstErr error
@@ -108,7 +108,7 @@ func (a *answer) reject(err error) error {
 	}
 	a.err, a.done = err, true
 	m := newReturnMessage(nil, a.id)
-	mret, _ := m.Return()
+	mret := m.Return(nil)
 	setReturnException(mret, err)
 	var firstErr error
 	if err := a.conn.sendMessage(m); err != nil {
@@ -314,7 +314,7 @@ func (qc *queueClient) handle(c *qcall) {
 		go joinFulfiller(c.f, answer)
 	case qcallDisembargo:
 		msg := newDisembargoMessage(nil, rpccapnp.Disembargo_context_Which_receiverLoopback, c.embargoID)
-		d, _ := msg.Disembargo()
+		d := msg.Disembargo(nil)
 		d.SetTarget(c.embargoTarget)
 		qc.conn.sendMessage(msg)
 	}
@@ -388,7 +388,7 @@ func (qc *queueClient) rejectQueue() error {
 			c.f.Reject(errQueueCallCancel)
 		case qcallDisembargo:
 			m := newDisembargoMessage(nil, rpccapnp.Disembargo_context_Which_receiverLoopback, c.embargoID)
-			d, _ := m.Disembargo()
+			d := m.Disembargo(nil)
 			d.SetTarget(c.embargoTarget)
 			if err := qc.conn.sendMessage(m); err != nil && firstErr == nil {
 				firstErr = err

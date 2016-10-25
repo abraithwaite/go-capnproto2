@@ -24,9 +24,10 @@ func TestDefaultFind(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReadRootCodeGeneratorRequest error: %v", err)
 	}
-	nodes, err := req.Nodes()
-	if err != nil {
-		t.Fatalf("req.Nodes() error: %v", err)
+	var es capnp.ErrorSet
+	nodes := req.Nodes(&es)
+	if es != nil {
+		t.Fatalf("req.Nodes() error: %v", es)
 	}
 	for i := 0; i < nodes.Len(); i++ {
 		n := nodes.At(i)

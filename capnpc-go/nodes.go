@@ -23,8 +23,8 @@ func (n *node) codeOrderFields() []field {
 	mbrs := make([]field, numFields)
 	for i := 0; i < numFields; i++ {
 		f := fields.At(i)
-		fann, _ := f.Annotations()
-		fname, _ := f.Name()
+		fann := f.Annotations(nil)
+		fname := f.Name(nil)
 		fname = parseAnnotations(fann).Rename(fname)
 		mbrs[f.CodeOrder()] = field{Field: f, Name: fname}
 	}
@@ -66,7 +66,7 @@ type field struct {
 
 // HasDiscriminant reports whether the field is in a union.
 func (f field) HasDiscriminant() bool {
-	return f.DiscriminantValue() != schema.Field_noDiscriminant
+	return f.DiscriminantValue() != schema.FieldnoDiscriminant
 }
 
 type enumval struct {
@@ -78,9 +78,9 @@ type enumval struct {
 }
 
 func makeEnumval(enum *node, i int, e schema.Enumerant) enumval {
-	eann, _ := e.Annotations()
+	eann := e.Annotations(nil)
 	ann := parseAnnotations(eann)
-	name, _ := e.Name()
+	name := e.Name(nil)
 	name = ann.Rename(name)
 	t := ann.Tag(name)
 	return enumval{e, name, i, t, enum}
@@ -101,11 +101,11 @@ type interfaceMethod struct {
 }
 
 func methodSet(methods []interfaceMethod, n *node, nodes nodeMap) ([]interfaceMethod, error) {
-	ms, _ := n.Interface().Methods()
+	ms := n.Interface().Methods(nil)
 	for i := 0; i < ms.Len(); i++ {
 		m := ms.At(i)
-		mname, _ := m.Name()
-		mann, _ := m.Annotations()
+		mname := m.Name(nil)
+		mann := m.Annotations(nil)
 		pn, err := nodes.mustFind(m.ParamStructType())
 		if err != nil {
 			return methods, fmt.Errorf("could not find param type for %s.%s", n.shortDisplayName(), mname)
@@ -126,7 +126,7 @@ func methodSet(methods []interfaceMethod, n *node, nodes nodeMap) ([]interfaceMe
 	}
 	// TODO(light): sort added methods by code order
 
-	supers, _ := n.Interface().Superclasses()
+	supers := n.Interface().Superclasses(nil)
 	for i := 0; i < supers.Len(); i++ {
 		s := supers.At(i)
 		sn, err := nodes.mustFind(s.Id())
@@ -161,8 +161,8 @@ func parseAnnotations(list schema.Annotation_List) *annotations {
 	ann := new(annotations)
 	for i, n := 0, list.Len(); i < n; i++ {
 		a := list.At(i)
-		val, _ := a.Value()
-		text, _ := val.Text()
+		val := a.Value(nil)
+		text := val.Text(nil)
 		switch a.Id() {
 		case capnp.Doc:
 			ann.Doc = text
@@ -209,9 +209,10 @@ func (ann *annotations) Rename(given string) string {
 type nodeMap map[uint64]*node
 
 func buildNodeMap(req schema.CodeGeneratorRequest) (nodeMap, error) {
-	rnodes, err := req.Nodes()
-	if err != nil {
-		return nil, err
+	var es capnp.ErrorSet
+	rnodes := req.Nodes(&es)
+	if es != nil {
+		return nil, es
 	}
 	nodes := make(nodeMap, rnodes.Len())
 	var allfiles []*node
@@ -224,18 +225,18 @@ func buildNodeMap(req schema.CodeGeneratorRequest) (nodeMap, error) {
 		}
 	}
 	for _, f := range allfiles {
-		fann, err := f.Annotations()
-		if err != nil {
-			return nil, fmt.Errorf("reading annotations for %v: %v", f, err)
+		fann := f.Annotations(&es)
+		if es != nil {
+			return nil, es
 		}
 		ann := parseAnnotations(fann)
 		f.pkg = ann.Package
 		f.imp = ann.Import
-		nnodes, _ := f.NestedNodes()
+		nnodes := f.NestedNodes(nil)
 		for i := 0; i < nnodes.Len(); i++ {
 			nn := nnodes.At(i)
 			if ni := nodes[nn.Id()]; ni != nil {
-				nname, _ := nn.Name()
+				nname := nn.Name(nil)
 				if err := resolveName(nodes, ni, "", nname, f); err != nil {
 					return nil, err
 				}
@@ -247,9 +248,10 @@ func buildNodeMap(req schema.CodeGeneratorRequest) (nodeMap, error) {
 
 // resolveName is called as part of building up a node map to populate the name field of n.
 func resolveName(nodes nodeMap, n *node, base, name string, file *node) error {
-	na, err := n.Annotations()
-	if err != nil {
-		return fmt.Errorf("reading annotations for %s: %v", n, err)
+	var es capnp.ErrorSet
+	na := n.Annotations(&es)
+	if es != nil {
+		return fmt.Errorf("reading annotations for %s: %v", n, es)
 	}
 	name = parseAnnotations(na).Rename(name)
 	if base == "" {
@@ -261,9 +263,9 @@ func resolveName(nodes nodeMap, n *node, base, name string, file *node) error {
 	n.imp = file.imp
 	file.nodes = append(file.nodes, n)
 
-	nnodes, err := n.NestedNodes()
-	if err != nil {
-		return fmt.Errorf("listing nested nodes for %s: %v", n, err)
+	nnodes := n.NestedNodes(&es)
+	if es != nil {
+		return fmt.Errorf("listing nested nodes for %s: %v", n, es)
 	}
 	for i := 0; i < nnodes.Len(); i++ {
 		nn := nnodes.At(i)
@@ -271,9 +273,9 @@ func resolveName(nodes nodeMap, n *node, base, name string, file *node) error {
 		if ni == nil {
 			continue
 		}
-		nname, err := nn.Name()
-		if err != nil {
-			return fmt.Errorf("reading name of nested node %d in %s: %v", i+1, n, err)
+		nname := nn.Name(&es)
+		if es != nil {
+			return fmt.Errorf("reading name of nested node %d in %s: %v", i+1, n, es)
 		}
 		if err := resolveName(nodes, ni, n.Name, nname, file); err != nil {
 			return err
@@ -282,14 +284,14 @@ func resolveName(nodes nodeMap, n *node, base, name string, file *node) error {
 
 	switch n.Which() {
 	case schema.Node_Which_structNode:
-		fields, _ := n.StructNode().Fields()
+		fields := n.StructNode().Fields(nil)
 		for i := 0; i < fields.Len(); i++ {
 			f := fields.At(i)
 			if f.Which() != schema.Field_Which_group {
 				continue
 			}
-			fa, _ := f.Annotations()
-			fname, _ := f.Name()
+			fa := f.Annotations(nil)
+			fname := f.Name(nil)
 			grp := nodes[f.Group().TypeId()]
 			if grp == nil {
 				return fmt.Errorf("could not find type information for group %s in %s", fname, n)
@@ -300,7 +302,7 @@ func resolveName(nodes nodeMap, n *node, base, name string, file *node) error {
 			}
 		}
 	case schema.Node_Which_interface:
-		m, _ := n.Interface().Methods()
+		m := n.Interface().Methods(nil)
 		methodResolve := func(id uint64, mname string, base string, name string) error {
 			x := nodes[id]
 			if x == nil {
@@ -313,8 +315,8 @@ func resolveName(nodes nodeMap, n *node, base, name string, file *node) error {
 		}
 		for i := 0; i < m.Len(); i++ {
 			mm := m.At(i)
-			mname, _ := mm.Name()
-			mann, _ := mm.Annotations()
+			mname := mm.Name(nil)
+			mann := mm.Annotations(nil)
 			base := n.Name + parseAnnotations(mann).Rename(mname)
 			if err := methodResolve(mm.ParamStructType(), mname, base, "Params"); err != nil {
 				return err

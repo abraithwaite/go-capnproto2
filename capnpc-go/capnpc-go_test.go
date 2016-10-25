@@ -193,7 +193,7 @@ func TestRemoteScope(t *testing.T) {
 			t.Errorf("Type of node @%#x in %s test is a %v node; want const. Check the test.", test.constID, test.name, v.Which())
 			return nil, schema.Type{}, nil, false
 		}
-		constType, _ := v.Const().Type()
+		constType := v.Const().Type(nil)
 		for _, i := range test.initImports {
 			g.imports.add(i)
 		}

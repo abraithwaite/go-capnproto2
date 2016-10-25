@@ -69,9 +69,10 @@ func (e *extracter) extractStruct(val reflect.Value, typeID uint64, s capnp.Stru
 			return err
 		}
 	}
-	fields, err := n.StructNode().Fields()
-	if err != nil {
-		return err
+	var es capnp.ErrorSet
+	fields := n.StructNode().Fields(&es)
+	if es != nil {
+		return es
 	}
 	for i := 0; i < fields.Len(); i++ {
 		f := fields.At(i)
@@ -80,7 +81,7 @@ func (e *extracter) extractStruct(val reflect.Value, typeID uint64, s capnp.Stru
 			// Don't have a field for this.
 			continue
 		}
-		if dv := f.DiscriminantValue(); dv != schema.Field_noDiscriminant {
+		if dv := f.DiscriminantValue(); dv != schema.FieldnoDiscriminant {
 			if !hasWhich {
 				return fmt.Errorf("can't extract %s into %v: has union field but no Which field", shortDisplayName(n), val.Type())
 			}
@@ -103,13 +104,14 @@ func (e *extracter) extractStruct(val reflect.Value, typeID uint64, s capnp.Stru
 }
 
 func (e *extracter) extractField(val reflect.Value, s capnp.Struct, f schema.Field) error {
-	typ, err := f.Slot().Type()
-	if err != nil {
-		return err
+	var es capnp.ErrorSet
+	typ := f.Slot().Type(&es)
+	if es != nil {
+		return es
 	}
-	dv, err := f.Slot().DefaultValue()
-	if err != nil {
-		return err
+	dv := f.Slot().DefaultValue(&es)
+	if es != nil {
+		return es
 	}
 	if dv.IsValid() && int(typ.Which()) != int(dv.Which()) {
 		name, _ := f.NameBytes()
@@ -194,7 +196,7 @@ func (e *extracter) extractField(val reflect.Value, s capnp.Struct, f schema.Fie
 		if p.IsValid() {
 			b = p.Data()
 		} else {
-			b, _ = dv.Data()
+			b = dv.Data(nil)
 		}
 		val.SetBytes(b)
 	case schema.Type_Which_structType:
@@ -227,9 +229,10 @@ func (e *extracter) extractField(val reflect.Value, s capnp.Struct, f schema.Fie
 
 func (e *extracter) extractList(val reflect.Value, typ schema.Type, l capnp.List) error {
 	vt := val.Type()
-	elem, err := typ.List().ElementType()
-	if err != nil {
-		return err
+	var es capnp.ErrorSet
+	elem := typ.List().ElementType(&es)
+	if es != nil {
+		return es
 	}
 	if !isTypeMatch(vt, typ) {
 		// TODO(light): the error won't be that useful for nested lists.
@@ -374,7 +377,7 @@ func isTypeMatch(r reflect.Type, s schema.Type) bool {
 	case schema.Type_Which_structType:
 		return isStructOrStructPtr(r)
 	case schema.Type_Which_list:
-		e, _ := s.List().ElementType()
+		e := s.List().ElementType(nil)
 		return r.Kind() == reflect.Slice && isTypeMatch(r.Elem(), e)
 	}
 	k, ok := typeMap[s.Which()]

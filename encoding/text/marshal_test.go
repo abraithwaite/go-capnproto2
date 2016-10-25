@@ -64,9 +64,10 @@ func TestEncode(t *testing.T) {
 	if err != nil {
 		t.Fatal("Reading code generator request txt.capnp.out:", err)
 	}
-	nodes, err := req.Nodes()
-	if err != nil {
-		t.Fatal(err)
+	var es capnp.ErrorSet
+	nodes := req.Nodes(&es)
+	if es != nil {
+		t.Fatal(es)
 	}
 	nodeMap := make(map[uint64]schema.Node, nodes.Len())
 	for i := 0; i < nodes.Len(); i++ {
@@ -80,15 +81,16 @@ func TestEncode(t *testing.T) {
 			t.Errorf("Can't find node %#x; skipping", test.constID)
 			continue
 		}
-		dn, _ := c.DisplayName()
+		dn := c.DisplayName(nil)
 		if c.Which() != schema.Node_Which_const {
 			t.Errorf("%s @%#x is a %v, not const; skipping", dn, test.constID, c.Which())
 			continue
 		}
 
-		typ, err := c.Const().Type()
-		if err != nil {
-			t.Errorf("(%s @%#x).const.type: %v", dn, test.constID, err)
+		var es capnp.ErrorSet
+		typ := c.Const().Type(&es)
+		if es != nil {
+			t.Errorf("(%s @%#x).const.type: %v", dn, test.constID, es)
 			continue
 		}
 		if typ.Which() != schema.Type_Which_structType {
@@ -97,9 +99,9 @@ func TestEncode(t *testing.T) {
 		}
 		tid := typ.StructType().TypeId()
 
-		v, err := c.Const().Value()
-		if err != nil {
-			t.Errorf("(%s @%#x).const.value: %v", dn, test.constID, err)
+		v := c.Const().Value(&es)
+		if es != nil {
+			t.Errorf("(%s @%#x).const.value: %v", dn, test.constID, es)
 			continue
 		}
 		if v.Which() != schema.Value_Which_structValue {

@@ -156,7 +156,7 @@ func (enc *Encoder) marshalStruct(typeID uint64, s capnp.Struct) error {
 		if !(f.Which() == schema.Field_Which_slot || f.Which() == schema.Field_Which_group) {
 			continue
 		}
-		if dv := f.DiscriminantValue(); !(dv == schema.Field_noDiscriminant || dv == discriminant) {
+		if dv := f.DiscriminantValue(); !(dv == schema.FieldnoDiscriminant || dv == discriminant) {
 			continue
 		}
 		if !first {
@@ -185,16 +185,17 @@ func (enc *Encoder) marshalStruct(typeID uint64, s capnp.Struct) error {
 }
 
 func (enc *Encoder) marshalFieldValue(s capnp.Struct, f schema.Field) error {
-	typ, err := f.Slot().Type()
-	if err != nil {
-		return err
+	var es capnp.ErrorSet
+	typ := f.Slot().Type(&es)
+	if es != nil {
+		return es
 	}
-	dv, err := f.Slot().DefaultValue()
-	if err != nil {
-		return err
+	dv := f.Slot().DefaultValue(&es)
+	if es != nil {
+		return es
 	}
 	if dv.IsValid() && int(typ.Which()) != int(dv.Which()) {
-		name, _ := f.Name()
+		name := f.Name(nil)
 		return fmt.Errorf("marshal field %s: default value is a %v, want %v", name, dv.Which(), typ.Which())
 	}
 	switch typ.Which() {
@@ -259,7 +260,7 @@ func (enc *Encoder) marshalFieldValue(s capnp.Struct, f schema.Field) error {
 			return err
 		}
 		if !p.IsValid() {
-			b, _ := dv.Data()
+			b := dv.Data(nil)
 			enc.marshalText(b)
 			return nil
 		}
@@ -276,9 +277,9 @@ func (enc *Encoder) marshalFieldValue(s capnp.Struct, f schema.Field) error {
 		}
 		enc.marshalText(p.TextBytes())
 	case schema.Type_Which_list:
-		elem, err := typ.List().ElementType()
-		if err != nil {
-			return err
+		elem := typ.List().ElementType(&es)
+		if es != nil {
+			return es
 		}
 		p, err := s.Ptr(uint16(f.Slot().Offset()))
 		if err != nil {
@@ -302,8 +303,8 @@ func (enc *Encoder) marshalFieldValue(s capnp.Struct, f schema.Field) error {
 	return nil
 }
 
-func codeOrderFields(s schema.Node_structNode) []schema.Field {
-	list, _ := s.Fields()
+func codeOrderFields(s schema.NodestructNode) []schema.Field {
+	list := s.Fields(nil)
 	n := list.Len()
 	fields := make([]schema.Field, n)
 	for i := 0; i < n; i++ {
@@ -314,6 +315,7 @@ func codeOrderFields(s schema.Node_structNode) []schema.Field {
 }
 
 func (enc *Encoder) marshalList(elem schema.Type, l capnp.List) error {
+	var es capnp.ErrorSet
 	enc.w.WriteByte('[')
 	switch elem.Which() {
 	case schema.Type_Which_void:
@@ -446,9 +448,9 @@ func (enc *Encoder) marshalList(elem schema.Type, l capnp.List) error {
 			}
 		}
 	case schema.Type_Which_list:
-		ee, err := elem.List().ElementType()
-		if err != nil {
-			return err
+		ee := elem.List().ElementType(&es)
+		if es != nil {
+			return es
 		}
 		for i := 0; i < l.Len(); i++ {
 			if i > 0 {
@@ -502,9 +504,10 @@ func (enc *Encoder) marshalEnum(typ uint64, val uint16) error {
 	if n.Which() != schema.Node_Which_enum {
 		return fmt.Errorf("marshaling enum of type @%#x: type is not an enum", typ)
 	}
-	enums, err := n.Enum().Enumerants()
-	if err != nil {
-		return err
+	var es capnp.ErrorSet
+	enums := n.Enum().Enumerants(&es)
+	if es != nil {
+		return es
 	}
 	if int(val) >= enums.Len() {
 		enc.marshalUint(uint64(val))
