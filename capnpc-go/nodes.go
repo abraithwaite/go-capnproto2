@@ -53,9 +53,9 @@ func (n *node) String() string {
 }
 
 func displayName(n interface {
-	DisplayName() (string, error)
+	DisplayName(*capnp.ErrorSet) string
 }) string {
-	dn, _ := n.DisplayName()
+	dn := n.DisplayName(nil)
 	return dn
 }
 
