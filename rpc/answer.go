@@ -313,7 +313,7 @@ func (qc *queueClient) handle(c *qcall) {
 		answer := qc.client.Call(c.call)
 		go joinFulfiller(c.f, answer)
 	case qcallDisembargo:
-		msg := newDisembargoMessage(nil, rpccapnp.Disembargo_context_Which_receiverLoopback, c.embargoID)
+		msg := newDisembargoMessage(nil, rpccapnp.Disembargocontext_Which_receiverLoopback, c.embargoID)
 		d := msg.Disembargo(nil)
 		d.SetTarget(c.embargoTarget)
 		qc.conn.sendMessage(msg)
@@ -387,7 +387,7 @@ func (qc *queueClient) rejectQueue() error {
 		case qcallLocalCall:
 			c.f.Reject(errQueueCallCancel)
 		case qcallDisembargo:
-			m := newDisembargoMessage(nil, rpccapnp.Disembargo_context_Which_receiverLoopback, c.embargoID)
+			m := newDisembargoMessage(nil, rpccapnp.Disembargocontext_Which_receiverLoopback, c.embargoID)
 			d := m.Disembargo(nil)
 			d.SetTarget(c.embargoTarget)
 			if err := qc.conn.sendMessage(m); err != nil && firstErr == nil {
