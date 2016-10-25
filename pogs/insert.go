@@ -55,9 +55,10 @@ func (ins *inserter) insertStruct(typeID uint64, s capnp.Struct, val reflect.Val
 			s.SetUint16(off, discriminant)
 		}
 	}
-	fields, err := n.StructNode().Fields()
-	if err != nil {
-		return err
+	var es capnp.ErrorSet
+	fields := n.StructNode().Fields(&es)
+	if es != nil {
+		return es
 	}
 	for i := 0; i < fields.Len(); i++ {
 		f := fields.At(i)
@@ -66,7 +67,7 @@ func (ins *inserter) insertStruct(typeID uint64, s capnp.Struct, val reflect.Val
 			// Don't have a field for this.
 			continue
 		}
-		if dv := f.DiscriminantValue(); dv != schema.Field_noDiscriminant {
+		if dv := f.DiscriminantValue(); dv != schema.FieldnoDiscriminant {
 			if !hasWhich {
 				sname, _ := f.NameBytes()
 				return fmt.Errorf("can't insert %s from %v: has union field %s but no Which field", shortDisplayName(n), val.Type(), sname)
@@ -90,13 +91,11 @@ func (ins *inserter) insertStruct(typeID uint64, s capnp.Struct, val reflect.Val
 }
 
 func (ins *inserter) insertField(s capnp.Struct, f schema.Field, val reflect.Value) error {
-	typ, err := f.Slot().Type()
-	if err != nil {
-		return err
-	}
-	dv, err := f.Slot().DefaultValue()
-	if err != nil {
-		return err
+	var es capnp.ErrorSet
+	typ := f.Slot().Type(&es)
+	dv := f.Slot().DefaultValue(&es)
+	if es != nil {
+		return es
 	}
 	if dv.IsValid() && int(typ.Which()) != int(dv.Which()) {
 		name, _ := f.NameBytes()
@@ -209,9 +208,9 @@ func (ins *inserter) insertField(s capnp.Struct, f schema.Field, val reflect.Val
 		if val.IsNil() {
 			return s.SetPtr(off, capnp.Ptr{})
 		}
-		elem, err := typ.List().ElementType()
-		if err != nil {
-			return err
+		elem := typ.List().ElementType(&es)
+		if es != nil {
+			return es
 		}
 		l, err := ins.newList(s.Segment(), elem, int32(val.Len()))
 		if err != nil {
@@ -228,9 +227,10 @@ func (ins *inserter) insertField(s capnp.Struct, f schema.Field, val reflect.Val
 }
 
 func (ins *inserter) insertList(l capnp.List, typ schema.Type, val reflect.Value) error {
-	elem, err := typ.List().ElementType()
-	if err != nil {
-		return err
+	var es capnp.ErrorSet
+	elem := typ.List().ElementType(&es)
+	if es != nil {
+		return es
 	}
 	if !isTypeMatch(val.Type(), typ) {
 		// TODO(light): the error won't be that useful for nested lists.
@@ -324,9 +324,9 @@ func (ins *inserter) insertList(l capnp.List, typ schema.Type, val reflect.Value
 				}
 				continue
 			}
-			ee, err := elem.List().ElementType()
-			if err != nil {
-				return err
+			ee := elem.List().ElementType(&es)
+			if es != nil {
+				return es
 			}
 			li, err := ins.newList(l.Segment(), ee, int32(vi.Len()))
 			if err != nil {

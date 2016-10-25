@@ -120,8 +120,8 @@ func (q *question) fulfill(obj capnp.Ptr) {
 		visited[cn] = true
 		id, e := q.conn.newEmbargo()
 		ctab[cn] = newEmbargoClient(ctab[cn], e, q.conn.bg.Done())
-		m := newDisembargoMessage(nil, rpccapnp.Disembargo_context_Which_senderLoopback, id)
-		dis, _ := m.Disembargo()
+		m := newDisembargoMessage(nil, rpccapnp.Disembargocontext_Which_senderLoopback, id)
+		dis := m.Disembargo(nil)
 		mt, _ := dis.NewTarget()
 		pa, _ := mt.NewPromisedAnswer()
 		pa.SetQuestionId(uint32(q.id))

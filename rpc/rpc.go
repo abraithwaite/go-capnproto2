@@ -280,6 +280,10 @@ func (c *Conn) Bootstrap(ctx context.Context) capnp.Client {
 // message.  m cannot be held onto past the return of handleMessage, and
 // c.mu is not held at the start of handleMessage.
 func (c *Conn) handleMessage(m rpccapnp.Message) {
+	var (
+		es  capnp.ErrorSet
+		err error
+	)
 	switch m.Which() {
 	case rpccapnp.Message_Which_unimplemented:
 		// no-op for now to avoid feedback loop
@@ -301,9 +305,9 @@ func (c *Conn) handleMessage(m rpccapnp.Message) {
 			c.errorf("handle return: %v", err)
 		}
 	case rpccapnp.Message_Which_finish:
-		mfin, err := m.Finish()
-		if err != nil {
-			c.errorf("decode finish: %v", err)
+		mfin := m.Finish(&es)
+		if es != nil {
+			c.errorf("decode finish: %v", es)
 			return
 		}
 		id := answerID(mfin.QuestionId())
@@ -323,9 +327,9 @@ func (c *Conn) handleMessage(m rpccapnp.Message) {
 		}
 		c.mu.Unlock()
 	case rpccapnp.Message_Which_bootstrap:
-		boot, err := m.Bootstrap()
-		if err != nil {
-			c.errorf("decode bootstrap: %v", err)
+		boot := m.Bootstrap(&es)
+		if es != nil {
+			c.errorf("decode bootstrap: %v", es)
 			return
 		}
 		id := answerID(boot.QuestionId())
@@ -347,9 +351,9 @@ func (c *Conn) handleMessage(m rpccapnp.Message) {
 			c.errorf("handle call: %v", err)
 		}
 	case rpccapnp.Message_Which_release:
-		rel, err := m.Release()
-		if err != nil {
-			c.errorf("decode release: %v", err)
+		rel := m.Release(&es)
+		if es != nil {
+			c.errorf("decode release: %v", es)
 			return
 		}
 		id := exportID(rel.Id())
@@ -400,7 +404,7 @@ func (c *Conn) fillParams(payload rpccapnp.Payload, cl *capnp.Call) error {
 }
 
 func transformToPromisedAnswer(s *capnp.Segment, answer rpccapnp.PromisedAnswer, transform []capnp.PipelineOp) error {
-	opList, err := rpccapnp.NewPromisedAnswer_Op_List(s, int32(len(transform)))
+	opList, err := rpccapnp.NewPromisedAnswerOp_List(s, int32(len(transform)))
 	if err != nil {
 		return err
 	}
@@ -414,9 +418,10 @@ func transformToPromisedAnswer(s *capnp.Segment, answer rpccapnp.PromisedAnswer,
 // handleReturnMessage is to handle a received return message.
 // The caller is holding onto c.mu.
 func (c *Conn) handleReturnMessage(m rpccapnp.Message) error {
-	ret, err := m.Return()
-	if err != nil {
-		return err
+	var es capnp.ErrorSet
+	ret := m.Return(&es)
+	if es != nil {
+		return es
 	}
 	id := questionID(ret.AnswerId())
 	q := c.popQuestion(id)
@@ -439,9 +444,9 @@ func (c *Conn) handleReturnMessage(m rpccapnp.Message) error {
 	switch ret.Which() {
 	case rpccapnp.Return_Which_results:
 		releaseResultCaps = false
-		results, err := ret.Results()
-		if err != nil {
-			return err
+		results := ret.Results(&es)
+		if es != nil {
+			return es
 		}
 		if err := c.populateMessageCapTable(results); err == errUnimplemented {
 			um := newUnimplementedMessage(nil, m)
@@ -457,9 +462,9 @@ func (c *Conn) handleReturnMessage(m rpccapnp.Message) error {
 		}
 		q.fulfill(content)
 	case rpccapnp.Return_Which_exception:
-		exc, err := ret.Exception()
-		if err != nil {
-			return err
+		exc := ret.Exception(&es)
+		if es != nil {
+			return es
 		}
 		e := error(Exception{exc})
 		if q.method != nil {
@@ -501,10 +506,11 @@ func newFinishMessage(buf []byte, questionID questionID, release bool) rpccapnp.
 // populateMessageCapTable converts the descriptors in the payload into
 // clients and sets it on the message the payload is a part of.
 func (c *Conn) populateMessageCapTable(payload rpccapnp.Payload) error {
+	var es capnp.ErrorSet
 	msg := payload.Segment().Message()
-	ctab, err := payload.CapTable()
-	if err != nil {
-		return err
+	ctab := payload.CapTable(&es)
+	if es != nil {
+		return es
 	}
 	for i, n := 0, ctab.Len(); i < n; i++ {
 		desc := ctab.At(i)
@@ -537,18 +543,18 @@ func (c *Conn) populateMessageCapTable(payload rpccapnp.Payload) error {
 			}
 			msg.AddCap(e.rc.Ref())
 		case rpccapnp.CapDescriptor_Which_receiverAnswer:
-			recvAns, err := desc.ReceiverAnswer()
-			if err != nil {
-				return err
+			recvAns := desc.ReceiverAnswer(&es)
+			if es != nil {
+				return es
 			}
 			id := answerID(recvAns.QuestionId())
 			a := c.answers[id]
 			if a == nil {
 				return fmt.Errorf("rpc: capability table references unknown answer ID %d", id)
 			}
-			recvTransform, err := recvAns.Transform()
-			if err != nil {
-				return err
+			recvTransform := recvAns.Transform(&es)
+			if es != nil {
+				return es
 			}
 			transform := promisedAnswerOpsToTransform(recvTransform)
 			msg.AddCap(a.pipelineClient(transform))
@@ -587,7 +593,7 @@ func (c *Conn) handleBootstrapMessage(id answerID) error {
 	if a == nil {
 		// Question ID reused, error out.
 		retmsg := newReturnMessage(nil, id)
-		r, _ := retmsg.Return()
+		r := retmsg.Return(nil)
 		setReturnException(r, errQuestionReused)
 		return c.sendMessage(retmsg)
 	}
@@ -610,21 +616,19 @@ func (c *Conn) handleBootstrapMessage(id answerID) error {
 // handleCallMessage handles a received call message.  It mutates the
 // capability table of its parameter.  The caller holds onto c.mu.
 func (c *Conn) handleCallMessage(m rpccapnp.Message) error {
-	mcall, err := m.Call()
-	if err != nil {
-		return err
-	}
-	mt, err := mcall.Target()
-	if err != nil {
-		return err
+	var es capnp.ErrorSet
+	mcall := m.Call(&es)
+	mt := mcall.Target(&es)
+	if es != nil {
+		return es
 	}
 	if mt.Which() != rpccapnp.MessageTarget_Which_importedCap && mt.Which() != rpccapnp.MessageTarget_Which_promisedAnswer {
 		um := newUnimplementedMessage(nil, m)
 		return c.sendMessage(um)
 	}
-	mparams, err := mcall.Params()
-	if err != nil {
-		return err
+	mparams := mcall.Params(&es)
+	if es != nil {
+		return es
 	}
 	if err := c.populateMessageCapTable(mparams); err == errUnimplemented {
 		um := newUnimplementedMessage(nil, m)
@@ -671,9 +675,13 @@ func (c *Conn) routeCallMessage(result *answer, mt rpccapnp.MessageTarget, cl *c
 		answer := c.lockedCall(e.client, cl)
 		go joinAnswer(result, answer)
 	case rpccapnp.MessageTarget_Which_promisedAnswer:
-		mpromise, err := mt.PromisedAnswer()
-		if err != nil {
-			return err
+		var (
+			es  capnp.ErrorSet
+			err error
+		)
+		mpromise := mt.PromisedAnswer(&es)
+		if es != nil {
+			return es
 		}
 		id := answerID(mpromise.QuestionId())
 		if id == result.id {
@@ -684,9 +692,9 @@ func (c *Conn) routeCallMessage(result *answer, mt rpccapnp.MessageTarget, cl *c
 		if pa == nil {
 			return errBadTarget
 		}
-		mtrans, err := mpromise.Transform()
-		if err != nil {
-			return err
+		mtrans := mpromise.Transform(&es)
+		if es != nil {
+			return es
 		}
 		transform := promisedAnswerOpsToTransform(mtrans)
 		pa.mu.Lock()
@@ -708,32 +716,30 @@ func (c *Conn) routeCallMessage(result *answer, mt rpccapnp.MessageTarget, cl *c
 }
 
 func (c *Conn) handleDisembargoMessage(msg rpccapnp.Message) error {
-	d, err := msg.Disembargo()
-	if err != nil {
-		return err
-	}
-	dtarget, err := d.Target()
-	if err != nil {
-		return err
+	var es capnp.ErrorSet
+	d := msg.Disembargo(&es)
+	dtarget := d.Target(&es)
+	if es != nil {
+		return es
 	}
 	switch d.Context().Which() {
-	case rpccapnp.Disembargo_context_Which_senderLoopback:
+	case rpccapnp.Disembargocontext_Which_senderLoopback:
 		id := embargoID(d.Context().SenderLoopback())
 		if dtarget.Which() != rpccapnp.MessageTarget_Which_promisedAnswer {
 			return errDisembargoNonImport
 		}
-		dpa, err := dtarget.PromisedAnswer()
-		if err != nil {
-			return err
+		dpa := dtarget.PromisedAnswer(&es)
+		if es != nil {
+			return es
 		}
 		aid := answerID(dpa.QuestionId())
 		a := c.answers[aid]
 		if a == nil {
 			return errDisembargoMissingAnswer
 		}
-		dtrans, err := dpa.Transform()
-		if err != nil {
-			return err
+		dtrans := dpa.Transform(&es)
+		if es != nil {
+			return es
 		}
 		transform := promisedAnswerOpsToTransform(dtrans)
 		queued, err := a.queueDisembargo(transform, id, dtarget)
@@ -742,14 +748,14 @@ func (c *Conn) handleDisembargoMessage(msg rpccapnp.Message) error {
 		}
 		if !queued {
 			// There's nothing to embargo; everything's been delivered.
-			resp := newDisembargoMessage(nil, rpccapnp.Disembargo_context_Which_receiverLoopback, id)
-			rd, _ := resp.Disembargo()
+			resp := newDisembargoMessage(nil, rpccapnp.Disembargocontext_Which_receiverLoopback, id)
+			rd := resp.Disembargo(nil)
 			if err := rd.SetTarget(dtarget); err != nil {
 				return err
 			}
 			c.sendMessage(resp)
 		}
-	case rpccapnp.Disembargo_context_Which_receiverLoopback:
+	case rpccapnp.Disembargocontext_Which_receiverLoopback:
 		id := embargoID(d.Context().ReceiverLoopback())
 		c.disembargo(id)
 	default:
@@ -760,13 +766,13 @@ func (c *Conn) handleDisembargoMessage(msg rpccapnp.Message) error {
 }
 
 // newDisembargoMessage creates a disembargo message.  Its target will be left blank.
-func newDisembargoMessage(buf []byte, which rpccapnp.Disembargo_context_Which, id embargoID) rpccapnp.Message {
+func newDisembargoMessage(buf []byte, which rpccapnp.Disembargocontext_Which, id embargoID) rpccapnp.Message {
 	msg := newMessage(buf)
 	d, _ := msg.NewDisembargo()
 	switch which {
-	case rpccapnp.Disembargo_context_Which_senderLoopback:
+	case rpccapnp.Disembargocontext_Which_senderLoopback:
 		d.Context().SetSenderLoopback(uint32(id))
-	case rpccapnp.Disembargo_context_Which_receiverLoopback:
+	case rpccapnp.Disembargocontext_Which_receiverLoopback:
 		d.Context().SetReceiverLoopback(uint32(id))
 	default:
 		panic("unreachable")
@@ -779,17 +785,17 @@ func (c *Conn) newContext() (context.Context, context.CancelFunc) {
 	return context.WithCancel(c.bg)
 }
 
-func promisedAnswerOpsToTransform(list rpccapnp.PromisedAnswer_Op_List) []capnp.PipelineOp {
+func promisedAnswerOpsToTransform(list rpccapnp.PromisedAnswerOp_List) []capnp.PipelineOp {
 	n := list.Len()
 	transform := make([]capnp.PipelineOp, 0, n)
 	for i := 0; i < n; i++ {
 		op := list.At(i)
 		switch op.Which() {
-		case rpccapnp.PromisedAnswer_Op_Which_getPointerField:
+		case rpccapnp.PromisedAnswerOp_Which_getPointerField:
 			transform = append(transform, capnp.PipelineOp{
 				Field: op.GetPointerField(),
 			})
-		case rpccapnp.PromisedAnswer_Op_Which_noop:
+		case rpccapnp.PromisedAnswerOp_Which_noop:
 			// no-op
 		}
 	}

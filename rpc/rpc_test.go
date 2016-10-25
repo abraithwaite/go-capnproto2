@@ -72,9 +72,10 @@ func readBootstrap(t *testing.T, ctx context.Context, conn *rpc.Conn, p rpc.Tran
 	if msg.Which() != rpccapnp.Message_Which_bootstrap {
 		t.Fatalf("Received %v message from bootstrap, want Message_Which_bootstrap", msg.Which())
 	}
-	boot, err := msg.Bootstrap()
-	if err != nil {
-		t.Fatal("Read Bootstrap failed:", err)
+	var es capnp.ErrorSet
+	boot := msg.Bootstrap(&es)
+	if es != nil {
+		t.Fatal("Read Bootstrap failed:", es)
 	}
 	questionID = boot.QuestionId()
 	// If this deadlocks, then Bootstrap isn't using a promised client.
@@ -125,9 +126,10 @@ func recvFinish(ctx context.Context, p rpc.Transport, questionID uint32) error {
 	} else if finish.Which() != rpccapnp.Message_Which_finish {
 		return fmt.Errorf("message sent is %v; want Message_Which_finish", finish.Which())
 	} else {
-		f, err := finish.Finish()
-		if err != nil {
-			return err
+		var es capnp.ErrorSet
+		f := finish.Finish(&es)
+		if es != nil {
+			return es
 		}
 		if id := f.QuestionId(); id != questionID {
 			return fmt.Errorf("finish question ID is %d; want %d", id, questionID)
@@ -213,22 +215,23 @@ func TestCallOnPromisedAnswer(t *testing.T) {
 	if read.msg.Which() != rpccapnp.Message_Which_call {
 		t.Fatalf("Conn sent %v message, want Message_Which_call", read.msg.Which())
 	}
-	call, err := read.msg.Call()
-	if err != nil {
-		t.Fatal("call error:", err)
+	var es capnp.ErrorSet
+	call := read.msg.Call(&es)
+	if es != nil {
+		t.Fatal("call error:", es)
 	}
-	if target, err := call.Target(); err != nil {
-		t.Fatal(err)
+	if target := call.Target(&es); es != nil {
+		t.Fatal(es)
 	} else if target.Which() == rpccapnp.MessageTarget_Which_promisedAnswer {
-		if pa, err := target.PromisedAnswer(); err != nil {
-			t.Error("call.target.promisedAnswer error:", err)
+		if pa := target.PromisedAnswer(&es); es != nil {
+			t.Error("call.target.promisedAnswer error:", es)
 		} else {
 			if qid := pa.QuestionId(); qid != bootstrapID {
 				t.Errorf("Target question ID = %d; want %d", qid, bootstrapID)
 			}
 			// TODO(light): allow no-ops
-			if xform, err := pa.Transform(); err != nil {
-				t.Error("call.target.promisedAnswer.transform error:", err)
+			if xform := pa.Transform(&es); es != nil {
+				t.Error("call.target.promisedAnswer.transform error:", es)
 			} else if xform.Len() != 0 {
 				t.Error("Target transform is non-empty")
 			}
@@ -242,17 +245,17 @@ func TestCallOnPromisedAnswer(t *testing.T) {
 	if id := call.MethodId(); id != methodID {
 		t.Errorf("Method ID = %d; want %d", id, methodID)
 	}
-	if params, err := call.Params(); err != nil {
-		t.Error("call.params error:", err)
+	if params := call.Params(&es); es != nil {
+		t.Error("call.params error:", es)
 	} else {
-		if content, err := params.Content(); err != nil {
-			t.Error("call.params.content error:", err)
+		if content := params.Content(&es); es != nil {
+			t.Error("call.params.content error:", es)
 		} else if x := capnp.ToStruct(content).Uint64(0); x != 42 {
 			t.Errorf("Params content value = %d; want %d", x, 42)
 		}
 	}
 	sendResultsTo := call.SendResultsTo()
-	if sendResultsTo.Which() != rpccapnp.Call_sendResultsTo_Which_caller {
+	if sendResultsTo.Which() != rpccapnp.CallsendResultsTo_Which_caller {
 		t.Errorf("Send results to %v; want caller", sendResultsTo.Which())
 	}
 }
@@ -290,15 +293,16 @@ func testCallOnExportId(t *testing.T, bootstrapIsPromise bool) {
 	if read.err != nil {
 		t.Fatal("Reading failed:", read.err)
 	}
-	call, err := read.msg.Call()
-	if err != nil {
-		t.Fatal("call error:", err)
+	var es capnp.ErrorSet
+	call := read.msg.Call(&es)
+	if es != nil {
+		t.Fatal("call error:", es)
 	}
 	if read.msg.Which() != rpccapnp.Message_Which_call {
 		t.Fatalf("Conn sent %v message, want Message_Which_call", read.msg.Which())
 	}
-	if target, err := call.Target(); err != nil {
-		t.Error("call.target error:", err)
+	if target := call.Target(&es); es != nil {
+		t.Error("call.target error:", es)
 	} else if target.Which() != rpccapnp.MessageTarget_Which_importedCap {
 		t.Errorf("Target is %v, want MessageTarget_Which_importedCap", target.Which())
 	} else {
@@ -312,16 +316,15 @@ func testCallOnExportId(t *testing.T, bootstrapIsPromise bool) {
 	if id := call.MethodId(); id != methodID {
 		t.Errorf("Method ID = %d; want %d", id, methodID)
 	}
-	if params, err := call.Params(); err != nil {
-		t.Error("call.params error:", err)
-	} else if content, err := params.Content(); err != nil {
-		t.Error("call.params.content error:", err)
+	if params := call.Params(&es); es != nil {
+		t.Error("call.params error:", es)
+	} else if content := params.Content(&es); es != nil {
+		t.Error("call.params.content error:", es)
 	} else if x := capnp.ToStruct(content).Uint64(0); x != 42 {
 		t.Errorf("Params content value = %d; want %d", x, 42)
 	}
-	if sendResultsTo := call.SendResultsTo(); err != nil {
-		t.Error("call.sendResultsTo error:", err)
-	} else if sendResultsTo.Which() != rpccapnp.Call_sendResultsTo_Which_caller {
+	sendResultsTo := call.SendResultsTo()
+	if sendResultsTo.Which() != rpccapnp.CallsendResultsTo_Which_caller {
 		t.Errorf("Send results to %v; want caller", sendResultsTo.Which())
 	}
 }
@@ -356,9 +359,10 @@ func bootstrapRoundtrip(t *testing.T, p rpc.Transport) (importID, questionID uin
 	if msg.Which() != rpccapnp.Message_Which_return {
 		t.Fatalf("Conn sent %v message, want Message_Which_return", msg.Which())
 	}
-	ret, err := msg.Return()
-	if err != nil {
-		t.Fatal("return error:", err)
+	var es capnp.ErrorSet
+	ret := msg.Return(&es)
+	if es != nil {
+		t.Fatal("return error:", es)
 	}
 	if id := ret.AnswerId(); id != questionID {
 		t.Fatalf("msg.Return().AnswerId() = %d; want %d", id, questionID)
@@ -366,9 +370,9 @@ func bootstrapRoundtrip(t *testing.T, p rpc.Transport) (importID, questionID uin
 	if ret.Which() != rpccapnp.Return_Which_results {
 		t.Fatalf("msg.Return().Which() = %v; want Return_Which_results", ret.Which())
 	}
-	payload, err := ret.Results()
-	if err != nil {
-		t.Fatal("return.results error:", err)
+	payload := ret.Results(&es)
+	if es != nil {
+		t.Fatal("return.results error:", es)
 	}
 	content, err := payload.ContentPtr()
 	if err != nil {
@@ -379,9 +383,9 @@ func bootstrapRoundtrip(t *testing.T, p rpc.Transport) (importID, questionID uin
 		t.Fatalf("Result payload contains %v; want interface", content)
 	}
 	capIdx := int(in.Capability())
-	capTable, err := payload.CapTable()
-	if err != nil {
-		t.Fatal("return.results.capTable error:", err)
+	capTable := payload.CapTable(&es)
+	if es != nil {
+		t.Fatal("return.results.capTable error:", es)
 	}
 	if n := capTable.Len(); capIdx >= n {
 		t.Fatalf("Payload capTable has size %d, but capability index = %d", n, capIdx)
@@ -457,9 +461,10 @@ func TestReceiveCallOnPromisedAnswer(t *testing.T) {
 	if retmsg.Which() != rpccapnp.Message_Which_return {
 		t.Fatalf("Return message is %v; want %v", retmsg.Which(), rpccapnp.Message_Which_return)
 	}
-	ret, err := retmsg.Return()
-	if err != nil {
-		t.Fatal("return error:", err)
+	var es capnp.ErrorSet
+	ret := retmsg.Return(&es)
+	if es != nil {
+		t.Fatal("return error:", es)
 	}
 	if id := ret.AnswerId(); id != questionID {
 		t.Errorf("Return.answerId = %d; want %d", id, questionID)
@@ -467,8 +472,8 @@ func TestReceiveCallOnPromisedAnswer(t *testing.T) {
 	if ret.Which() == rpccapnp.Return_Which_results {
 		// TODO(light)
 	} else if ret.Which() == rpccapnp.Return_Which_exception {
-		exc, _ := ret.Exception()
-		reason, _ := exc.Reason()
+		exc := ret.Exception(nil)
+		reason := exc.Reason(nil)
 		t.Error("Return.exception:", reason)
 	} else {
 		t.Errorf("Return.Which() = %v; want %v", ret.Which(), rpccapnp.Return_Which_results)
@@ -537,9 +542,10 @@ func TestReceiveCallOnExport(t *testing.T) {
 	if retmsg.Which() != rpccapnp.Message_Which_return {
 		t.Fatalf("Return message is %v; want %v", retmsg.Which(), rpccapnp.Message_Which_return)
 	}
-	ret, err := retmsg.Return()
-	if err != nil {
-		t.Fatal("return error:", err)
+	var es capnp.ErrorSet
+	ret := retmsg.Return(&es)
+	if es != nil {
+		t.Fatal("return error:", es)
 	}
 	if id := ret.AnswerId(); id != questionID {
 		t.Errorf("Return.answerId = %d; want %d", id, questionID)
@@ -547,8 +553,7 @@ func TestReceiveCallOnExport(t *testing.T) {
 	if ret.Which() == rpccapnp.Return_Which_results {
 		// TODO(light)
 	} else if ret.Which() == rpccapnp.Return_Which_exception {
-		exc, _ := ret.Exception()
-		reason, _ := exc.Reason()
+		reason := ret.Exception(nil).Reason(nil)
 		t.Error("Return.exception:", reason)
 	} else {
 		t.Errorf("Return.Which() = %v; want %v", ret.Which(), rpccapnp.Return_Which_results)

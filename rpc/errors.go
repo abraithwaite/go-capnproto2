@@ -15,8 +15,9 @@ type Exception struct {
 
 // Error returns the exception's reason.
 func (e Exception) Error() string {
-	r, err := e.Reason()
-	if err != nil {
+	var es capnp.ErrorSet
+	r := e.Reason(&es)
+	if es != nil {
 		return "rpc exception"
 	}
 	return "rpc exception: " + r
@@ -26,9 +27,10 @@ func (e Exception) Error() string {
 type Abort Exception
 
 func copyAbort(m rpccapnp.Message) (Abort, error) {
-	ma, err := m.Abort()
-	if err != nil {
-		return Abort{}, err
+	var es capnp.ErrorSet
+	ma := m.Abort(&es)
+	if es != nil {
+		return Abort{}, es
 	}
 	msg, _, _ := capnp.NewMessage(capnp.SingleSegment(nil))
 	if err := msg.SetRootPtr(ma.ToPtr()); err != nil {
@@ -43,8 +45,9 @@ func copyAbort(m rpccapnp.Message) (Abort, error) {
 
 // Error returns the exception's reason.
 func (a Abort) Error() string {
-	r, err := a.Reason()
-	if err != nil {
+	var es capnp.ErrorSet
+	r := a.Reason(&es)
+	if es != nil {
 		return "rpc: aborted by remote"
 	}
 	return "rpc: aborted by remote: " + r
@@ -52,10 +55,11 @@ func (a Abort) Error() string {
 
 // toException sets fields on exc to match err.
 func toException(exc rpccapnp.Exception, err error) {
+	var es capnp.ErrorSet
 	if ee, ok := err.(Exception); ok {
 		// TODO(light): copy struct
-		r, err := ee.Reason()
-		if err == nil {
+		r := ee.Reason(&es)
+		if es != nil {
 			exc.SetReason(r)
 		}
 		exc.SetType(ee.Type())
@@ -63,7 +67,7 @@ func toException(exc rpccapnp.Exception, err error) {
 	}
 
 	exc.SetReason(err.Error())
-	exc.SetType(rpccapnp.Exception_Type_failed)
+	exc.SetType(rpccapnp.EXCEPTIONTYPE_FAILED)
 }
 
 // Errors

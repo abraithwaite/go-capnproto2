@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	capnp "zombiezen.com/go/capnproto2"
 	"zombiezen.com/go/capnproto2/std/capnp/schema"
 )
 
@@ -103,9 +104,10 @@ type structProps struct {
 }
 
 func mapStruct(t reflect.Type, n schema.Node) (structProps, error) {
-	fields, err := n.StructNode().Fields()
-	if err != nil {
-		return structProps{}, err
+	var es capnp.ErrorSet
+	fields := n.StructNode().Fields(&es)
+	if es != nil {
+		return structProps{}, es
 	}
 	sp := structProps{
 		fields:   make([]fieldLoc, fields.Len()),
@@ -212,7 +214,7 @@ func (sm *structMapper) visitField(loc fieldLoc, f reflect.StructField, p fieldP
 				return fmt.Errorf("%v.Which is tagged with unknown field %s", sm.t, p.fixedWhich)
 			}
 			dv := sm.fields.At(fi).DiscriminantValue()
-			if dv == schema.Field_noDiscriminant {
+			if dv == schema.FieldnoDiscriminant {
 				return fmt.Errorf("%v.Which is tagged with non-union field %s", sm.t, p.fixedWhich)
 			}
 			sm.sp.whichLoc = fieldLoc{i: -2}
