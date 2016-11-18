@@ -255,6 +255,18 @@ func (p BitList) Set(i int, v bool) {
 	}
 }
 
+func (l BitList) Copy(seg *Segment) (BitList, error) {
+	var err error
+	t, err := NewBitList(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		t.Set(i, l.At(i))
+	}
+	return t, nil
+}
+
 // A PointerList is a reference to an array of pointers.
 type PointerList struct{ List }
 
@@ -300,6 +312,22 @@ func (p PointerList) SetPtr(i int, v Ptr) error {
 	return p.seg.writePtr(copyContext{}, addr, v)
 }
 
+func (l PointerList) Copy(seg *Segment) (PointerList, error) {
+	var err error
+	t, err := NewPointerList(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		v, err := l.At(i)
+		if err != nil {
+			return t, err
+		}
+		t.Set(i, v)
+	}
+	return t, nil
+}
+
 // TextList is an array of pointers to strings.
 type TextList struct{ List }
 
@@ -343,6 +371,22 @@ func (l TextList) Set(i int, v string) error {
 	return p.seg.writePtr(copyContext{}, addr, p.List.ToPtr())
 }
 
+func (l TextList) Copy(seg *Segment) (TextList, error) {
+	var err error
+	t, err := NewTextList(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		v, err := l.At(i)
+		if err != nil {
+			return t, err
+		}
+		t.Set(i, v)
+	}
+	return t, nil
+}
+
 // DataList is an array of pointers to data.
 type DataList struct{ List }
 
@@ -373,6 +417,22 @@ func (l DataList) Set(i int, v []byte) error {
 		return err
 	}
 	return p.seg.writePtr(copyContext{}, addr, p.List.ToPtr())
+}
+
+func (l DataList) Copy(seg *Segment) (DataList, error) {
+	var err error
+	t, err := NewDataList(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		v, err := l.At(i)
+		if err != nil {
+			return t, err
+		}
+		t.Set(i, v)
+	}
+	return t, nil
 }
 
 // A VoidList is a list of zero-sized elements.
@@ -475,6 +535,18 @@ func (l UInt8List) Set(i int, v uint8) {
 	b[0] = v
 }
 
+func (l UInt8List) Copy(seg *Segment) (UInt8List, error) {
+	var err error
+	t, err := NewUInt8List(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		t.Set(i, l.At(i))
+	}
+	return t, nil
+}
+
 // Int8List is an array of Int8 values.
 type Int8List struct{ List }
 
@@ -505,6 +577,18 @@ func (l Int8List) Set(i int, v int8) {
 	b[0] = uint8(v)
 }
 
+func (l Int8List) Copy(seg *Segment) (Int8List, error) {
+	var err error
+	t, err := NewInt8List(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		t.Set(i, l.At(i))
+	}
+	return t, nil
+}
+
 // A UInt16List is an array of UInt16 values.
 type UInt16List struct{ List }
 
@@ -527,6 +611,18 @@ func (l UInt16List) At(i int) uint16 {
 func (l UInt16List) Set(i int, v uint16) {
 	addr, _ := l.elem(i)
 	l.seg.writeUint16(addr, v)
+}
+
+func (l UInt16List) Copy(seg *Segment) (UInt16List, error) {
+	var err error
+	t, err := NewUInt16List(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		t.Set(i, l.At(i))
+	}
+	return t, nil
 }
 
 // Int16List is an array of Int16 values.
@@ -553,6 +649,18 @@ func (l Int16List) Set(i int, v int16) {
 	l.seg.writeUint16(addr, uint16(v))
 }
 
+func (l Int16List) Copy(seg *Segment) (Int16List, error) {
+	var err error
+	t, err := NewInt16List(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		t.Set(i, l.At(i))
+	}
+	return t, nil
+}
+
 // UInt32List is an array of UInt32 values.
 type UInt32List struct{ List }
 
@@ -575,6 +683,18 @@ func (l UInt32List) At(i int) uint32 {
 func (l UInt32List) Set(i int, v uint32) {
 	addr, _ := l.elem(i)
 	l.seg.writeUint32(addr, v)
+}
+
+func (l UInt32List) Copy(seg *Segment) (UInt32List, error) {
+	var err error
+	t, err := NewUInt32List(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		t.Set(i, l.At(i))
+	}
+	return t, nil
 }
 
 // Int32List is an array of Int32 values.
@@ -601,6 +721,18 @@ func (l Int32List) Set(i int, v int32) {
 	l.seg.writeUint32(addr, uint32(v))
 }
 
+func (l Int32List) Copy(seg *Segment) (Int32List, error) {
+	var err error
+	t, err := NewInt32List(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		t.Set(i, l.At(i))
+	}
+	return t, nil
+}
+
 // UInt64List is an array of UInt64 values.
 type UInt64List struct{ List }
 
@@ -623,6 +755,18 @@ func (l UInt64List) At(i int) uint64 {
 func (l UInt64List) Set(i int, v uint64) {
 	addr, _ := l.elem(i)
 	l.seg.writeUint64(addr, v)
+}
+
+func (l UInt64List) Copy(seg *Segment) (UInt64List, error) {
+	var err error
+	t, err := NewUInt64List(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		t.Set(i, l.At(i))
+	}
+	return t, nil
 }
 
 // Int64List is an array of Int64 values.
@@ -649,6 +793,18 @@ func (l Int64List) Set(i int, v int64) {
 	l.seg.writeUint64(addr, uint64(v))
 }
 
+func (l Int64List) Copy(seg *Segment) (Int64List, error) {
+	var err error
+	t, err := NewInt64List(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		t.Set(i, l.At(i))
+	}
+	return t, nil
+}
+
 // Float32List is an array of Float32 values.
 type Float32List struct{ List }
 
@@ -673,6 +829,18 @@ func (l Float32List) Set(i int, v float32) {
 	l.seg.writeUint32(addr, math.Float32bits(v))
 }
 
+func (l Float32List) Copy(seg *Segment) (Float32List, error) {
+	var err error
+	t, err := NewFloat32List(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		t.Set(i, l.At(i))
+	}
+	return t, nil
+}
+
 // Float64List is an array of Float64 values.
 type Float64List struct{ List }
 
@@ -695,6 +863,18 @@ func (l Float64List) At(i int) float64 {
 func (l Float64List) Set(i int, v float64) {
 	addr, _ := l.elem(i)
 	l.seg.writeUint64(addr, math.Float64bits(v))
+}
+
+func (l Float64List) Copy(seg *Segment) (Float64List, error) {
+	var err error
+	t, err := NewFloat64List(seg, int32(l.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < l.Len(); i++ {
+		t.Set(i, l.At(i))
+	}
+	return t, nil
 }
 
 type listFlags uint8

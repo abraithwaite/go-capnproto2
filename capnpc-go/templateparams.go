@@ -45,6 +45,15 @@ type structFuncsParams struct {
 	Node *node
 }
 
+type structCopyFuncParams struct {
+	G              *generator
+	Node           *node
+	Fields         []field
+	StructFields   []field
+	TextFields     []field
+	NoDiscriminant uint16
+}
+
 type structGroupParams struct {
 	G     *generator
 	Node  *node

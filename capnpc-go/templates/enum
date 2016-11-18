@@ -51,3 +51,9 @@ func (l {{.Node.Name}}_List) Set(i int, v {{.Node.Name}}) {
 	ul := {{.G.Capnp}}.UInt16List{List: l.List}
 	ul.Set(i, uint16(v))
 }
+
+func (l {{ .Node.Name }}_List) Copy(seg *capnp.Segment) ({{ .Node.Name }}_List, error) {
+	ul := {{.G.Capnp}}.UInt16List{List: l.List}
+	t, err := ul.Copy(seg)
+	return {{.Node.Name}}_List{t.List}, err
+}

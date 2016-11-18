@@ -1,0 +1,49 @@
+func (s {{ .Node.Name }}) Copy(seg *capnp.Segment) ({{ .Node.Name }}, error) {
+	var err error
+	t, err := New{{ .Node.Name }}(seg)
+	if err != nil {
+		return t, err
+	}
+	{{- range $i, $f := .StructFields }}
+	{{- $isUnion := ( $f.DiscriminantValue ) ne .NoDiscriminant }}
+	{{- if $isUnion }}
+	if s.Has{{ $f.Name | title }}() {
+		v, err := s.{{ $f.Name | title }}()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.Set{{ $f.Name | title }}(c)
+	}
+	{{- else }}
+	{
+	o, err := s.{{ $f.Name | title }}()
+	if err != nil {
+		return t, err
+	}
+	v, err := o.Copy(seg)
+	if err != nil {
+		return t, err
+	}
+	t.Set{{ $f.Name | title }}(v)
+	}
+	{{- end }}
+	{{- end }}
+	{{- range $i, $f := .TextFields }}
+	{
+		v, err := s.{{ $f.Name | title }}()
+		if err != nil {
+			return t, err
+		}
+		t.Set{{ $f.Name | title }}(v)
+	}
+	{{- end }}
+	{{- range $i, $f := .Fields }}
+		t.Set{{ $f.Name | title }}(s.{{ $f.Name | title }}())
+	{{- end }}
+	return t, nil
+}
+

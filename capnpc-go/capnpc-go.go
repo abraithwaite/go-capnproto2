@@ -15,6 +15,7 @@ import (
 	"flag"
 	"fmt"
 	"go/format"
+	"log"
 	"math"
 	"os"
 	"path/filepath"
@@ -799,6 +800,9 @@ func (g *generator) defineStruct(n *node) error {
 	if err := g.defineBaseStructFuncs(n); err != nil {
 		return err
 	}
+	if err := g.defineStructCopyFunc(n); err != nil {
+		return err
+	}
 	if err := g.defineStructFuncs(n); err != nil {
 		return err
 	}
@@ -839,6 +843,54 @@ func (g *generator) defineStructTypes(n, baseNode *node) error {
 		}
 	}
 	return nil
+}
+
+func (g *generator) defineStructCopyFunc(n *node) error {
+	fields := n.codeOrderFields()
+
+	var (
+		lf []field
+		tf []field
+		sf []field
+	)
+	for _, f := range fields {
+		// TODO: support groups
+		if f.Which() == schema.Field_Which_group {
+			log.Println("group types not supported yet")
+			continue
+		}
+		fs := f.Slot()
+		typ, err := fs.Type()
+		if err != nil {
+			return err
+		}
+		switch typ.Which() {
+		case schema.Type_Which_void:
+		case schema.Type_Which_interface:
+			log.Println("interface types not supported yet")
+		case schema.Type_Which_list, schema.Type_Which_structType:
+			sf = append(sf, f)
+		case schema.Type_Which_text, schema.Type_Which_data:
+			tf = append(tf, f)
+		case schema.Type_Which_bool, schema.Type_Which_int8,
+			schema.Type_Which_int16, schema.Type_Which_int32,
+			schema.Type_Which_int64, schema.Type_Which_uint8,
+			schema.Type_Which_uint16, schema.Type_Which_uint32,
+			schema.Type_Which_uint64, schema.Type_Which_float32,
+			schema.Type_Which_float64, schema.Type_Which_enum:
+			lf = append(lf, f)
+		default:
+			log.Println("unknown type not supported")
+		}
+	}
+	return renderStructCopyFunc(g.r, structCopyFuncParams{
+		G:              g,
+		Node:           n,
+		Fields:         lf,
+		TextFields:     tf,
+		StructFields:   sf,
+		NoDiscriminant: schema.Field_noDiscriminant,
+	})
 }
 
 func (g *generator) defineStructEnums(n *node) error {
