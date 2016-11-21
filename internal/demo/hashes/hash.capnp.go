@@ -97,6 +97,15 @@ func (s HashFactory_newSha1_Params) String() string {
 	return str
 }
 
+func (s HashFactory_newSha1_Params) Copy(seg *capnp.Segment) (HashFactory_newSha1_Params, error) {
+	var err error
+	t, err := NewHashFactory_newSha1_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 // HashFactory_newSha1_Params_List is a list of HashFactory_newSha1_Params.
 type HashFactory_newSha1_Params_List struct{ capnp.List }
 
@@ -112,6 +121,18 @@ func (s HashFactory_newSha1_Params_List) At(i int) HashFactory_newSha1_Params {
 
 func (s HashFactory_newSha1_Params_List) Set(i int, v HashFactory_newSha1_Params) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s HashFactory_newSha1_Params_List) Copy(seg *capnp.Segment) (HashFactory_newSha1_Params_List, error) {
+	var err error
+	t, err := NewHashFactory_newSha1_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // HashFactory_newSha1_Params_Promise is a wrapper for a HashFactory_newSha1_Params promised by a client call.
@@ -145,6 +166,15 @@ func ReadRootHashFactory_newSha1_Results(msg *capnp.Message) (HashFactory_newSha
 func (s HashFactory_newSha1_Results) String() string {
 	str, _ := text.Marshal(0xea3e50f7663f7bdf, s.Struct)
 	return str
+}
+
+func (s HashFactory_newSha1_Results) Copy(seg *capnp.Segment) (HashFactory_newSha1_Results, error) {
+	var err error
+	t, err := NewHashFactory_newSha1_Results(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
 }
 
 func (s HashFactory_newSha1_Results) Hash() Hash {
@@ -181,6 +211,18 @@ func (s HashFactory_newSha1_Results_List) At(i int) HashFactory_newSha1_Results 
 
 func (s HashFactory_newSha1_Results_List) Set(i int, v HashFactory_newSha1_Results) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s HashFactory_newSha1_Results_List) Copy(seg *capnp.Segment) (HashFactory_newSha1_Results_List, error) {
+	var err error
+	t, err := NewHashFactory_newSha1_Results_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // HashFactory_newSha1_Results_Promise is a wrapper for a HashFactory_newSha1_Results promised by a client call.
@@ -326,6 +368,22 @@ func (s Hash_write_Params) String() string {
 	return str
 }
 
+func (s Hash_write_Params) Copy(seg *capnp.Segment) (Hash_write_Params, error) {
+	var err error
+	t, err := NewHash_write_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	{
+		v, err := s.Data()
+		if err != nil {
+			return t, err
+		}
+		t.SetData(v)
+	}
+	return t, nil
+}
+
 func (s Hash_write_Params) Data() ([]byte, error) {
 	p, err := s.Struct.Ptr(0)
 	return []byte(p.Data()), err
@@ -361,6 +419,18 @@ func (s Hash_write_Params_List) Set(i int, v Hash_write_Params) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s Hash_write_Params_List) Copy(seg *capnp.Segment) (Hash_write_Params_List, error) {
+	var err error
+	t, err := NewHash_write_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Hash_write_Params_Promise is a wrapper for a Hash_write_Params promised by a client call.
 type Hash_write_Params_Promise struct{ *capnp.Pipeline }
 
@@ -394,6 +464,15 @@ func (s Hash_write_Results) String() string {
 	return str
 }
 
+func (s Hash_write_Results) Copy(seg *capnp.Segment) (Hash_write_Results, error) {
+	var err error
+	t, err := NewHash_write_Results(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 // Hash_write_Results_List is a list of Hash_write_Results.
 type Hash_write_Results_List struct{ capnp.List }
 
@@ -409,6 +488,18 @@ func (s Hash_write_Results_List) At(i int) Hash_write_Results {
 
 func (s Hash_write_Results_List) Set(i int, v Hash_write_Results) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Hash_write_Results_List) Copy(seg *capnp.Segment) (Hash_write_Results_List, error) {
+	var err error
+	t, err := NewHash_write_Results_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // Hash_write_Results_Promise is a wrapper for a Hash_write_Results promised by a client call.
@@ -444,6 +535,15 @@ func (s Hash_sum_Params) String() string {
 	return str
 }
 
+func (s Hash_sum_Params) Copy(seg *capnp.Segment) (Hash_sum_Params, error) {
+	var err error
+	t, err := NewHash_sum_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 // Hash_sum_Params_List is a list of Hash_sum_Params.
 type Hash_sum_Params_List struct{ capnp.List }
 
@@ -457,6 +557,18 @@ func (s Hash_sum_Params_List) At(i int) Hash_sum_Params { return Hash_sum_Params
 
 func (s Hash_sum_Params_List) Set(i int, v Hash_sum_Params) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Hash_sum_Params_List) Copy(seg *capnp.Segment) (Hash_sum_Params_List, error) {
+	var err error
+	t, err := NewHash_sum_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // Hash_sum_Params_Promise is a wrapper for a Hash_sum_Params promised by a client call.
@@ -492,6 +604,22 @@ func (s Hash_sum_Results) String() string {
 	return str
 }
 
+func (s Hash_sum_Results) Copy(seg *capnp.Segment) (Hash_sum_Results, error) {
+	var err error
+	t, err := NewHash_sum_Results(seg)
+	if err != nil {
+		return t, err
+	}
+	{
+		v, err := s.Hash()
+		if err != nil {
+			return t, err
+		}
+		t.SetHash(v)
+	}
+	return t, nil
+}
+
 func (s Hash_sum_Results) Hash() ([]byte, error) {
 	p, err := s.Struct.Ptr(0)
 	return []byte(p.Data()), err
@@ -523,6 +651,18 @@ func (s Hash_sum_Results_List) At(i int) Hash_sum_Results { return Hash_sum_Resu
 
 func (s Hash_sum_Results_List) Set(i int, v Hash_sum_Results) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Hash_sum_Results_List) Copy(seg *capnp.Segment) (Hash_sum_Results_List, error) {
+	var err error
+	t, err := NewHash_sum_Results_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // Hash_sum_Results_Promise is a wrapper for a Hash_sum_Results promised by a client call.

@@ -48,6 +48,18 @@ func (s Zdate) String() string {
 	return str
 }
 
+func (s Zdate) Copy(seg *capnp.Segment) (Zdate, error) {
+	var err error
+	t, err := NewZdate(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetYear(s.Year())
+	t.SetMonth(s.Month())
+	t.SetDay(s.Day())
+	return t, nil
+}
+
 func (s Zdate) Year() int16 {
 	return int16(s.Struct.Uint16(0))
 }
@@ -85,6 +97,18 @@ func (s Zdate_List) At(i int) Zdate { return Zdate{s.List.Struct(i)} }
 
 func (s Zdate_List) Set(i int, v Zdate) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s Zdate_List) Copy(seg *capnp.Segment) (Zdate_List, error) {
+	var err error
+	t, err := NewZdate_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Zdate_Promise is a wrapper for a Zdate promised by a client call.
 type Zdate_Promise struct{ *capnp.Pipeline }
 
@@ -118,6 +142,22 @@ func (s Zdata) String() string {
 	return str
 }
 
+func (s Zdata) Copy(seg *capnp.Segment) (Zdata, error) {
+	var err error
+	t, err := NewZdata(seg)
+	if err != nil {
+		return t, err
+	}
+	{
+		v, err := s.Data()
+		if err != nil {
+			return t, err
+		}
+		t.SetData(v)
+	}
+	return t, nil
+}
+
 func (s Zdata) Data() ([]byte, error) {
 	p, err := s.Struct.Ptr(0)
 	return []byte(p.Data()), err
@@ -148,6 +188,18 @@ func NewZdata_List(s *capnp.Segment, sz int32) (Zdata_List, error) {
 func (s Zdata_List) At(i int) Zdata { return Zdata{s.List.Struct(i)} }
 
 func (s Zdata_List) Set(i int, v Zdata) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Zdata_List) Copy(seg *capnp.Segment) (Zdata_List, error) {
+	var err error
+	t, err := NewZdata_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // Zdata_Promise is a wrapper for a Zdata promised by a client call.
 type Zdata_Promise struct{ *capnp.Pipeline }
@@ -234,6 +286,12 @@ func (l Airport_List) Set(i int, v Airport) {
 	ul.Set(i, uint16(v))
 }
 
+func (l Airport_List) Copy(seg *capnp.Segment) (Airport_List, error) {
+	ul := capnp.UInt16List{List: l.List}
+	t, err := ul.Copy(seg)
+	return Airport_List{t.List}, err
+}
+
 type PlaneBase struct{ capnp.Struct }
 
 // PlaneBase_TypeID is the unique identifier for the type PlaneBase.
@@ -257,6 +315,37 @@ func ReadRootPlaneBase(msg *capnp.Message) (PlaneBase, error) {
 func (s PlaneBase) String() string {
 	str, _ := text.Marshal(0xd8bccf6e60a73791, s.Struct)
 	return str
+}
+
+func (s PlaneBase) Copy(seg *capnp.Segment) (PlaneBase, error) {
+	var err error
+	t, err := NewPlaneBase(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasHomes() {
+		v, err := s.Homes()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetHomes(c)
+	}
+	{
+		v, err := s.Name()
+		if err != nil {
+			return t, err
+		}
+		t.SetName(v)
+	}
+	t.SetRating(s.Rating())
+	t.SetCanFly(s.CanFly())
+	t.SetCapacity(s.Capacity())
+	t.SetMaxSpeed(s.MaxSpeed())
+	return t, nil
 }
 
 func (s PlaneBase) Name() (string, error) {
@@ -352,6 +441,18 @@ func (s PlaneBase_List) At(i int) PlaneBase { return PlaneBase{s.List.Struct(i)}
 
 func (s PlaneBase_List) Set(i int, v PlaneBase) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s PlaneBase_List) Copy(seg *capnp.Segment) (PlaneBase_List, error) {
+	var err error
+	t, err := NewPlaneBase_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // PlaneBase_Promise is a wrapper for a PlaneBase promised by a client call.
 type PlaneBase_Promise struct{ *capnp.Pipeline }
 
@@ -383,6 +484,26 @@ func ReadRootB737(msg *capnp.Message) (B737, error) {
 func (s B737) String() string {
 	str, _ := text.Marshal(0xccb3b2e3603826e0, s.Struct)
 	return str
+}
+
+func (s B737) Copy(seg *capnp.Segment) (B737, error) {
+	var err error
+	t, err := NewB737(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasBase() {
+		v, err := s.Base()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetBase(c)
+	}
+	return t, nil
 }
 
 func (s B737) Base() (PlaneBase, error) {
@@ -423,6 +544,18 @@ func (s B737_List) At(i int) B737 { return B737{s.List.Struct(i)} }
 
 func (s B737_List) Set(i int, v B737) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s B737_List) Copy(seg *capnp.Segment) (B737_List, error) {
+	var err error
+	t, err := NewB737_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // B737_Promise is a wrapper for a B737 promised by a client call.
 type B737_Promise struct{ *capnp.Pipeline }
 
@@ -458,6 +591,26 @@ func ReadRootA320(msg *capnp.Message) (A320, error) {
 func (s A320) String() string {
 	str, _ := text.Marshal(0xd98c608877d9cb8d, s.Struct)
 	return str
+}
+
+func (s A320) Copy(seg *capnp.Segment) (A320, error) {
+	var err error
+	t, err := NewA320(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasBase() {
+		v, err := s.Base()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetBase(c)
+	}
+	return t, nil
 }
 
 func (s A320) Base() (PlaneBase, error) {
@@ -498,6 +651,18 @@ func (s A320_List) At(i int) A320 { return A320{s.List.Struct(i)} }
 
 func (s A320_List) Set(i int, v A320) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s A320_List) Copy(seg *capnp.Segment) (A320_List, error) {
+	var err error
+	t, err := NewA320_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // A320_Promise is a wrapper for a A320 promised by a client call.
 type A320_Promise struct{ *capnp.Pipeline }
 
@@ -533,6 +698,26 @@ func ReadRootF16(msg *capnp.Message) (F16, error) {
 func (s F16) String() string {
 	str, _ := text.Marshal(0xe1c9eac512335361, s.Struct)
 	return str
+}
+
+func (s F16) Copy(seg *capnp.Segment) (F16, error) {
+	var err error
+	t, err := NewF16(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasBase() {
+		v, err := s.Base()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetBase(c)
+	}
+	return t, nil
 }
 
 func (s F16) Base() (PlaneBase, error) {
@@ -573,6 +758,18 @@ func (s F16_List) At(i int) F16 { return F16{s.List.Struct(i)} }
 
 func (s F16_List) Set(i int, v F16) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s F16_List) Copy(seg *capnp.Segment) (F16_List, error) {
+	var err error
+	t, err := NewF16_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // F16_Promise is a wrapper for a F16 promised by a client call.
 type F16_Promise struct{ *capnp.Pipeline }
 
@@ -608,6 +805,51 @@ func ReadRootRegression(msg *capnp.Message) (Regression, error) {
 func (s Regression) String() string {
 	str, _ := text.Marshal(0xb1f0385d845e367f, s.Struct)
 	return str
+}
+
+func (s Regression) Copy(seg *capnp.Segment) (Regression, error) {
+	var err error
+	t, err := NewRegression(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasBase() {
+		v, err := s.Base()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetBase(c)
+	}
+	if s.HasBeta() {
+		v, err := s.Beta()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetBeta(c)
+	}
+	if s.HasPlanes() {
+		v, err := s.Planes()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetPlanes(c)
+	}
+	t.SetB0(s.B0())
+	t.SetYmu(s.Ymu())
+	t.SetYsd(s.Ysd())
+	return t, nil
 }
 
 func (s Regression) Base() (PlaneBase, error) {
@@ -722,6 +964,18 @@ func (s Regression_List) At(i int) Regression { return Regression{s.List.Struct(
 
 func (s Regression_List) Set(i int, v Regression) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s Regression_List) Copy(seg *capnp.Segment) (Regression_List, error) {
+	var err error
+	t, err := NewRegression_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Regression_Promise is a wrapper for a Regression promised by a client call.
 type Regression_Promise struct{ *capnp.Pipeline }
 
@@ -781,6 +1035,48 @@ func ReadRootAircraft(msg *capnp.Message) (Aircraft, error) {
 func (s Aircraft) String() string {
 	str, _ := text.Marshal(0xe54e10aede55c7b1, s.Struct)
 	return str
+}
+
+func (s Aircraft) Copy(seg *capnp.Segment) (Aircraft, error) {
+	var err error
+	t, err := NewAircraft(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasB737() {
+		v, err := s.B737()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetB737(c)
+	}
+	if s.HasA320() {
+		v, err := s.A320()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetA320(c)
+	}
+	if s.HasF16() {
+		v, err := s.F16()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetF16(c)
+	}
+	return t, nil
 }
 
 func (s Aircraft) Which() Aircraft_Which {
@@ -893,6 +1189,18 @@ func NewAircraft_List(s *capnp.Segment, sz int32) (Aircraft_List, error) {
 func (s Aircraft_List) At(i int) Aircraft { return Aircraft{s.List.Struct(i)} }
 
 func (s Aircraft_List) Set(i int, v Aircraft) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Aircraft_List) Copy(seg *capnp.Segment) (Aircraft_List, error) {
+	var err error
+	t, err := NewAircraft_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // Aircraft_Promise is a wrapper for a Aircraft promised by a client call.
 type Aircraft_Promise struct{ *capnp.Pipeline }
@@ -1079,6 +1387,338 @@ func ReadRootZ(msg *capnp.Message) (Z, error) {
 func (s Z) String() string {
 	str, _ := text.Marshal(0xea26e9973bd6a0d9, s.Struct)
 	return str
+}
+
+func (s Z) Copy(seg *capnp.Segment) (Z, error) {
+	var err error
+	t, err := NewZ(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasZz() {
+		v, err := s.Zz()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetZz(c)
+	}
+	if s.HasF64vec() {
+		v, err := s.F64vec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetF64vec(c)
+	}
+	if s.HasF32vec() {
+		v, err := s.F32vec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetF32vec(c)
+	}
+	if s.HasI64vec() {
+		v, err := s.I64vec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetI64vec(c)
+	}
+	if s.HasI32vec() {
+		v, err := s.I32vec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetI32vec(c)
+	}
+	if s.HasI16vec() {
+		v, err := s.I16vec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetI16vec(c)
+	}
+	if s.HasI8vec() {
+		v, err := s.I8vec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetI8vec(c)
+	}
+	if s.HasU64vec() {
+		v, err := s.U64vec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetU64vec(c)
+	}
+	if s.HasU32vec() {
+		v, err := s.U32vec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetU32vec(c)
+	}
+	if s.HasU16vec() {
+		v, err := s.U16vec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetU16vec(c)
+	}
+	if s.HasU8vec() {
+		v, err := s.U8vec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetU8vec(c)
+	}
+	if s.HasBoolvec() {
+		v, err := s.Boolvec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetBoolvec(c)
+	}
+	if s.HasDatavec() {
+		v, err := s.Datavec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetDatavec(c)
+	}
+	if s.HasTextvec() {
+		v, err := s.Textvec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetTextvec(c)
+	}
+	if s.HasZvec() {
+		v, err := s.Zvec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetZvec(c)
+	}
+	if s.HasZvecvec() {
+		v, err := s.Zvecvec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetZvecvec(c)
+	}
+	if s.HasZdate() {
+		v, err := s.Zdate()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetZdate(c)
+	}
+	if s.HasZdata() {
+		v, err := s.Zdata()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetZdata(c)
+	}
+	if s.HasAircraftvec() {
+		v, err := s.Aircraftvec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetAircraftvec(c)
+	}
+	if s.HasAircraft() {
+		v, err := s.Aircraft()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetAircraft(c)
+	}
+	if s.HasRegression() {
+		v, err := s.Regression()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetRegression(c)
+	}
+	if s.HasPlanebase() {
+		v, err := s.Planebase()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetPlanebase(c)
+	}
+	if s.HasB737() {
+		v, err := s.B737()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetB737(c)
+	}
+	if s.HasA320() {
+		v, err := s.A320()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetA320(c)
+	}
+	if s.HasF16() {
+		v, err := s.F16()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetF16(c)
+	}
+	if s.HasZdatevec() {
+		v, err := s.Zdatevec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetZdatevec(c)
+	}
+	if s.HasZdatavec() {
+		v, err := s.Zdatavec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetZdatavec(c)
+	}
+	{
+		v, err := s.Text()
+		if err != nil {
+			return t, err
+		}
+		t.SetText(v)
+	}
+	{
+		v, err := s.Blob()
+		if err != nil {
+			return t, err
+		}
+		t.SetBlob(v)
+	}
+	t.SetF64(s.F64())
+	t.SetF32(s.F32())
+	t.SetI64(s.I64())
+	t.SetI32(s.I32())
+	t.SetI16(s.I16())
+	t.SetI8(s.I8())
+	t.SetU64(s.U64())
+	t.SetU32(s.U32())
+	t.SetU16(s.U16())
+	t.SetU8(s.U8())
+	t.SetBool(s.Bool())
+	t.SetAirport(s.Airport())
+	return t, nil
 }
 
 func (s Z) Which() Z_Which {
@@ -2091,6 +2731,18 @@ func (s Z_List) At(i int) Z { return Z{s.List.Struct(i)} }
 
 func (s Z_List) Set(i int, v Z) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s Z_List) Copy(seg *capnp.Segment) (Z_List, error) {
+	var err error
+	t, err := NewZ_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Z_Promise is a wrapper for a Z promised by a client call.
 type Z_Promise struct{ *capnp.Pipeline }
 
@@ -2170,6 +2822,34 @@ func (s Counter) String() string {
 	return str
 }
 
+func (s Counter) Copy(seg *capnp.Segment) (Counter, error) {
+	var err error
+	t, err := NewCounter(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasWordlist() {
+		v, err := s.Wordlist()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetWordlist(c)
+	}
+	{
+		v, err := s.Words()
+		if err != nil {
+			return t, err
+		}
+		t.SetWords(v)
+	}
+	t.SetSize(s.Size())
+	return t, nil
+}
+
 func (s Counter) Size() int64 {
 	return int64(s.Struct.Uint64(0))
 }
@@ -2239,6 +2919,18 @@ func (s Counter_List) At(i int) Counter { return Counter{s.List.Struct(i)} }
 
 func (s Counter_List) Set(i int, v Counter) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s Counter_List) Copy(seg *capnp.Segment) (Counter_List, error) {
+	var err error
+	t, err := NewCounter_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Counter_Promise is a wrapper for a Counter promised by a client call.
 type Counter_Promise struct{ *capnp.Pipeline }
 
@@ -2270,6 +2962,26 @@ func ReadRootBag(msg *capnp.Message) (Bag, error) {
 func (s Bag) String() string {
 	str, _ := text.Marshal(0xd636fba4f188dabe, s.Struct)
 	return str
+}
+
+func (s Bag) Copy(seg *capnp.Segment) (Bag, error) {
+	var err error
+	t, err := NewBag(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasCounter() {
+		v, err := s.Counter()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetCounter(c)
+	}
+	return t, nil
 }
 
 func (s Bag) Counter() (Counter, error) {
@@ -2310,6 +3022,18 @@ func (s Bag_List) At(i int) Bag { return Bag{s.List.Struct(i)} }
 
 func (s Bag_List) Set(i int, v Bag) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s Bag_List) Copy(seg *capnp.Segment) (Bag_List, error) {
+	var err error
+	t, err := NewBag_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Bag_Promise is a wrapper for a Bag promised by a client call.
 type Bag_Promise struct{ *capnp.Pipeline }
 
@@ -2345,6 +3069,26 @@ func ReadRootZserver(msg *capnp.Message) (Zserver, error) {
 func (s Zserver) String() string {
 	str, _ := text.Marshal(0xcc4411e60ba9c498, s.Struct)
 	return str
+}
+
+func (s Zserver) Copy(seg *capnp.Segment) (Zserver, error) {
+	var err error
+	t, err := NewZserver(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasWaitingjobs() {
+		v, err := s.Waitingjobs()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetWaitingjobs(c)
+	}
+	return t, nil
 }
 
 func (s Zserver) Waitingjobs() (Zjob_List, error) {
@@ -2385,6 +3129,18 @@ func (s Zserver_List) At(i int) Zserver { return Zserver{s.List.Struct(i)} }
 
 func (s Zserver_List) Set(i int, v Zserver) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s Zserver_List) Copy(seg *capnp.Segment) (Zserver_List, error) {
+	var err error
+	t, err := NewZserver_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Zserver_Promise is a wrapper for a Zserver promised by a client call.
 type Zserver_Promise struct{ *capnp.Pipeline }
 
@@ -2416,6 +3172,33 @@ func ReadRootZjob(msg *capnp.Message) (Zjob, error) {
 func (s Zjob) String() string {
 	str, _ := text.Marshal(0xddd1416669fb7613, s.Struct)
 	return str
+}
+
+func (s Zjob) Copy(seg *capnp.Segment) (Zjob, error) {
+	var err error
+	t, err := NewZjob(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasArgs() {
+		v, err := s.Args()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetArgs(c)
+	}
+	{
+		v, err := s.Cmd()
+		if err != nil {
+			return t, err
+		}
+		t.SetCmd(v)
+	}
+	return t, nil
 }
 
 func (s Zjob) Cmd() (string, error) {
@@ -2479,6 +3262,18 @@ func (s Zjob_List) At(i int) Zjob { return Zjob{s.List.Struct(i)} }
 
 func (s Zjob_List) Set(i int, v Zjob) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s Zjob_List) Copy(seg *capnp.Segment) (Zjob_List, error) {
+	var err error
+	t, err := NewZjob_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Zjob_Promise is a wrapper for a Zjob promised by a client call.
 type Zjob_Promise struct{ *capnp.Pipeline }
 
@@ -2512,6 +3307,15 @@ func (s VerEmpty) String() string {
 	return str
 }
 
+func (s VerEmpty) Copy(seg *capnp.Segment) (VerEmpty, error) {
+	var err error
+	t, err := NewVerEmpty(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 // VerEmpty_List is a list of VerEmpty.
 type VerEmpty_List struct{ capnp.List }
 
@@ -2524,6 +3328,18 @@ func NewVerEmpty_List(s *capnp.Segment, sz int32) (VerEmpty_List, error) {
 func (s VerEmpty_List) At(i int) VerEmpty { return VerEmpty{s.List.Struct(i)} }
 
 func (s VerEmpty_List) Set(i int, v VerEmpty) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s VerEmpty_List) Copy(seg *capnp.Segment) (VerEmpty_List, error) {
+	var err error
+	t, err := NewVerEmpty_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // VerEmpty_Promise is a wrapper for a VerEmpty promised by a client call.
 type VerEmpty_Promise struct{ *capnp.Pipeline }
@@ -2558,6 +3374,16 @@ func (s VerOneData) String() string {
 	return str
 }
 
+func (s VerOneData) Copy(seg *capnp.Segment) (VerOneData, error) {
+	var err error
+	t, err := NewVerOneData(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetVal(s.Val())
+	return t, nil
+}
+
 func (s VerOneData) Val() int16 {
 	return int16(s.Struct.Uint16(0))
 }
@@ -2578,6 +3404,18 @@ func NewVerOneData_List(s *capnp.Segment, sz int32) (VerOneData_List, error) {
 func (s VerOneData_List) At(i int) VerOneData { return VerOneData{s.List.Struct(i)} }
 
 func (s VerOneData_List) Set(i int, v VerOneData) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s VerOneData_List) Copy(seg *capnp.Segment) (VerOneData_List, error) {
+	var err error
+	t, err := NewVerOneData_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // VerOneData_Promise is a wrapper for a VerOneData promised by a client call.
 type VerOneData_Promise struct{ *capnp.Pipeline }
@@ -2612,6 +3450,17 @@ func (s VerTwoData) String() string {
 	return str
 }
 
+func (s VerTwoData) Copy(seg *capnp.Segment) (VerTwoData, error) {
+	var err error
+	t, err := NewVerTwoData(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetVal(s.Val())
+	t.SetDuo(s.Duo())
+	return t, nil
+}
+
 func (s VerTwoData) Val() int16 {
 	return int16(s.Struct.Uint16(0))
 }
@@ -2640,6 +3489,18 @@ func NewVerTwoData_List(s *capnp.Segment, sz int32) (VerTwoData_List, error) {
 func (s VerTwoData_List) At(i int) VerTwoData { return VerTwoData{s.List.Struct(i)} }
 
 func (s VerTwoData_List) Set(i int, v VerTwoData) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s VerTwoData_List) Copy(seg *capnp.Segment) (VerTwoData_List, error) {
+	var err error
+	t, err := NewVerTwoData_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // VerTwoData_Promise is a wrapper for a VerTwoData promised by a client call.
 type VerTwoData_Promise struct{ *capnp.Pipeline }
@@ -2672,6 +3533,26 @@ func ReadRootVerOnePtr(msg *capnp.Message) (VerOnePtr, error) {
 func (s VerOnePtr) String() string {
 	str, _ := text.Marshal(0x94bf7df83408218d, s.Struct)
 	return str
+}
+
+func (s VerOnePtr) Copy(seg *capnp.Segment) (VerOnePtr, error) {
+	var err error
+	t, err := NewVerOnePtr(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasPtr() {
+		v, err := s.Ptr()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetPtr(c)
+	}
+	return t, nil
 }
 
 func (s VerOnePtr) Ptr() (VerOneData, error) {
@@ -2712,6 +3593,18 @@ func (s VerOnePtr_List) At(i int) VerOnePtr { return VerOnePtr{s.List.Struct(i)}
 
 func (s VerOnePtr_List) Set(i int, v VerOnePtr) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s VerOnePtr_List) Copy(seg *capnp.Segment) (VerOnePtr_List, error) {
+	var err error
+	t, err := NewVerOnePtr_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // VerOnePtr_Promise is a wrapper for a VerOnePtr promised by a client call.
 type VerOnePtr_Promise struct{ *capnp.Pipeline }
 
@@ -2747,6 +3640,37 @@ func ReadRootVerTwoPtr(msg *capnp.Message) (VerTwoPtr, error) {
 func (s VerTwoPtr) String() string {
 	str, _ := text.Marshal(0xc95babe3bd394d2d, s.Struct)
 	return str
+}
+
+func (s VerTwoPtr) Copy(seg *capnp.Segment) (VerTwoPtr, error) {
+	var err error
+	t, err := NewVerTwoPtr(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasPtr1() {
+		v, err := s.Ptr1()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetPtr1(c)
+	}
+	if s.HasPtr2() {
+		v, err := s.Ptr2()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetPtr2(c)
+	}
+	return t, nil
 }
 
 func (s VerTwoPtr) Ptr1() (VerOneData, error) {
@@ -2812,6 +3736,18 @@ func (s VerTwoPtr_List) At(i int) VerTwoPtr { return VerTwoPtr{s.List.Struct(i)}
 
 func (s VerTwoPtr_List) Set(i int, v VerTwoPtr) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s VerTwoPtr_List) Copy(seg *capnp.Segment) (VerTwoPtr_List, error) {
+	var err error
+	t, err := NewVerTwoPtr_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // VerTwoPtr_Promise is a wrapper for a VerTwoPtr promised by a client call.
 type VerTwoPtr_Promise struct{ *capnp.Pipeline }
 
@@ -2851,6 +3787,39 @@ func ReadRootVerTwoDataTwoPtr(msg *capnp.Message) (VerTwoDataTwoPtr, error) {
 func (s VerTwoDataTwoPtr) String() string {
 	str, _ := text.Marshal(0xb61ee2ecff34ca73, s.Struct)
 	return str
+}
+
+func (s VerTwoDataTwoPtr) Copy(seg *capnp.Segment) (VerTwoDataTwoPtr, error) {
+	var err error
+	t, err := NewVerTwoDataTwoPtr(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasPtr1() {
+		v, err := s.Ptr1()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetPtr1(c)
+	}
+	if s.HasPtr2() {
+		v, err := s.Ptr2()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetPtr2(c)
+	}
+	t.SetVal(s.Val())
+	t.SetDuo(s.Duo())
+	return t, nil
 }
 
 func (s VerTwoDataTwoPtr) Val() int16 {
@@ -2934,6 +3903,18 @@ func (s VerTwoDataTwoPtr_List) Set(i int, v VerTwoDataTwoPtr) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s VerTwoDataTwoPtr_List) Copy(seg *capnp.Segment) (VerTwoDataTwoPtr_List, error) {
+	var err error
+	t, err := NewVerTwoDataTwoPtr_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // VerTwoDataTwoPtr_Promise is a wrapper for a VerTwoDataTwoPtr promised by a client call.
 type VerTwoDataTwoPtr_Promise struct{ *capnp.Pipeline }
 
@@ -2973,6 +3954,26 @@ func ReadRootHoldsVerEmptyList(msg *capnp.Message) (HoldsVerEmptyList, error) {
 func (s HoldsVerEmptyList) String() string {
 	str, _ := text.Marshal(0xde9ed43cfaa83093, s.Struct)
 	return str
+}
+
+func (s HoldsVerEmptyList) Copy(seg *capnp.Segment) (HoldsVerEmptyList, error) {
+	var err error
+	t, err := NewHoldsVerEmptyList(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasMylist() {
+		v, err := s.Mylist()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetMylist(c)
+	}
+	return t, nil
 }
 
 func (s HoldsVerEmptyList) Mylist() (VerEmpty_List, error) {
@@ -3017,6 +4018,18 @@ func (s HoldsVerEmptyList_List) Set(i int, v HoldsVerEmptyList) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s HoldsVerEmptyList_List) Copy(seg *capnp.Segment) (HoldsVerEmptyList_List, error) {
+	var err error
+	t, err := NewHoldsVerEmptyList_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // HoldsVerEmptyList_Promise is a wrapper for a HoldsVerEmptyList promised by a client call.
 type HoldsVerEmptyList_Promise struct{ *capnp.Pipeline }
 
@@ -3048,6 +4061,26 @@ func ReadRootHoldsVerOneDataList(msg *capnp.Message) (HoldsVerOneDataList, error
 func (s HoldsVerOneDataList) String() string {
 	str, _ := text.Marshal(0xabd055422a4d7df1, s.Struct)
 	return str
+}
+
+func (s HoldsVerOneDataList) Copy(seg *capnp.Segment) (HoldsVerOneDataList, error) {
+	var err error
+	t, err := NewHoldsVerOneDataList(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasMylist() {
+		v, err := s.Mylist()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetMylist(c)
+	}
+	return t, nil
 }
 
 func (s HoldsVerOneDataList) Mylist() (VerOneData_List, error) {
@@ -3092,6 +4125,18 @@ func (s HoldsVerOneDataList_List) Set(i int, v HoldsVerOneDataList) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s HoldsVerOneDataList_List) Copy(seg *capnp.Segment) (HoldsVerOneDataList_List, error) {
+	var err error
+	t, err := NewHoldsVerOneDataList_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // HoldsVerOneDataList_Promise is a wrapper for a HoldsVerOneDataList promised by a client call.
 type HoldsVerOneDataList_Promise struct{ *capnp.Pipeline }
 
@@ -3123,6 +4168,26 @@ func ReadRootHoldsVerTwoDataList(msg *capnp.Message) (HoldsVerTwoDataList, error
 func (s HoldsVerTwoDataList) String() string {
 	str, _ := text.Marshal(0xcbdc765fd5dff7ba, s.Struct)
 	return str
+}
+
+func (s HoldsVerTwoDataList) Copy(seg *capnp.Segment) (HoldsVerTwoDataList, error) {
+	var err error
+	t, err := NewHoldsVerTwoDataList(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasMylist() {
+		v, err := s.Mylist()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetMylist(c)
+	}
+	return t, nil
 }
 
 func (s HoldsVerTwoDataList) Mylist() (VerTwoData_List, error) {
@@ -3167,6 +4232,18 @@ func (s HoldsVerTwoDataList_List) Set(i int, v HoldsVerTwoDataList) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s HoldsVerTwoDataList_List) Copy(seg *capnp.Segment) (HoldsVerTwoDataList_List, error) {
+	var err error
+	t, err := NewHoldsVerTwoDataList_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // HoldsVerTwoDataList_Promise is a wrapper for a HoldsVerTwoDataList promised by a client call.
 type HoldsVerTwoDataList_Promise struct{ *capnp.Pipeline }
 
@@ -3198,6 +4275,26 @@ func ReadRootHoldsVerOnePtrList(msg *capnp.Message) (HoldsVerOnePtrList, error) 
 func (s HoldsVerOnePtrList) String() string {
 	str, _ := text.Marshal(0xe508a29c83a059f8, s.Struct)
 	return str
+}
+
+func (s HoldsVerOnePtrList) Copy(seg *capnp.Segment) (HoldsVerOnePtrList, error) {
+	var err error
+	t, err := NewHoldsVerOnePtrList(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasMylist() {
+		v, err := s.Mylist()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetMylist(c)
+	}
+	return t, nil
 }
 
 func (s HoldsVerOnePtrList) Mylist() (VerOnePtr_List, error) {
@@ -3242,6 +4339,18 @@ func (s HoldsVerOnePtrList_List) Set(i int, v HoldsVerOnePtrList) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s HoldsVerOnePtrList_List) Copy(seg *capnp.Segment) (HoldsVerOnePtrList_List, error) {
+	var err error
+	t, err := NewHoldsVerOnePtrList_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // HoldsVerOnePtrList_Promise is a wrapper for a HoldsVerOnePtrList promised by a client call.
 type HoldsVerOnePtrList_Promise struct{ *capnp.Pipeline }
 
@@ -3273,6 +4382,26 @@ func ReadRootHoldsVerTwoPtrList(msg *capnp.Message) (HoldsVerTwoPtrList, error) 
 func (s HoldsVerTwoPtrList) String() string {
 	str, _ := text.Marshal(0xcf9beaca1cc180c8, s.Struct)
 	return str
+}
+
+func (s HoldsVerTwoPtrList) Copy(seg *capnp.Segment) (HoldsVerTwoPtrList, error) {
+	var err error
+	t, err := NewHoldsVerTwoPtrList(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasMylist() {
+		v, err := s.Mylist()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetMylist(c)
+	}
+	return t, nil
 }
 
 func (s HoldsVerTwoPtrList) Mylist() (VerTwoPtr_List, error) {
@@ -3317,6 +4446,18 @@ func (s HoldsVerTwoPtrList_List) Set(i int, v HoldsVerTwoPtrList) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s HoldsVerTwoPtrList_List) Copy(seg *capnp.Segment) (HoldsVerTwoPtrList_List, error) {
+	var err error
+	t, err := NewHoldsVerTwoPtrList_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // HoldsVerTwoPtrList_Promise is a wrapper for a HoldsVerTwoPtrList promised by a client call.
 type HoldsVerTwoPtrList_Promise struct{ *capnp.Pipeline }
 
@@ -3348,6 +4489,26 @@ func ReadRootHoldsVerTwoTwoList(msg *capnp.Message) (HoldsVerTwoTwoList, error) 
 func (s HoldsVerTwoTwoList) String() string {
 	str, _ := text.Marshal(0x95befe3f14606e6b, s.Struct)
 	return str
+}
+
+func (s HoldsVerTwoTwoList) Copy(seg *capnp.Segment) (HoldsVerTwoTwoList, error) {
+	var err error
+	t, err := NewHoldsVerTwoTwoList(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasMylist() {
+		v, err := s.Mylist()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetMylist(c)
+	}
+	return t, nil
 }
 
 func (s HoldsVerTwoTwoList) Mylist() (VerTwoDataTwoPtr_List, error) {
@@ -3392,6 +4553,18 @@ func (s HoldsVerTwoTwoList_List) Set(i int, v HoldsVerTwoTwoList) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s HoldsVerTwoTwoList_List) Copy(seg *capnp.Segment) (HoldsVerTwoTwoList_List, error) {
+	var err error
+	t, err := NewHoldsVerTwoTwoList_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // HoldsVerTwoTwoList_Promise is a wrapper for a HoldsVerTwoTwoList promised by a client call.
 type HoldsVerTwoTwoList_Promise struct{ *capnp.Pipeline }
 
@@ -3423,6 +4596,26 @@ func ReadRootHoldsVerTwoTwoPlus(msg *capnp.Message) (HoldsVerTwoTwoPlus, error) 
 func (s HoldsVerTwoTwoPlus) String() string {
 	str, _ := text.Marshal(0x87c33f2330feb3d8, s.Struct)
 	return str
+}
+
+func (s HoldsVerTwoTwoPlus) Copy(seg *capnp.Segment) (HoldsVerTwoTwoPlus, error) {
+	var err error
+	t, err := NewHoldsVerTwoTwoPlus(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasMylist() {
+		v, err := s.Mylist()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetMylist(c)
+	}
+	return t, nil
 }
 
 func (s HoldsVerTwoTwoPlus) Mylist() (VerTwoTwoPlus_List, error) {
@@ -3467,6 +4660,18 @@ func (s HoldsVerTwoTwoPlus_List) Set(i int, v HoldsVerTwoTwoPlus) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s HoldsVerTwoTwoPlus_List) Copy(seg *capnp.Segment) (HoldsVerTwoTwoPlus_List, error) {
+	var err error
+	t, err := NewHoldsVerTwoTwoPlus_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // HoldsVerTwoTwoPlus_Promise is a wrapper for a HoldsVerTwoTwoPlus promised by a client call.
 type HoldsVerTwoTwoPlus_Promise struct{ *capnp.Pipeline }
 
@@ -3498,6 +4703,51 @@ func ReadRootVerTwoTwoPlus(msg *capnp.Message) (VerTwoTwoPlus, error) {
 func (s VerTwoTwoPlus) String() string {
 	str, _ := text.Marshal(0xce44aee2d9e25049, s.Struct)
 	return str
+}
+
+func (s VerTwoTwoPlus) Copy(seg *capnp.Segment) (VerTwoTwoPlus, error) {
+	var err error
+	t, err := NewVerTwoTwoPlus(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasPtr1() {
+		v, err := s.Ptr1()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetPtr1(c)
+	}
+	if s.HasPtr2() {
+		v, err := s.Ptr2()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetPtr2(c)
+	}
+	if s.HasLst3() {
+		v, err := s.Lst3()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetLst3(c)
+	}
+	t.SetVal(s.Val())
+	t.SetDuo(s.Duo())
+	t.SetTre(s.Tre())
+	return t, nil
 }
 
 func (s VerTwoTwoPlus) Val() int16 {
@@ -3612,6 +4862,18 @@ func (s VerTwoTwoPlus_List) At(i int) VerTwoTwoPlus { return VerTwoTwoPlus{s.Lis
 
 func (s VerTwoTwoPlus_List) Set(i int, v VerTwoTwoPlus) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s VerTwoTwoPlus_List) Copy(seg *capnp.Segment) (VerTwoTwoPlus_List, error) {
+	var err error
+	t, err := NewVerTwoTwoPlus_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // VerTwoTwoPlus_Promise is a wrapper for a VerTwoTwoPlus promised by a client call.
 type VerTwoTwoPlus_Promise struct{ *capnp.Pipeline }
 
@@ -3651,6 +4913,44 @@ func ReadRootHoldsText(msg *capnp.Message) (HoldsText, error) {
 func (s HoldsText) String() string {
 	str, _ := text.Marshal(0xe5817f849ff906dc, s.Struct)
 	return str
+}
+
+func (s HoldsText) Copy(seg *capnp.Segment) (HoldsText, error) {
+	var err error
+	t, err := NewHoldsText(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasLst() {
+		v, err := s.Lst()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetLst(c)
+	}
+	if s.HasLstlst() {
+		v, err := s.Lstlst()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetLstlst(c)
+	}
+	{
+		v, err := s.Txt()
+		if err != nil {
+			return t, err
+		}
+		t.SetTxt(v)
+	}
+	return t, nil
 }
 
 func (s HoldsText) Txt() (string, error) {
@@ -3739,6 +5039,18 @@ func (s HoldsText_List) At(i int) HoldsText { return HoldsText{s.List.Struct(i)}
 
 func (s HoldsText_List) Set(i int, v HoldsText) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s HoldsText_List) Copy(seg *capnp.Segment) (HoldsText_List, error) {
+	var err error
+	t, err := NewHoldsText_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // HoldsText_Promise is a wrapper for a HoldsText promised by a client call.
 type HoldsText_Promise struct{ *capnp.Pipeline }
 
@@ -3770,6 +5082,26 @@ func ReadRootWrapEmpty(msg *capnp.Message) (WrapEmpty, error) {
 func (s WrapEmpty) String() string {
 	str, _ := text.Marshal(0x9ab599979b02ac59, s.Struct)
 	return str
+}
+
+func (s WrapEmpty) Copy(seg *capnp.Segment) (WrapEmpty, error) {
+	var err error
+	t, err := NewWrapEmpty(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasMightNotBeReallyEmpty() {
+		v, err := s.MightNotBeReallyEmpty()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetMightNotBeReallyEmpty(c)
+	}
+	return t, nil
 }
 
 func (s WrapEmpty) MightNotBeReallyEmpty() (VerEmpty, error) {
@@ -3810,6 +5142,18 @@ func (s WrapEmpty_List) At(i int) WrapEmpty { return WrapEmpty{s.List.Struct(i)}
 
 func (s WrapEmpty_List) Set(i int, v WrapEmpty) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s WrapEmpty_List) Copy(seg *capnp.Segment) (WrapEmpty_List, error) {
+	var err error
+	t, err := NewWrapEmpty_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // WrapEmpty_Promise is a wrapper for a WrapEmpty promised by a client call.
 type WrapEmpty_Promise struct{ *capnp.Pipeline }
 
@@ -3845,6 +5189,26 @@ func ReadRootWrap2x2(msg *capnp.Message) (Wrap2x2, error) {
 func (s Wrap2x2) String() string {
 	str, _ := text.Marshal(0xe1a2d1d51107bead, s.Struct)
 	return str
+}
+
+func (s Wrap2x2) Copy(seg *capnp.Segment) (Wrap2x2, error) {
+	var err error
+	t, err := NewWrap2x2(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasMightNotBeReallyEmpty() {
+		v, err := s.MightNotBeReallyEmpty()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetMightNotBeReallyEmpty(c)
+	}
+	return t, nil
 }
 
 func (s Wrap2x2) MightNotBeReallyEmpty() (VerTwoDataTwoPtr, error) {
@@ -3885,6 +5249,18 @@ func (s Wrap2x2_List) At(i int) Wrap2x2 { return Wrap2x2{s.List.Struct(i)} }
 
 func (s Wrap2x2_List) Set(i int, v Wrap2x2) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s Wrap2x2_List) Copy(seg *capnp.Segment) (Wrap2x2_List, error) {
+	var err error
+	t, err := NewWrap2x2_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Wrap2x2_Promise is a wrapper for a Wrap2x2 promised by a client call.
 type Wrap2x2_Promise struct{ *capnp.Pipeline }
 
@@ -3920,6 +5296,26 @@ func ReadRootWrap2x2plus(msg *capnp.Message) (Wrap2x2plus, error) {
 func (s Wrap2x2plus) String() string {
 	str, _ := text.Marshal(0xe684eb3aef1a6859, s.Struct)
 	return str
+}
+
+func (s Wrap2x2plus) Copy(seg *capnp.Segment) (Wrap2x2plus, error) {
+	var err error
+	t, err := NewWrap2x2plus(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasMightNotBeReallyEmpty() {
+		v, err := s.MightNotBeReallyEmpty()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetMightNotBeReallyEmpty(c)
+	}
+	return t, nil
 }
 
 func (s Wrap2x2plus) MightNotBeReallyEmpty() (VerTwoTwoPlus, error) {
@@ -3959,6 +5355,18 @@ func NewWrap2x2plus_List(s *capnp.Segment, sz int32) (Wrap2x2plus_List, error) {
 func (s Wrap2x2plus_List) At(i int) Wrap2x2plus { return Wrap2x2plus{s.List.Struct(i)} }
 
 func (s Wrap2x2plus_List) Set(i int, v Wrap2x2plus) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Wrap2x2plus_List) Copy(seg *capnp.Segment) (Wrap2x2plus_List, error) {
+	var err error
+	t, err := NewWrap2x2plus_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // Wrap2x2plus_Promise is a wrapper for a Wrap2x2plus promised by a client call.
 type Wrap2x2plus_Promise struct{ *capnp.Pipeline }
@@ -4015,6 +5423,15 @@ func (s VoidUnion) String() string {
 	return str
 }
 
+func (s VoidUnion) Copy(seg *capnp.Segment) (VoidUnion, error) {
+	var err error
+	t, err := NewVoidUnion(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 func (s VoidUnion) Which() VoidUnion_Which {
 	return VoidUnion_Which(s.Struct.Uint16(0))
 }
@@ -4040,6 +5457,18 @@ func NewVoidUnion_List(s *capnp.Segment, sz int32) (VoidUnion_List, error) {
 func (s VoidUnion_List) At(i int) VoidUnion { return VoidUnion{s.List.Struct(i)} }
 
 func (s VoidUnion_List) Set(i int, v VoidUnion) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s VoidUnion_List) Copy(seg *capnp.Segment) (VoidUnion_List, error) {
+	var err error
+	t, err := NewVoidUnion_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // VoidUnion_Promise is a wrapper for a VoidUnion promised by a client call.
 type VoidUnion_Promise struct{ *capnp.Pipeline }
@@ -4072,6 +5501,26 @@ func ReadRootNester1Capn(msg *capnp.Message) (Nester1Capn, error) {
 func (s Nester1Capn) String() string {
 	str, _ := text.Marshal(0xf14fad09425d081c, s.Struct)
 	return str
+}
+
+func (s Nester1Capn) Copy(seg *capnp.Segment) (Nester1Capn, error) {
+	var err error
+	t, err := NewNester1Capn(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasStrs() {
+		v, err := s.Strs()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetStrs(c)
+	}
+	return t, nil
 }
 
 func (s Nester1Capn) Strs() (capnp.TextList, error) {
@@ -4112,6 +5561,18 @@ func (s Nester1Capn_List) At(i int) Nester1Capn { return Nester1Capn{s.List.Stru
 
 func (s Nester1Capn_List) Set(i int, v Nester1Capn) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s Nester1Capn_List) Copy(seg *capnp.Segment) (Nester1Capn_List, error) {
+	var err error
+	t, err := NewNester1Capn_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Nester1Capn_Promise is a wrapper for a Nester1Capn promised by a client call.
 type Nester1Capn_Promise struct{ *capnp.Pipeline }
 
@@ -4143,6 +5604,26 @@ func ReadRootRWTestCapn(msg *capnp.Message) (RWTestCapn, error) {
 func (s RWTestCapn) String() string {
 	str, _ := text.Marshal(0xf7ff4414476c186a, s.Struct)
 	return str
+}
+
+func (s RWTestCapn) Copy(seg *capnp.Segment) (RWTestCapn, error) {
+	var err error
+	t, err := NewRWTestCapn(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasNestMatrix() {
+		v, err := s.NestMatrix()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetNestMatrix(c)
+	}
+	return t, nil
 }
 
 func (s RWTestCapn) NestMatrix() (capnp.PointerList, error) {
@@ -4183,6 +5664,18 @@ func (s RWTestCapn_List) At(i int) RWTestCapn { return RWTestCapn{s.List.Struct(
 
 func (s RWTestCapn_List) Set(i int, v RWTestCapn) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s RWTestCapn_List) Copy(seg *capnp.Segment) (RWTestCapn_List, error) {
+	var err error
+	t, err := NewRWTestCapn_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // RWTestCapn_Promise is a wrapper for a RWTestCapn promised by a client call.
 type RWTestCapn_Promise struct{ *capnp.Pipeline }
 
@@ -4214,6 +5707,26 @@ func ReadRootListStructCapn(msg *capnp.Message) (ListStructCapn, error) {
 func (s ListStructCapn) String() string {
 	str, _ := text.Marshal(0xb1ac056ed7647011, s.Struct)
 	return str
+}
+
+func (s ListStructCapn) Copy(seg *capnp.Segment) (ListStructCapn, error) {
+	var err error
+	t, err := NewListStructCapn(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasVec() {
+		v, err := s.Vec()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetVec(c)
+	}
+	return t, nil
 }
 
 func (s ListStructCapn) Vec() (Nester1Capn_List, error) {
@@ -4253,6 +5766,18 @@ func NewListStructCapn_List(s *capnp.Segment, sz int32) (ListStructCapn_List, er
 func (s ListStructCapn_List) At(i int) ListStructCapn { return ListStructCapn{s.List.Struct(i)} }
 
 func (s ListStructCapn_List) Set(i int, v ListStructCapn) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s ListStructCapn_List) Copy(seg *capnp.Segment) (ListStructCapn_List, error) {
+	var err error
+	t, err := NewListStructCapn_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // ListStructCapn_Promise is a wrapper for a ListStructCapn promised by a client call.
 type ListStructCapn_Promise struct{ *capnp.Pipeline }
@@ -4349,6 +5874,22 @@ func (s Echo_echo_Params) String() string {
 	return str
 }
 
+func (s Echo_echo_Params) Copy(seg *capnp.Segment) (Echo_echo_Params, error) {
+	var err error
+	t, err := NewEcho_echo_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	{
+		v, err := s.In()
+		if err != nil {
+			return t, err
+		}
+		t.SetIn(v)
+	}
+	return t, nil
+}
+
 func (s Echo_echo_Params) In() (string, error) {
 	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
@@ -4387,6 +5928,18 @@ func (s Echo_echo_Params_List) Set(i int, v Echo_echo_Params) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s Echo_echo_Params_List) Copy(seg *capnp.Segment) (Echo_echo_Params_List, error) {
+	var err error
+	t, err := NewEcho_echo_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Echo_echo_Params_Promise is a wrapper for a Echo_echo_Params promised by a client call.
 type Echo_echo_Params_Promise struct{ *capnp.Pipeline }
 
@@ -4418,6 +5971,22 @@ func ReadRootEcho_echo_Results(msg *capnp.Message) (Echo_echo_Results, error) {
 func (s Echo_echo_Results) String() string {
 	str, _ := text.Marshal(0x9b37d729b9dd7b9d, s.Struct)
 	return str
+}
+
+func (s Echo_echo_Results) Copy(seg *capnp.Segment) (Echo_echo_Results, error) {
+	var err error
+	t, err := NewEcho_echo_Results(seg)
+	if err != nil {
+		return t, err
+	}
+	{
+		v, err := s.Out()
+		if err != nil {
+			return t, err
+		}
+		t.SetOut(v)
+	}
+	return t, nil
 }
 
 func (s Echo_echo_Results) Out() (string, error) {
@@ -4460,6 +6029,18 @@ func (s Echo_echo_Results_List) Set(i int, v Echo_echo_Results) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s Echo_echo_Results_List) Copy(seg *capnp.Segment) (Echo_echo_Results_List, error) {
+	var err error
+	t, err := NewEcho_echo_Results_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Echo_echo_Results_Promise is a wrapper for a Echo_echo_Results promised by a client call.
 type Echo_echo_Results_Promise struct{ *capnp.Pipeline }
 
@@ -4491,6 +6072,26 @@ func ReadRootHoth(msg *capnp.Message) (Hoth, error) {
 func (s Hoth) String() string {
 	str, _ := text.Marshal(0xad87da456fb0ebb9, s.Struct)
 	return str
+}
+
+func (s Hoth) Copy(seg *capnp.Segment) (Hoth, error) {
+	var err error
+	t, err := NewHoth(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasBase() {
+		v, err := s.Base()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetBase(c)
+	}
+	return t, nil
 }
 
 func (s Hoth) Base() (EchoBase, error) {
@@ -4531,6 +6132,18 @@ func (s Hoth_List) At(i int) Hoth { return Hoth{s.List.Struct(i)} }
 
 func (s Hoth_List) Set(i int, v Hoth) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s Hoth_List) Copy(seg *capnp.Segment) (Hoth_List, error) {
+	var err error
+	t, err := NewHoth_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Hoth_Promise is a wrapper for a Hoth promised by a client call.
 type Hoth_Promise struct{ *capnp.Pipeline }
 
@@ -4568,6 +6181,15 @@ func (s EchoBase) String() string {
 	return str
 }
 
+func (s EchoBase) Copy(seg *capnp.Segment) (EchoBase, error) {
+	var err error
+	t, err := NewEchoBase(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 func (s EchoBase) Echo() Echo {
 	p, _ := s.Struct.Ptr(0)
 	return Echo{Client: p.Interface().Client()}
@@ -4599,6 +6221,18 @@ func NewEchoBase_List(s *capnp.Segment, sz int32) (EchoBase_List, error) {
 func (s EchoBase_List) At(i int) EchoBase { return EchoBase{s.List.Struct(i)} }
 
 func (s EchoBase_List) Set(i int, v EchoBase) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s EchoBase_List) Copy(seg *capnp.Segment) (EchoBase_List, error) {
+	var err error
+	t, err := NewEchoBase_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // EchoBase_Promise is a wrapper for a EchoBase promised by a client call.
 type EchoBase_Promise struct{ *capnp.Pipeline }
@@ -4635,6 +6269,37 @@ func ReadRootStackingRoot(msg *capnp.Message) (StackingRoot, error) {
 func (s StackingRoot) String() string {
 	str, _ := text.Marshal(0x8fae7b41c61fc890, s.Struct)
 	return str
+}
+
+func (s StackingRoot) Copy(seg *capnp.Segment) (StackingRoot, error) {
+	var err error
+	t, err := NewStackingRoot(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasA() {
+		v, err := s.A()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetA(c)
+	}
+	if s.HasAWithDefault() {
+		v, err := s.AWithDefault()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetAWithDefault(c)
+	}
+	return t, nil
 }
 
 func (s StackingRoot) A() (StackingA, error) {
@@ -4704,6 +6369,18 @@ func (s StackingRoot_List) At(i int) StackingRoot { return StackingRoot{s.List.S
 
 func (s StackingRoot_List) Set(i int, v StackingRoot) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s StackingRoot_List) Copy(seg *capnp.Segment) (StackingRoot_List, error) {
+	var err error
+	t, err := NewStackingRoot_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // StackingRoot_Promise is a wrapper for a StackingRoot promised by a client call.
 type StackingRoot_Promise struct{ *capnp.Pipeline }
 
@@ -4743,6 +6420,27 @@ func ReadRootStackingA(msg *capnp.Message) (StackingA, error) {
 func (s StackingA) String() string {
 	str, _ := text.Marshal(0x9d3032ff86043b75, s.Struct)
 	return str
+}
+
+func (s StackingA) Copy(seg *capnp.Segment) (StackingA, error) {
+	var err error
+	t, err := NewStackingA(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasB() {
+		v, err := s.B()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetB(c)
+	}
+	t.SetNum(s.Num())
+	return t, nil
 }
 
 func (s StackingA) Num() int32 {
@@ -4791,6 +6489,18 @@ func (s StackingA_List) At(i int) StackingA { return StackingA{s.List.Struct(i)}
 
 func (s StackingA_List) Set(i int, v StackingA) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s StackingA_List) Copy(seg *capnp.Segment) (StackingA_List, error) {
+	var err error
+	t, err := NewStackingA_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // StackingA_Promise is a wrapper for a StackingA promised by a client call.
 type StackingA_Promise struct{ *capnp.Pipeline }
 
@@ -4828,6 +6538,16 @@ func (s StackingB) String() string {
 	return str
 }
 
+func (s StackingB) Copy(seg *capnp.Segment) (StackingB, error) {
+	var err error
+	t, err := NewStackingB(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetNum(s.Num())
+	return t, nil
+}
+
 func (s StackingB) Num() int32 {
 	return int32(s.Struct.Uint32(0))
 }
@@ -4848,6 +6568,18 @@ func NewStackingB_List(s *capnp.Segment, sz int32) (StackingB_List, error) {
 func (s StackingB_List) At(i int) StackingB { return StackingB{s.List.Struct(i)} }
 
 func (s StackingB_List) Set(i int, v StackingB) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s StackingB_List) Copy(seg *capnp.Segment) (StackingB_List, error) {
+	var err error
+	t, err := NewStackingB_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // StackingB_Promise is a wrapper for a StackingB promised by a client call.
 type StackingB_Promise struct{ *capnp.Pipeline }
@@ -4944,6 +6676,15 @@ func (s CallSequence_getNumber_Params) String() string {
 	return str
 }
 
+func (s CallSequence_getNumber_Params) Copy(seg *capnp.Segment) (CallSequence_getNumber_Params, error) {
+	var err error
+	t, err := NewCallSequence_getNumber_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 // CallSequence_getNumber_Params_List is a list of CallSequence_getNumber_Params.
 type CallSequence_getNumber_Params_List struct{ capnp.List }
 
@@ -4959,6 +6700,18 @@ func (s CallSequence_getNumber_Params_List) At(i int) CallSequence_getNumber_Par
 
 func (s CallSequence_getNumber_Params_List) Set(i int, v CallSequence_getNumber_Params) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s CallSequence_getNumber_Params_List) Copy(seg *capnp.Segment) (CallSequence_getNumber_Params_List, error) {
+	var err error
+	t, err := NewCallSequence_getNumber_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // CallSequence_getNumber_Params_Promise is a wrapper for a CallSequence_getNumber_Params promised by a client call.
@@ -4994,6 +6747,16 @@ func (s CallSequence_getNumber_Results) String() string {
 	return str
 }
 
+func (s CallSequence_getNumber_Results) Copy(seg *capnp.Segment) (CallSequence_getNumber_Results, error) {
+	var err error
+	t, err := NewCallSequence_getNumber_Results(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetN(s.N())
+	return t, nil
+}
+
 func (s CallSequence_getNumber_Results) N() uint32 {
 	return s.Struct.Uint32(0)
 }
@@ -5017,6 +6780,18 @@ func (s CallSequence_getNumber_Results_List) At(i int) CallSequence_getNumber_Re
 
 func (s CallSequence_getNumber_Results_List) Set(i int, v CallSequence_getNumber_Results) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s CallSequence_getNumber_Results_List) Copy(seg *capnp.Segment) (CallSequence_getNumber_Results_List, error) {
+	var err error
+	t, err := NewCallSequence_getNumber_Results_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // CallSequence_getNumber_Results_Promise is a wrapper for a CallSequence_getNumber_Results promised by a client call.
@@ -5050,6 +6825,32 @@ func ReadRootDefaults(msg *capnp.Message) (Defaults, error) {
 func (s Defaults) String() string {
 	str, _ := text.Marshal(0x97e38948c61f878d, s.Struct)
 	return str
+}
+
+func (s Defaults) Copy(seg *capnp.Segment) (Defaults, error) {
+	var err error
+	t, err := NewDefaults(seg)
+	if err != nil {
+		return t, err
+	}
+	{
+		v, err := s.Text()
+		if err != nil {
+			return t, err
+		}
+		t.SetText(v)
+	}
+	{
+		v, err := s.Data()
+		if err != nil {
+			return t, err
+		}
+		t.SetData(v)
+	}
+	t.SetFloat(s.Float())
+	t.SetInt(s.Int())
+	t.SetUint(s.Uint())
+	return t, nil
 }
 
 func (s Defaults) Text() (string, error) {
@@ -5130,6 +6931,18 @@ func (s Defaults_List) At(i int) Defaults { return Defaults{s.List.Struct(i)} }
 
 func (s Defaults_List) Set(i int, v Defaults) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s Defaults_List) Copy(seg *capnp.Segment) (Defaults_List, error) {
+	var err error
+	t, err := NewDefaults_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // Defaults_Promise is a wrapper for a Defaults promised by a client call.
 type Defaults_Promise struct{ *capnp.Pipeline }
 
@@ -5161,6 +6974,33 @@ func ReadRootBenchmarkA(msg *capnp.Message) (BenchmarkA, error) {
 func (s BenchmarkA) String() string {
 	str, _ := text.Marshal(0xde2a1a960863c11c, s.Struct)
 	return str
+}
+
+func (s BenchmarkA) Copy(seg *capnp.Segment) (BenchmarkA, error) {
+	var err error
+	t, err := NewBenchmarkA(seg)
+	if err != nil {
+		return t, err
+	}
+	{
+		v, err := s.Name()
+		if err != nil {
+			return t, err
+		}
+		t.SetName(v)
+	}
+	{
+		v, err := s.Phone()
+		if err != nil {
+			return t, err
+		}
+		t.SetPhone(v)
+	}
+	t.SetBirthDay(s.BirthDay())
+	t.SetSiblings(s.Siblings())
+	t.SetSpouse(s.Spouse())
+	t.SetMoney(s.Money())
+	return t, nil
 }
 
 func (s BenchmarkA) Name() (string, error) {
@@ -5253,6 +7093,18 @@ func NewBenchmarkA_List(s *capnp.Segment, sz int32) (BenchmarkA_List, error) {
 func (s BenchmarkA_List) At(i int) BenchmarkA { return BenchmarkA{s.List.Struct(i)} }
 
 func (s BenchmarkA_List) Set(i int, v BenchmarkA) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s BenchmarkA_List) Copy(seg *capnp.Segment) (BenchmarkA_List, error) {
+	var err error
+	t, err := NewBenchmarkA_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // BenchmarkA_Promise is a wrapper for a BenchmarkA promised by a client call.
 type BenchmarkA_Promise struct{ *capnp.Pipeline }

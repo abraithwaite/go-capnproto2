@@ -68,6 +68,57 @@ func (s JsonValue) String() string {
 	return str
 }
 
+func (s JsonValue) Copy(seg *capnp.Segment) (JsonValue, error) {
+	var err error
+	t, err := NewJsonValue(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasArray() {
+		v, err := s.Array()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetArray(c)
+	}
+	if s.HasObject() {
+		v, err := s.Object()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetObject(c)
+	}
+	if s.HasCall() {
+		v, err := s.Call()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetCall(c)
+	}
+	{
+		v, err := s.String_()
+		if err != nil {
+			return t, err
+		}
+		t.SetString_(v)
+	}
+	t.SetBoolean(s.Boolean())
+	t.SetNumber(s.Number())
+	return t, nil
+}
+
 func (s JsonValue) Which() JsonValue_Which {
 	return JsonValue_Which(s.Struct.Uint16(0))
 }
@@ -224,6 +275,18 @@ func (s JsonValue_List) At(i int) JsonValue { return JsonValue{s.List.Struct(i)}
 
 func (s JsonValue_List) Set(i int, v JsonValue) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s JsonValue_List) Copy(seg *capnp.Segment) (JsonValue_List, error) {
+	var err error
+	t, err := NewJsonValue_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // JsonValue_Promise is a wrapper for a JsonValue promised by a client call.
 type JsonValue_Promise struct{ *capnp.Pipeline }
 
@@ -259,6 +322,33 @@ func ReadRootJsonValue_Field(msg *capnp.Message) (JsonValue_Field, error) {
 func (s JsonValue_Field) String() string {
 	str, _ := text.Marshal(0xc27855d853a937cc, s.Struct)
 	return str
+}
+
+func (s JsonValue_Field) Copy(seg *capnp.Segment) (JsonValue_Field, error) {
+	var err error
+	t, err := NewJsonValue_Field(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasValue() {
+		v, err := s.Value()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetValue(c)
+	}
+	{
+		v, err := s.Name()
+		if err != nil {
+			return t, err
+		}
+		t.SetName(v)
+	}
+	return t, nil
 }
 
 func (s JsonValue_Field) Name() (string, error) {
@@ -324,6 +414,18 @@ func (s JsonValue_Field_List) Set(i int, v JsonValue_Field) error {
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s JsonValue_Field_List) Copy(seg *capnp.Segment) (JsonValue_Field_List, error) {
+	var err error
+	t, err := NewJsonValue_Field_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // JsonValue_Field_Promise is a wrapper for a JsonValue_Field promised by a client call.
 type JsonValue_Field_Promise struct{ *capnp.Pipeline }
 
@@ -359,6 +461,33 @@ func ReadRootJsonValue_Call(msg *capnp.Message) (JsonValue_Call, error) {
 func (s JsonValue_Call) String() string {
 	str, _ := text.Marshal(0x9bbf84153dd4bb60, s.Struct)
 	return str
+}
+
+func (s JsonValue_Call) Copy(seg *capnp.Segment) (JsonValue_Call, error) {
+	var err error
+	t, err := NewJsonValue_Call(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasParams() {
+		v, err := s.Params()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetParams(c)
+	}
+	{
+		v, err := s.Function()
+		if err != nil {
+			return t, err
+		}
+		t.SetFunction(v)
+	}
+	return t, nil
 }
 
 func (s JsonValue_Call) Function() (string, error) {
@@ -421,6 +550,18 @@ func NewJsonValue_Call_List(s *capnp.Segment, sz int32) (JsonValue_Call_List, er
 func (s JsonValue_Call_List) At(i int) JsonValue_Call { return JsonValue_Call{s.List.Struct(i)} }
 
 func (s JsonValue_Call_List) Set(i int, v JsonValue_Call) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s JsonValue_Call_List) Copy(seg *capnp.Segment) (JsonValue_Call_List, error) {
+	var err error
+	t, err := NewJsonValue_Call_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // JsonValue_Call_Promise is a wrapper for a JsonValue_Call promised by a client call.
 type JsonValue_Call_Promise struct{ *capnp.Pipeline }

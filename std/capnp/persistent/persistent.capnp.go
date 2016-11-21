@@ -99,6 +99,15 @@ func (s Persistent_SaveParams) String() string {
 	return str
 }
 
+func (s Persistent_SaveParams) Copy(seg *capnp.Segment) (Persistent_SaveParams, error) {
+	var err error
+	t, err := NewPersistent_SaveParams(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 func (s Persistent_SaveParams) SealFor() (capnp.Pointer, error) {
 	return s.Struct.Pointer(0)
 }
@@ -135,6 +144,18 @@ func (s Persistent_SaveParams_List) At(i int) Persistent_SaveParams {
 
 func (s Persistent_SaveParams_List) Set(i int, v Persistent_SaveParams) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Persistent_SaveParams_List) Copy(seg *capnp.Segment) (Persistent_SaveParams_List, error) {
+	var err error
+	t, err := NewPersistent_SaveParams_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // Persistent_SaveParams_Promise is a wrapper for a Persistent_SaveParams promised by a client call.
@@ -174,6 +195,15 @@ func (s Persistent_SaveResults) String() string {
 	return str
 }
 
+func (s Persistent_SaveResults) Copy(seg *capnp.Segment) (Persistent_SaveResults, error) {
+	var err error
+	t, err := NewPersistent_SaveResults(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 func (s Persistent_SaveResults) SturdyRef() (capnp.Pointer, error) {
 	return s.Struct.Pointer(0)
 }
@@ -210,6 +240,18 @@ func (s Persistent_SaveResults_List) At(i int) Persistent_SaveResults {
 
 func (s Persistent_SaveResults_List) Set(i int, v Persistent_SaveResults) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Persistent_SaveResults_List) Copy(seg *capnp.Segment) (Persistent_SaveResults_List, error) {
+	var err error
+	t, err := NewPersistent_SaveResults_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // Persistent_SaveResults_Promise is a wrapper for a Persistent_SaveResults promised by a client call.
@@ -355,6 +397,26 @@ func (s RealmGateway_import_Params) String() string {
 	return str
 }
 
+func (s RealmGateway_import_Params) Copy(seg *capnp.Segment) (RealmGateway_import_Params, error) {
+	var err error
+	t, err := NewRealmGateway_import_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasParams() {
+		v, err := s.Params()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetParams(c)
+	}
+	return t, nil
+}
+
 func (s RealmGateway_import_Params) Cap() Persistent {
 	p, _ := s.Struct.Ptr(0)
 	return Persistent{Client: p.Interface().Client()}
@@ -416,6 +478,18 @@ func (s RealmGateway_import_Params_List) Set(i int, v RealmGateway_import_Params
 	return s.List.SetStruct(i, v.Struct)
 }
 
+func (s RealmGateway_import_Params_List) Copy(seg *capnp.Segment) (RealmGateway_import_Params_List, error) {
+	var err error
+	t, err := NewRealmGateway_import_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // RealmGateway_import_Params_Promise is a wrapper for a RealmGateway_import_Params promised by a client call.
 type RealmGateway_import_Params_Promise struct{ *capnp.Pipeline }
 
@@ -455,6 +529,26 @@ func ReadRootRealmGateway_export_Params(msg *capnp.Message) (RealmGateway_export
 func (s RealmGateway_export_Params) String() string {
 	str, _ := text.Marshal(0xecafa18b482da3aa, s.Struct)
 	return str
+}
+
+func (s RealmGateway_export_Params) Copy(seg *capnp.Segment) (RealmGateway_export_Params, error) {
+	var err error
+	t, err := NewRealmGateway_export_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	if s.HasParams() {
+		v, err := s.Params()
+		if err != nil {
+			return t, err
+		}
+		c, err := v.Copy(seg)
+		if err != nil {
+			return t, err
+		}
+		t.SetParams(c)
+	}
+	return t, nil
 }
 
 func (s RealmGateway_export_Params) Cap() Persistent {
@@ -516,6 +610,18 @@ func (s RealmGateway_export_Params_List) At(i int) RealmGateway_export_Params {
 
 func (s RealmGateway_export_Params_List) Set(i int, v RealmGateway_export_Params) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s RealmGateway_export_Params_List) Copy(seg *capnp.Segment) (RealmGateway_export_Params_List, error) {
+	var err error
+	t, err := NewRealmGateway_export_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // RealmGateway_export_Params_Promise is a wrapper for a RealmGateway_export_Params promised by a client call.

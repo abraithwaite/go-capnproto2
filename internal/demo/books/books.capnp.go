@@ -33,6 +33,23 @@ func (s Book) String() string {
 	return str
 }
 
+func (s Book) Copy(seg *capnp.Segment) (Book, error) {
+	var err error
+	t, err := NewBook(seg)
+	if err != nil {
+		return t, err
+	}
+	{
+		v, err := s.Title()
+		if err != nil {
+			return t, err
+		}
+		t.SetTitle(v)
+	}
+	t.SetPageCount(s.PageCount())
+	return t, nil
+}
+
 func (s Book) Title() (string, error) {
 	p, err := s.Struct.Ptr(0)
 	return p.Text(), err
@@ -76,6 +93,18 @@ func NewBook_List(s *capnp.Segment, sz int32) (Book_List, error) {
 func (s Book_List) At(i int) Book { return Book{s.List.Struct(i)} }
 
 func (s Book_List) Set(i int, v Book) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s Book_List) Copy(seg *capnp.Segment) (Book_List, error) {
+	var err error
+	t, err := NewBook_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // Book_Promise is a wrapper for a Book promised by a client call.
 type Book_Promise struct{ *capnp.Pipeline }

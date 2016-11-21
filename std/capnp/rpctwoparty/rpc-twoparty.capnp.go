@@ -60,6 +60,12 @@ func (l Side_List) Set(i int, v Side) {
 	ul.Set(i, uint16(v))
 }
 
+func (l Side_List) Copy(seg *capnp.Segment) (Side_List, error) {
+	ul := capnp.UInt16List{List: l.List}
+	t, err := ul.Copy(seg)
+	return Side_List{t.List}, err
+}
+
 type VatId struct{ capnp.Struct }
 
 // VatId_TypeID is the unique identifier for the type VatId.
@@ -85,6 +91,16 @@ func (s VatId) String() string {
 	return str
 }
 
+func (s VatId) Copy(seg *capnp.Segment) (VatId, error) {
+	var err error
+	t, err := NewVatId(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetSide(s.Side())
+	return t, nil
+}
+
 func (s VatId) Side() Side {
 	return Side(s.Struct.Uint16(0))
 }
@@ -105,6 +121,18 @@ func NewVatId_List(s *capnp.Segment, sz int32) (VatId_List, error) {
 func (s VatId_List) At(i int) VatId { return VatId{s.List.Struct(i)} }
 
 func (s VatId_List) Set(i int, v VatId) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s VatId_List) Copy(seg *capnp.Segment) (VatId_List, error) {
+	var err error
+	t, err := NewVatId_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // VatId_Promise is a wrapper for a VatId promised by a client call.
 type VatId_Promise struct{ *capnp.Pipeline }
@@ -139,6 +167,16 @@ func (s ProvisionId) String() string {
 	return str
 }
 
+func (s ProvisionId) Copy(seg *capnp.Segment) (ProvisionId, error) {
+	var err error
+	t, err := NewProvisionId(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetJoinId(s.JoinId())
+	return t, nil
+}
+
 func (s ProvisionId) JoinId() uint32 {
 	return s.Struct.Uint32(0)
 }
@@ -159,6 +197,18 @@ func NewProvisionId_List(s *capnp.Segment, sz int32) (ProvisionId_List, error) {
 func (s ProvisionId_List) At(i int) ProvisionId { return ProvisionId{s.List.Struct(i)} }
 
 func (s ProvisionId_List) Set(i int, v ProvisionId) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s ProvisionId_List) Copy(seg *capnp.Segment) (ProvisionId_List, error) {
+	var err error
+	t, err := NewProvisionId_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // ProvisionId_Promise is a wrapper for a ProvisionId promised by a client call.
 type ProvisionId_Promise struct{ *capnp.Pipeline }
@@ -193,6 +243,15 @@ func (s RecipientId) String() string {
 	return str
 }
 
+func (s RecipientId) Copy(seg *capnp.Segment) (RecipientId, error) {
+	var err error
+	t, err := NewRecipientId(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 // RecipientId_List is a list of RecipientId.
 type RecipientId_List struct{ capnp.List }
 
@@ -205,6 +264,18 @@ func NewRecipientId_List(s *capnp.Segment, sz int32) (RecipientId_List, error) {
 func (s RecipientId_List) At(i int) RecipientId { return RecipientId{s.List.Struct(i)} }
 
 func (s RecipientId_List) Set(i int, v RecipientId) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s RecipientId_List) Copy(seg *capnp.Segment) (RecipientId_List, error) {
+	var err error
+	t, err := NewRecipientId_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // RecipientId_Promise is a wrapper for a RecipientId promised by a client call.
 type RecipientId_Promise struct{ *capnp.Pipeline }
@@ -239,6 +310,15 @@ func (s ThirdPartyCapId) String() string {
 	return str
 }
 
+func (s ThirdPartyCapId) Copy(seg *capnp.Segment) (ThirdPartyCapId, error) {
+	var err error
+	t, err := NewThirdPartyCapId(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 // ThirdPartyCapId_List is a list of ThirdPartyCapId.
 type ThirdPartyCapId_List struct{ capnp.List }
 
@@ -252,6 +332,18 @@ func (s ThirdPartyCapId_List) At(i int) ThirdPartyCapId { return ThirdPartyCapId
 
 func (s ThirdPartyCapId_List) Set(i int, v ThirdPartyCapId) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s ThirdPartyCapId_List) Copy(seg *capnp.Segment) (ThirdPartyCapId_List, error) {
+	var err error
+	t, err := NewThirdPartyCapId_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // ThirdPartyCapId_Promise is a wrapper for a ThirdPartyCapId promised by a client call.
@@ -285,6 +377,18 @@ func ReadRootJoinKeyPart(msg *capnp.Message) (JoinKeyPart, error) {
 func (s JoinKeyPart) String() string {
 	str, _ := text.Marshal(0x95b29059097fca83, s.Struct)
 	return str
+}
+
+func (s JoinKeyPart) Copy(seg *capnp.Segment) (JoinKeyPart, error) {
+	var err error
+	t, err := NewJoinKeyPart(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetJoinId(s.JoinId())
+	t.SetPartCount(s.PartCount())
+	t.SetPartNum(s.PartNum())
+	return t, nil
 }
 
 func (s JoinKeyPart) JoinId() uint32 {
@@ -324,6 +428,18 @@ func (s JoinKeyPart_List) At(i int) JoinKeyPart { return JoinKeyPart{s.List.Stru
 
 func (s JoinKeyPart_List) Set(i int, v JoinKeyPart) error { return s.List.SetStruct(i, v.Struct) }
 
+func (s JoinKeyPart_List) Copy(seg *capnp.Segment) (JoinKeyPart_List, error) {
+	var err error
+	t, err := NewJoinKeyPart_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
+
 // JoinKeyPart_Promise is a wrapper for a JoinKeyPart promised by a client call.
 type JoinKeyPart_Promise struct{ *capnp.Pipeline }
 
@@ -355,6 +471,17 @@ func ReadRootJoinResult(msg *capnp.Message) (JoinResult, error) {
 func (s JoinResult) String() string {
 	str, _ := text.Marshal(0x9d263a3630b7ebee, s.Struct)
 	return str
+}
+
+func (s JoinResult) Copy(seg *capnp.Segment) (JoinResult, error) {
+	var err error
+	t, err := NewJoinResult(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetJoinId(s.JoinId())
+	t.SetSucceeded(s.Succeeded())
+	return t, nil
 }
 
 func (s JoinResult) JoinId() uint32 {
@@ -406,6 +533,18 @@ func NewJoinResult_List(s *capnp.Segment, sz int32) (JoinResult_List, error) {
 func (s JoinResult_List) At(i int) JoinResult { return JoinResult{s.List.Struct(i)} }
 
 func (s JoinResult_List) Set(i int, v JoinResult) error { return s.List.SetStruct(i, v.Struct) }
+
+func (s JoinResult_List) Copy(seg *capnp.Segment) (JoinResult_List, error) {
+	var err error
+	t, err := NewJoinResult_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
+}
 
 // JoinResult_Promise is a wrapper for a JoinResult promised by a client call.
 type JoinResult_Promise struct{ *capnp.Pipeline }

@@ -115,6 +115,15 @@ func (s HandleFactory_newHandle_Params) String() string {
 	return str
 }
 
+func (s HandleFactory_newHandle_Params) Copy(seg *capnp.Segment) (HandleFactory_newHandle_Params, error) {
+	var err error
+	t, err := NewHandleFactory_newHandle_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 // HandleFactory_newHandle_Params_List is a list of HandleFactory_newHandle_Params.
 type HandleFactory_newHandle_Params_List struct{ capnp.List }
 
@@ -130,6 +139,18 @@ func (s HandleFactory_newHandle_Params_List) At(i int) HandleFactory_newHandle_P
 
 func (s HandleFactory_newHandle_Params_List) Set(i int, v HandleFactory_newHandle_Params) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s HandleFactory_newHandle_Params_List) Copy(seg *capnp.Segment) (HandleFactory_newHandle_Params_List, error) {
+	var err error
+	t, err := NewHandleFactory_newHandle_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // HandleFactory_newHandle_Params_Promise is a wrapper for a HandleFactory_newHandle_Params promised by a client call.
@@ -163,6 +184,15 @@ func ReadRootHandleFactory_newHandle_Results(msg *capnp.Message) (HandleFactory_
 func (s HandleFactory_newHandle_Results) String() string {
 	str, _ := text.Marshal(0xd57b5111c59d048c, s.Struct)
 	return str
+}
+
+func (s HandleFactory_newHandle_Results) Copy(seg *capnp.Segment) (HandleFactory_newHandle_Results, error) {
+	var err error
+	t, err := NewHandleFactory_newHandle_Results(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
 }
 
 func (s HandleFactory_newHandle_Results) Handle() Handle {
@@ -199,6 +229,18 @@ func (s HandleFactory_newHandle_Results_List) At(i int) HandleFactory_newHandle_
 
 func (s HandleFactory_newHandle_Results_List) Set(i int, v HandleFactory_newHandle_Results) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s HandleFactory_newHandle_Results_List) Copy(seg *capnp.Segment) (HandleFactory_newHandle_Results_List, error) {
+	var err error
+	t, err := NewHandleFactory_newHandle_Results_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // HandleFactory_newHandle_Results_Promise is a wrapper for a HandleFactory_newHandle_Results promised by a client call.
@@ -300,6 +342,15 @@ func (s Hanger_hang_Params) String() string {
 	return str
 }
 
+func (s Hanger_hang_Params) Copy(seg *capnp.Segment) (Hanger_hang_Params, error) {
+	var err error
+	t, err := NewHanger_hang_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 // Hanger_hang_Params_List is a list of Hanger_hang_Params.
 type Hanger_hang_Params_List struct{ capnp.List }
 
@@ -315,6 +366,18 @@ func (s Hanger_hang_Params_List) At(i int) Hanger_hang_Params {
 
 func (s Hanger_hang_Params_List) Set(i int, v Hanger_hang_Params) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Hanger_hang_Params_List) Copy(seg *capnp.Segment) (Hanger_hang_Params_List, error) {
+	var err error
+	t, err := NewHanger_hang_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // Hanger_hang_Params_Promise is a wrapper for a Hanger_hang_Params promised by a client call.
@@ -350,6 +413,15 @@ func (s Hanger_hang_Results) String() string {
 	return str
 }
 
+func (s Hanger_hang_Results) Copy(seg *capnp.Segment) (Hanger_hang_Results, error) {
+	var err error
+	t, err := NewHanger_hang_Results(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 // Hanger_hang_Results_List is a list of Hanger_hang_Results.
 type Hanger_hang_Results_List struct{ capnp.List }
 
@@ -365,6 +437,18 @@ func (s Hanger_hang_Results_List) At(i int) Hanger_hang_Results {
 
 func (s Hanger_hang_Results_List) Set(i int, v Hanger_hang_Results) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Hanger_hang_Results_List) Copy(seg *capnp.Segment) (Hanger_hang_Results_List, error) {
+	var err error
+	t, err := NewHanger_hang_Results_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // Hanger_hang_Results_Promise is a wrapper for a Hanger_hang_Results promised by a client call.
@@ -462,6 +546,16 @@ func (s CallOrder_getCallSequence_Params) String() string {
 	return str
 }
 
+func (s CallOrder_getCallSequence_Params) Copy(seg *capnp.Segment) (CallOrder_getCallSequence_Params, error) {
+	var err error
+	t, err := NewCallOrder_getCallSequence_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetExpected(s.Expected())
+	return t, nil
+}
+
 func (s CallOrder_getCallSequence_Params) Expected() uint32 {
 	return s.Struct.Uint32(0)
 }
@@ -485,6 +579,18 @@ func (s CallOrder_getCallSequence_Params_List) At(i int) CallOrder_getCallSequen
 
 func (s CallOrder_getCallSequence_Params_List) Set(i int, v CallOrder_getCallSequence_Params) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s CallOrder_getCallSequence_Params_List) Copy(seg *capnp.Segment) (CallOrder_getCallSequence_Params_List, error) {
+	var err error
+	t, err := NewCallOrder_getCallSequence_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // CallOrder_getCallSequence_Params_Promise is a wrapper for a CallOrder_getCallSequence_Params promised by a client call.
@@ -520,6 +626,16 @@ func (s CallOrder_getCallSequence_Results) String() string {
 	return str
 }
 
+func (s CallOrder_getCallSequence_Results) Copy(seg *capnp.Segment) (CallOrder_getCallSequence_Results, error) {
+	var err error
+	t, err := NewCallOrder_getCallSequence_Results(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetN(s.N())
+	return t, nil
+}
+
 func (s CallOrder_getCallSequence_Results) N() uint32 {
 	return s.Struct.Uint32(0)
 }
@@ -543,6 +659,18 @@ func (s CallOrder_getCallSequence_Results_List) At(i int) CallOrder_getCallSeque
 
 func (s CallOrder_getCallSequence_Results_List) Set(i int, v CallOrder_getCallSequence_Results) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s CallOrder_getCallSequence_Results_List) Copy(seg *capnp.Segment) (CallOrder_getCallSequence_Results_List, error) {
+	var err error
+	t, err := NewCallOrder_getCallSequence_Results_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // CallOrder_getCallSequence_Results_Promise is a wrapper for a CallOrder_getCallSequence_Results promised by a client call.
@@ -676,6 +804,15 @@ func (s Echoer_echo_Params) String() string {
 	return str
 }
 
+func (s Echoer_echo_Params) Copy(seg *capnp.Segment) (Echoer_echo_Params, error) {
+	var err error
+	t, err := NewEchoer_echo_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 func (s Echoer_echo_Params) Cap() CallOrder {
 	p, _ := s.Struct.Ptr(0)
 	return CallOrder{Client: p.Interface().Client()}
@@ -710,6 +847,18 @@ func (s Echoer_echo_Params_List) At(i int) Echoer_echo_Params {
 
 func (s Echoer_echo_Params_List) Set(i int, v Echoer_echo_Params) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Echoer_echo_Params_List) Copy(seg *capnp.Segment) (Echoer_echo_Params_List, error) {
+	var err error
+	t, err := NewEchoer_echo_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // Echoer_echo_Params_Promise is a wrapper for a Echoer_echo_Params promised by a client call.
@@ -749,6 +898,15 @@ func (s Echoer_echo_Results) String() string {
 	return str
 }
 
+func (s Echoer_echo_Results) Copy(seg *capnp.Segment) (Echoer_echo_Results, error) {
+	var err error
+	t, err := NewEchoer_echo_Results(seg)
+	if err != nil {
+		return t, err
+	}
+	return t, nil
+}
+
 func (s Echoer_echo_Results) Cap() CallOrder {
 	p, _ := s.Struct.Ptr(0)
 	return CallOrder{Client: p.Interface().Client()}
@@ -783,6 +941,18 @@ func (s Echoer_echo_Results_List) At(i int) Echoer_echo_Results {
 
 func (s Echoer_echo_Results_List) Set(i int, v Echoer_echo_Results) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Echoer_echo_Results_List) Copy(seg *capnp.Segment) (Echoer_echo_Results_List, error) {
+	var err error
+	t, err := NewEchoer_echo_Results_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // Echoer_echo_Results_Promise is a wrapper for a Echoer_echo_Results promised by a client call.
@@ -884,6 +1054,16 @@ func (s PingPong_echoNum_Params) String() string {
 	return str
 }
 
+func (s PingPong_echoNum_Params) Copy(seg *capnp.Segment) (PingPong_echoNum_Params, error) {
+	var err error
+	t, err := NewPingPong_echoNum_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetN(s.N())
+	return t, nil
+}
+
 func (s PingPong_echoNum_Params) N() int32 {
 	return int32(s.Struct.Uint32(0))
 }
@@ -907,6 +1087,18 @@ func (s PingPong_echoNum_Params_List) At(i int) PingPong_echoNum_Params {
 
 func (s PingPong_echoNum_Params_List) Set(i int, v PingPong_echoNum_Params) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s PingPong_echoNum_Params_List) Copy(seg *capnp.Segment) (PingPong_echoNum_Params_List, error) {
+	var err error
+	t, err := NewPingPong_echoNum_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // PingPong_echoNum_Params_Promise is a wrapper for a PingPong_echoNum_Params promised by a client call.
@@ -942,6 +1134,16 @@ func (s PingPong_echoNum_Results) String() string {
 	return str
 }
 
+func (s PingPong_echoNum_Results) Copy(seg *capnp.Segment) (PingPong_echoNum_Results, error) {
+	var err error
+	t, err := NewPingPong_echoNum_Results(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetN(s.N())
+	return t, nil
+}
+
 func (s PingPong_echoNum_Results) N() int32 {
 	return int32(s.Struct.Uint32(0))
 }
@@ -965,6 +1167,18 @@ func (s PingPong_echoNum_Results_List) At(i int) PingPong_echoNum_Results {
 
 func (s PingPong_echoNum_Results_List) Set(i int, v PingPong_echoNum_Results) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s PingPong_echoNum_Results_List) Copy(seg *capnp.Segment) (PingPong_echoNum_Results_List, error) {
+	var err error
+	t, err := NewPingPong_echoNum_Results_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // PingPong_echoNum_Results_Promise is a wrapper for a PingPong_echoNum_Results promised by a client call.
@@ -1062,6 +1276,17 @@ func (s Adder_add_Params) String() string {
 	return str
 }
 
+func (s Adder_add_Params) Copy(seg *capnp.Segment) (Adder_add_Params, error) {
+	var err error
+	t, err := NewAdder_add_Params(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetA(s.A())
+	t.SetB(s.B())
+	return t, nil
+}
+
 func (s Adder_add_Params) A() int32 {
 	return int32(s.Struct.Uint32(0))
 }
@@ -1091,6 +1316,18 @@ func (s Adder_add_Params_List) At(i int) Adder_add_Params { return Adder_add_Par
 
 func (s Adder_add_Params_List) Set(i int, v Adder_add_Params) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Adder_add_Params_List) Copy(seg *capnp.Segment) (Adder_add_Params_List, error) {
+	var err error
+	t, err := NewAdder_add_Params_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // Adder_add_Params_Promise is a wrapper for a Adder_add_Params promised by a client call.
@@ -1126,6 +1363,16 @@ func (s Adder_add_Results) String() string {
 	return str
 }
 
+func (s Adder_add_Results) Copy(seg *capnp.Segment) (Adder_add_Results, error) {
+	var err error
+	t, err := NewAdder_add_Results(seg)
+	if err != nil {
+		return t, err
+	}
+	t.SetResult(s.Result())
+	return t, nil
+}
+
 func (s Adder_add_Results) Result() int32 {
 	return int32(s.Struct.Uint32(0))
 }
@@ -1149,6 +1396,18 @@ func (s Adder_add_Results_List) At(i int) Adder_add_Results {
 
 func (s Adder_add_Results_List) Set(i int, v Adder_add_Results) error {
 	return s.List.SetStruct(i, v.Struct)
+}
+
+func (s Adder_add_Results_List) Copy(seg *capnp.Segment) (Adder_add_Results_List, error) {
+	var err error
+	t, err := NewAdder_add_Results_List(seg, int32(s.Len()))
+	if err != nil {
+		return t, err
+	}
+	for i := 0; i < s.Len(); i++ {
+		t.Set(i, s.At(i))
+	}
+	return t, nil
 }
 
 // Adder_add_Results_Promise is a wrapper for a Adder_add_Results promised by a client call.
