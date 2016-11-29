@@ -323,16 +323,16 @@ func (s PlaneBase) Copy(seg *capnp.Segment) (PlaneBase, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasHomes() {
-		v, err := s.Homes()
+	{
+		o, err := s.Homes()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetHomes(c)
+		t.SetHomes(v)
 	}
 	{
 		v, err := s.Name()
@@ -492,16 +492,16 @@ func (s B737) Copy(seg *capnp.Segment) (B737, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasBase() {
-		v, err := s.Base()
+	{
+		o, err := s.Base()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetBase(c)
+		t.SetBase(v)
 	}
 	return t, nil
 }
@@ -599,16 +599,16 @@ func (s A320) Copy(seg *capnp.Segment) (A320, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasBase() {
-		v, err := s.Base()
+	{
+		o, err := s.Base()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetBase(c)
+		t.SetBase(v)
 	}
 	return t, nil
 }
@@ -706,16 +706,16 @@ func (s F16) Copy(seg *capnp.Segment) (F16, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasBase() {
-		v, err := s.Base()
+	{
+		o, err := s.Base()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetBase(c)
+		t.SetBase(v)
 	}
 	return t, nil
 }
@@ -813,38 +813,38 @@ func (s Regression) Copy(seg *capnp.Segment) (Regression, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasBase() {
-		v, err := s.Base()
+	{
+		o, err := s.Base()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetBase(c)
+		t.SetBase(v)
 	}
-	if s.HasBeta() {
-		v, err := s.Beta()
+	{
+		o, err := s.Beta()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetBeta(c)
+		t.SetBeta(v)
 	}
-	if s.HasPlanes() {
-		v, err := s.Planes()
+	{
+		o, err := s.Planes()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetPlanes(c)
+		t.SetPlanes(v)
 	}
 	t.SetB0(s.B0())
 	t.SetYmu(s.Ymu())
@@ -1692,32 +1692,56 @@ func (s Z) Copy(seg *capnp.Segment) (Z, error) {
 		}
 		t.SetZdatavec(c)
 	}
-	{
+	if s.Which() == Z_Which_text {
 		v, err := s.Text()
 		if err != nil {
 			return t, err
 		}
 		t.SetText(v)
 	}
-	{
+	if s.Which() == Z_Which_blob {
 		v, err := s.Blob()
 		if err != nil {
 			return t, err
 		}
 		t.SetBlob(v)
 	}
-	t.SetF64(s.F64())
-	t.SetF32(s.F32())
-	t.SetI64(s.I64())
-	t.SetI32(s.I32())
-	t.SetI16(s.I16())
-	t.SetI8(s.I8())
-	t.SetU64(s.U64())
-	t.SetU32(s.U32())
-	t.SetU16(s.U16())
-	t.SetU8(s.U8())
-	t.SetBool(s.Bool())
-	t.SetAirport(s.Airport())
+	if s.Which() == Z_Which_f64 {
+		t.SetF64(s.F64())
+	}
+	if s.Which() == Z_Which_f32 {
+		t.SetF32(s.F32())
+	}
+	if s.Which() == Z_Which_i64 {
+		t.SetI64(s.I64())
+	}
+	if s.Which() == Z_Which_i32 {
+		t.SetI32(s.I32())
+	}
+	if s.Which() == Z_Which_i16 {
+		t.SetI16(s.I16())
+	}
+	if s.Which() == Z_Which_i8 {
+		t.SetI8(s.I8())
+	}
+	if s.Which() == Z_Which_u64 {
+		t.SetU64(s.U64())
+	}
+	if s.Which() == Z_Which_u32 {
+		t.SetU32(s.U32())
+	}
+	if s.Which() == Z_Which_u16 {
+		t.SetU16(s.U16())
+	}
+	if s.Which() == Z_Which_u8 {
+		t.SetU8(s.U8())
+	}
+	if s.Which() == Z_Which_bool {
+		t.SetBool(s.Bool())
+	}
+	if s.Which() == Z_Which_airport {
+		t.SetAirport(s.Airport())
+	}
 	return t, nil
 }
 
@@ -2828,16 +2852,16 @@ func (s Counter) Copy(seg *capnp.Segment) (Counter, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasWordlist() {
-		v, err := s.Wordlist()
+	{
+		o, err := s.Wordlist()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetWordlist(c)
+		t.SetWordlist(v)
 	}
 	{
 		v, err := s.Words()
@@ -2970,16 +2994,16 @@ func (s Bag) Copy(seg *capnp.Segment) (Bag, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasCounter() {
-		v, err := s.Counter()
+	{
+		o, err := s.Counter()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetCounter(c)
+		t.SetCounter(v)
 	}
 	return t, nil
 }
@@ -3077,16 +3101,16 @@ func (s Zserver) Copy(seg *capnp.Segment) (Zserver, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasWaitingjobs() {
-		v, err := s.Waitingjobs()
+	{
+		o, err := s.Waitingjobs()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetWaitingjobs(c)
+		t.SetWaitingjobs(v)
 	}
 	return t, nil
 }
@@ -3180,16 +3204,16 @@ func (s Zjob) Copy(seg *capnp.Segment) (Zjob, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasArgs() {
-		v, err := s.Args()
+	{
+		o, err := s.Args()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetArgs(c)
+		t.SetArgs(v)
 	}
 	{
 		v, err := s.Cmd()
@@ -3541,16 +3565,16 @@ func (s VerOnePtr) Copy(seg *capnp.Segment) (VerOnePtr, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasPtr() {
-		v, err := s.Ptr()
+	{
+		o, err := s.Ptr()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetPtr(c)
+		t.SetPtr(v)
 	}
 	return t, nil
 }
@@ -3648,27 +3672,27 @@ func (s VerTwoPtr) Copy(seg *capnp.Segment) (VerTwoPtr, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasPtr1() {
-		v, err := s.Ptr1()
+	{
+		o, err := s.Ptr1()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetPtr1(c)
+		t.SetPtr1(v)
 	}
-	if s.HasPtr2() {
-		v, err := s.Ptr2()
+	{
+		o, err := s.Ptr2()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetPtr2(c)
+		t.SetPtr2(v)
 	}
 	return t, nil
 }
@@ -3795,27 +3819,27 @@ func (s VerTwoDataTwoPtr) Copy(seg *capnp.Segment) (VerTwoDataTwoPtr, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasPtr1() {
-		v, err := s.Ptr1()
+	{
+		o, err := s.Ptr1()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetPtr1(c)
+		t.SetPtr1(v)
 	}
-	if s.HasPtr2() {
-		v, err := s.Ptr2()
+	{
+		o, err := s.Ptr2()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetPtr2(c)
+		t.SetPtr2(v)
 	}
 	t.SetVal(s.Val())
 	t.SetDuo(s.Duo())
@@ -3962,16 +3986,16 @@ func (s HoldsVerEmptyList) Copy(seg *capnp.Segment) (HoldsVerEmptyList, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasMylist() {
-		v, err := s.Mylist()
+	{
+		o, err := s.Mylist()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetMylist(c)
+		t.SetMylist(v)
 	}
 	return t, nil
 }
@@ -4069,16 +4093,16 @@ func (s HoldsVerOneDataList) Copy(seg *capnp.Segment) (HoldsVerOneDataList, erro
 	if err != nil {
 		return t, err
 	}
-	if s.HasMylist() {
-		v, err := s.Mylist()
+	{
+		o, err := s.Mylist()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetMylist(c)
+		t.SetMylist(v)
 	}
 	return t, nil
 }
@@ -4176,16 +4200,16 @@ func (s HoldsVerTwoDataList) Copy(seg *capnp.Segment) (HoldsVerTwoDataList, erro
 	if err != nil {
 		return t, err
 	}
-	if s.HasMylist() {
-		v, err := s.Mylist()
+	{
+		o, err := s.Mylist()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetMylist(c)
+		t.SetMylist(v)
 	}
 	return t, nil
 }
@@ -4283,16 +4307,16 @@ func (s HoldsVerOnePtrList) Copy(seg *capnp.Segment) (HoldsVerOnePtrList, error)
 	if err != nil {
 		return t, err
 	}
-	if s.HasMylist() {
-		v, err := s.Mylist()
+	{
+		o, err := s.Mylist()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetMylist(c)
+		t.SetMylist(v)
 	}
 	return t, nil
 }
@@ -4390,16 +4414,16 @@ func (s HoldsVerTwoPtrList) Copy(seg *capnp.Segment) (HoldsVerTwoPtrList, error)
 	if err != nil {
 		return t, err
 	}
-	if s.HasMylist() {
-		v, err := s.Mylist()
+	{
+		o, err := s.Mylist()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetMylist(c)
+		t.SetMylist(v)
 	}
 	return t, nil
 }
@@ -4497,16 +4521,16 @@ func (s HoldsVerTwoTwoList) Copy(seg *capnp.Segment) (HoldsVerTwoTwoList, error)
 	if err != nil {
 		return t, err
 	}
-	if s.HasMylist() {
-		v, err := s.Mylist()
+	{
+		o, err := s.Mylist()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetMylist(c)
+		t.SetMylist(v)
 	}
 	return t, nil
 }
@@ -4604,16 +4628,16 @@ func (s HoldsVerTwoTwoPlus) Copy(seg *capnp.Segment) (HoldsVerTwoTwoPlus, error)
 	if err != nil {
 		return t, err
 	}
-	if s.HasMylist() {
-		v, err := s.Mylist()
+	{
+		o, err := s.Mylist()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetMylist(c)
+		t.SetMylist(v)
 	}
 	return t, nil
 }
@@ -4711,38 +4735,38 @@ func (s VerTwoTwoPlus) Copy(seg *capnp.Segment) (VerTwoTwoPlus, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasPtr1() {
-		v, err := s.Ptr1()
+	{
+		o, err := s.Ptr1()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetPtr1(c)
+		t.SetPtr1(v)
 	}
-	if s.HasPtr2() {
-		v, err := s.Ptr2()
+	{
+		o, err := s.Ptr2()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetPtr2(c)
+		t.SetPtr2(v)
 	}
-	if s.HasLst3() {
-		v, err := s.Lst3()
+	{
+		o, err := s.Lst3()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetLst3(c)
+		t.SetLst3(v)
 	}
 	t.SetVal(s.Val())
 	t.SetDuo(s.Duo())
@@ -4921,27 +4945,27 @@ func (s HoldsText) Copy(seg *capnp.Segment) (HoldsText, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasLst() {
-		v, err := s.Lst()
+	{
+		o, err := s.Lst()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetLst(c)
+		t.SetLst(v)
 	}
-	if s.HasLstlst() {
-		v, err := s.Lstlst()
+	{
+		o, err := s.Lstlst()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetLstlst(c)
+		t.SetLstlst(v)
 	}
 	{
 		v, err := s.Txt()
@@ -5090,16 +5114,16 @@ func (s WrapEmpty) Copy(seg *capnp.Segment) (WrapEmpty, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasMightNotBeReallyEmpty() {
-		v, err := s.MightNotBeReallyEmpty()
+	{
+		o, err := s.MightNotBeReallyEmpty()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetMightNotBeReallyEmpty(c)
+		t.SetMightNotBeReallyEmpty(v)
 	}
 	return t, nil
 }
@@ -5197,16 +5221,16 @@ func (s Wrap2x2) Copy(seg *capnp.Segment) (Wrap2x2, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasMightNotBeReallyEmpty() {
-		v, err := s.MightNotBeReallyEmpty()
+	{
+		o, err := s.MightNotBeReallyEmpty()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetMightNotBeReallyEmpty(c)
+		t.SetMightNotBeReallyEmpty(v)
 	}
 	return t, nil
 }
@@ -5304,16 +5328,16 @@ func (s Wrap2x2plus) Copy(seg *capnp.Segment) (Wrap2x2plus, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasMightNotBeReallyEmpty() {
-		v, err := s.MightNotBeReallyEmpty()
+	{
+		o, err := s.MightNotBeReallyEmpty()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetMightNotBeReallyEmpty(c)
+		t.SetMightNotBeReallyEmpty(v)
 	}
 	return t, nil
 }
@@ -5509,16 +5533,16 @@ func (s Nester1Capn) Copy(seg *capnp.Segment) (Nester1Capn, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasStrs() {
-		v, err := s.Strs()
+	{
+		o, err := s.Strs()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetStrs(c)
+		t.SetStrs(v)
 	}
 	return t, nil
 }
@@ -5612,16 +5636,16 @@ func (s RWTestCapn) Copy(seg *capnp.Segment) (RWTestCapn, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasNestMatrix() {
-		v, err := s.NestMatrix()
+	{
+		o, err := s.NestMatrix()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetNestMatrix(c)
+		t.SetNestMatrix(v)
 	}
 	return t, nil
 }
@@ -5715,16 +5739,16 @@ func (s ListStructCapn) Copy(seg *capnp.Segment) (ListStructCapn, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasVec() {
-		v, err := s.Vec()
+	{
+		o, err := s.Vec()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetVec(c)
+		t.SetVec(v)
 	}
 	return t, nil
 }
@@ -6080,16 +6104,16 @@ func (s Hoth) Copy(seg *capnp.Segment) (Hoth, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasBase() {
-		v, err := s.Base()
+	{
+		o, err := s.Base()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetBase(c)
+		t.SetBase(v)
 	}
 	return t, nil
 }
@@ -6277,27 +6301,27 @@ func (s StackingRoot) Copy(seg *capnp.Segment) (StackingRoot, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasA() {
-		v, err := s.A()
+	{
+		o, err := s.A()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetA(c)
+		t.SetA(v)
 	}
-	if s.HasAWithDefault() {
-		v, err := s.AWithDefault()
+	{
+		o, err := s.AWithDefault()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetAWithDefault(c)
+		t.SetAWithDefault(v)
 	}
 	return t, nil
 }
@@ -6428,16 +6452,16 @@ func (s StackingA) Copy(seg *capnp.Segment) (StackingA, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasB() {
-		v, err := s.B()
+	{
+		o, err := s.B()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetB(c)
+		t.SetB(v)
 	}
 	t.SetNum(s.Num())
 	return t, nil

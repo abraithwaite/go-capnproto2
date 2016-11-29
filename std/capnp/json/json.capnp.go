@@ -107,15 +107,19 @@ func (s JsonValue) Copy(seg *capnp.Segment) (JsonValue, error) {
 		}
 		t.SetCall(c)
 	}
-	{
+	if s.Which() == JsonValue_Which_string_ {
 		v, err := s.String_()
 		if err != nil {
 			return t, err
 		}
 		t.SetString_(v)
 	}
-	t.SetBoolean(s.Boolean())
-	t.SetNumber(s.Number())
+	if s.Which() == JsonValue_Which_boolean {
+		t.SetBoolean(s.Boolean())
+	}
+	if s.Which() == JsonValue_Which_number {
+		t.SetNumber(s.Number())
+	}
 	return t, nil
 }
 
@@ -330,16 +334,16 @@ func (s JsonValue_Field) Copy(seg *capnp.Segment) (JsonValue_Field, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasValue() {
-		v, err := s.Value()
+	{
+		o, err := s.Value()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetValue(c)
+		t.SetValue(v)
 	}
 	{
 		v, err := s.Name()
@@ -469,16 +473,16 @@ func (s JsonValue_Call) Copy(seg *capnp.Segment) (JsonValue_Call, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasParams() {
-		v, err := s.Params()
+	{
+		o, err := s.Params()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetParams(c)
+		t.SetParams(v)
 	}
 	{
 		v, err := s.Function()

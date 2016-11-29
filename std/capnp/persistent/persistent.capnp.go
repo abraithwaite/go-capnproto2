@@ -403,16 +403,16 @@ func (s RealmGateway_import_Params) Copy(seg *capnp.Segment) (RealmGateway_impor
 	if err != nil {
 		return t, err
 	}
-	if s.HasParams() {
-		v, err := s.Params()
+	{
+		o, err := s.Params()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetParams(c)
+		t.SetParams(v)
 	}
 	return t, nil
 }
@@ -537,16 +537,16 @@ func (s RealmGateway_export_Params) Copy(seg *capnp.Segment) (RealmGateway_expor
 	if err != nil {
 		return t, err
 	}
-	if s.HasParams() {
-		v, err := s.Params()
+	{
+		o, err := s.Params()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetParams(c)
+		t.SetParams(v)
 	}
 	return t, nil
 }

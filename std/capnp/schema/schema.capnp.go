@@ -75,38 +75,38 @@ func (s Node) Copy(seg *capnp.Segment) (Node, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasParameters() {
-		v, err := s.Parameters()
+	{
+		o, err := s.Parameters()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetParameters(c)
+		t.SetParameters(v)
 	}
-	if s.HasNestedNodes() {
-		v, err := s.NestedNodes()
+	{
+		o, err := s.NestedNodes()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetNestedNodes(c)
+		t.SetNestedNodes(v)
 	}
-	if s.HasAnnotations() {
-		v, err := s.Annotations()
+	{
+		o, err := s.Annotations()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetAnnotations(c)
+		t.SetAnnotations(v)
 	}
 	{
 		v, err := s.DisplayName()
@@ -965,16 +965,16 @@ func (s Field) Copy(seg *capnp.Segment) (Field, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasAnnotations() {
-		v, err := s.Annotations()
+	{
+		o, err := s.Annotations()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetAnnotations(c)
+		t.SetAnnotations(v)
 	}
 	{
 		v, err := s.Name()
@@ -1257,16 +1257,16 @@ func (s Enumerant) Copy(seg *capnp.Segment) (Enumerant, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasAnnotations() {
-		v, err := s.Annotations()
+	{
+		o, err := s.Annotations()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetAnnotations(c)
+		t.SetAnnotations(v)
 	}
 	{
 		v, err := s.Name()
@@ -1394,16 +1394,16 @@ func (s Superclass) Copy(seg *capnp.Segment) (Superclass, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasBrand() {
-		v, err := s.Brand()
+	{
+		o, err := s.Brand()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetBrand(c)
+		t.SetBrand(v)
 	}
 	t.SetId(s.Id())
 	return t, nil
@@ -1505,49 +1505,49 @@ func (s Method) Copy(seg *capnp.Segment) (Method, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasImplicitParameters() {
-		v, err := s.ImplicitParameters()
+	{
+		o, err := s.ImplicitParameters()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetImplicitParameters(c)
+		t.SetImplicitParameters(v)
 	}
-	if s.HasParamBrand() {
-		v, err := s.ParamBrand()
+	{
+		o, err := s.ParamBrand()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetParamBrand(c)
+		t.SetParamBrand(v)
 	}
-	if s.HasResultBrand() {
-		v, err := s.ResultBrand()
+	{
+		o, err := s.ResultBrand()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetResultBrand(c)
+		t.SetResultBrand(v)
 	}
-	if s.HasAnnotations() {
-		v, err := s.Annotations()
+	{
+		o, err := s.Annotations()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetAnnotations(c)
+		t.SetAnnotations(v)
 	}
 	{
 		v, err := s.Name()
@@ -2363,16 +2363,16 @@ func (s Brand) Copy(seg *capnp.Segment) (Brand, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasScopes() {
-		v, err := s.Scopes()
+	{
+		o, err := s.Scopes()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetScopes(c)
+		t.SetScopes(v)
 	}
 	return t, nil
 }
@@ -2479,16 +2479,16 @@ func (s Brand_Scope) Copy(seg *capnp.Segment) (Brand_Scope, error) {
 	if err != nil {
 		return t, err
 	}
-	{
-		o, err := s.Bind()
+	if s.HasBind() {
+		v, err := s.Bind()
 		if err != nil {
 			return t, err
 		}
-		v, err := o.Copy(seg)
+		c, err := v.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetBind(v)
+		t.SetBind(c)
 	}
 	t.SetScopeId(s.ScopeId())
 	return t, nil
@@ -2801,32 +2801,56 @@ func (s Value) Copy(seg *capnp.Segment) (Value, error) {
 	if err != nil {
 		return t, err
 	}
-	{
+	if s.Which() == Value_Which_text {
 		v, err := s.Text()
 		if err != nil {
 			return t, err
 		}
 		t.SetText(v)
 	}
-	{
+	if s.Which() == Value_Which_data {
 		v, err := s.Data()
 		if err != nil {
 			return t, err
 		}
 		t.SetData(v)
 	}
-	t.SetBool(s.Bool())
-	t.SetInt8(s.Int8())
-	t.SetInt16(s.Int16())
-	t.SetInt32(s.Int32())
-	t.SetInt64(s.Int64())
-	t.SetUint8(s.Uint8())
-	t.SetUint16(s.Uint16())
-	t.SetUint32(s.Uint32())
-	t.SetUint64(s.Uint64())
-	t.SetFloat32(s.Float32())
-	t.SetFloat64(s.Float64())
-	t.SetEnum(s.Enum())
+	if s.Which() == Value_Which_bool {
+		t.SetBool(s.Bool())
+	}
+	if s.Which() == Value_Which_int8 {
+		t.SetInt8(s.Int8())
+	}
+	if s.Which() == Value_Which_int16 {
+		t.SetInt16(s.Int16())
+	}
+	if s.Which() == Value_Which_int32 {
+		t.SetInt32(s.Int32())
+	}
+	if s.Which() == Value_Which_int64 {
+		t.SetInt64(s.Int64())
+	}
+	if s.Which() == Value_Which_uint8 {
+		t.SetUint8(s.Uint8())
+	}
+	if s.Which() == Value_Which_uint16 {
+		t.SetUint16(s.Uint16())
+	}
+	if s.Which() == Value_Which_uint32 {
+		t.SetUint32(s.Uint32())
+	}
+	if s.Which() == Value_Which_uint64 {
+		t.SetUint64(s.Uint64())
+	}
+	if s.Which() == Value_Which_float32 {
+		t.SetFloat32(s.Float32())
+	}
+	if s.Which() == Value_Which_float64 {
+		t.SetFloat64(s.Float64())
+	}
+	if s.Which() == Value_Which_enum {
+		t.SetEnum(s.Enum())
+	}
 	return t, nil
 }
 
@@ -3149,27 +3173,27 @@ func (s Annotation) Copy(seg *capnp.Segment) (Annotation, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasBrand() {
-		v, err := s.Brand()
+	{
+		o, err := s.Brand()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetBrand(c)
+		t.SetBrand(v)
 	}
-	if s.HasValue() {
-		v, err := s.Value()
+	{
+		o, err := s.Value()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetValue(c)
+		t.SetValue(v)
 	}
 	t.SetId(s.Id())
 	return t, nil
@@ -3388,27 +3412,27 @@ func (s CodeGeneratorRequest) Copy(seg *capnp.Segment) (CodeGeneratorRequest, er
 	if err != nil {
 		return t, err
 	}
-	if s.HasNodes() {
-		v, err := s.Nodes()
+	{
+		o, err := s.Nodes()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetNodes(c)
+		t.SetNodes(v)
 	}
-	if s.HasRequestedFiles() {
-		v, err := s.RequestedFiles()
+	{
+		o, err := s.RequestedFiles()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetRequestedFiles(c)
+		t.SetRequestedFiles(v)
 	}
 	return t, nil
 }
@@ -3526,16 +3550,16 @@ func (s CodeGeneratorRequest_RequestedFile) Copy(seg *capnp.Segment) (CodeGenera
 	if err != nil {
 		return t, err
 	}
-	if s.HasImports() {
-		v, err := s.Imports()
+	{
+		o, err := s.Imports()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetImports(c)
+		t.SetImports(v)
 	}
 	{
 		v, err := s.Filename()

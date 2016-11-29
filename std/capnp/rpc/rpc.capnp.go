@@ -94,16 +94,16 @@ func (s Message) Copy(seg *capnp.Segment) (Message, error) {
 	if err != nil {
 		return t, err
 	}
-	{
-		o, err := s.Unimplemented()
+	if s.HasUnimplemented() {
+		v, err := s.Unimplemented()
 		if err != nil {
 			return t, err
 		}
-		v, err := o.Copy(seg)
+		c, err := v.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetUnimplemented(v)
+		t.SetUnimplemented(c)
 	}
 	if s.HasAbort() {
 		v, err := s.Abort()
@@ -887,27 +887,27 @@ func (s Call) Copy(seg *capnp.Segment) (Call, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasTarget() {
-		v, err := s.Target()
+	{
+		o, err := s.Target()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetTarget(c)
+		t.SetTarget(v)
 	}
-	if s.HasParams() {
-		v, err := s.Params()
+	{
+		o, err := s.Params()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetParams(c)
+		t.SetParams(v)
 	}
 	t.SetQuestionId(s.QuestionId())
 	t.SetInterfaceId(s.InterfaceId())
@@ -1157,16 +1157,16 @@ func (s Return) Copy(seg *capnp.Segment) (Return, error) {
 	if err != nil {
 		return t, err
 	}
-	{
-		o, err := s.Results()
+	if s.HasResults() {
+		v, err := s.Results()
 		if err != nil {
 			return t, err
 		}
-		v, err := o.Copy(seg)
+		c, err := v.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetResults(v)
+		t.SetResults(c)
 	}
 	if s.HasException() {
 		v, err := s.Exception()
@@ -1181,7 +1181,9 @@ func (s Return) Copy(seg *capnp.Segment) (Return, error) {
 	}
 	t.SetAnswerId(s.AnswerId())
 	t.SetReleaseParamCaps(s.ReleaseParamCaps())
-	t.SetTakeFromOtherQuestion(s.TakeFromOtherQuestion())
+	if s.Which() == Return_Which_takeFromOtherQuestion {
+		t.SetTakeFromOtherQuestion(s.TakeFromOtherQuestion())
+	}
 	return t, nil
 }
 
@@ -1488,16 +1490,16 @@ func (s Resolve) Copy(seg *capnp.Segment) (Resolve, error) {
 	if err != nil {
 		return t, err
 	}
-	{
-		o, err := s.Cap()
+	if s.HasCap() {
+		v, err := s.Cap()
 		if err != nil {
 			return t, err
 		}
-		v, err := o.Copy(seg)
+		c, err := v.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetCap(v)
+		t.SetCap(c)
 	}
 	if s.HasException() {
 		v, err := s.Exception()
@@ -1767,16 +1769,16 @@ func (s Disembargo) Copy(seg *capnp.Segment) (Disembargo, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasTarget() {
-		v, err := s.Target()
+	{
+		o, err := s.Target()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetTarget(c)
+		t.SetTarget(v)
 	}
 	return t, nil
 }
@@ -1923,16 +1925,16 @@ func (s Provide) Copy(seg *capnp.Segment) (Provide, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasTarget() {
-		v, err := s.Target()
+	{
+		o, err := s.Target()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetTarget(c)
+		t.SetTarget(v)
 	}
 	t.SetQuestionId(s.QuestionId())
 	return t, nil
@@ -2174,16 +2176,16 @@ func (s Join) Copy(seg *capnp.Segment) (Join, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasTarget() {
-		v, err := s.Target()
+	{
+		o, err := s.Target()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetTarget(c)
+		t.SetTarget(v)
 	}
 	t.SetQuestionId(s.QuestionId())
 	return t, nil
@@ -2344,7 +2346,9 @@ func (s MessageTarget) Copy(seg *capnp.Segment) (MessageTarget, error) {
 		}
 		t.SetPromisedAnswer(c)
 	}
-	t.SetImportedCap(s.ImportedCap())
+	if s.Which() == MessageTarget_Which_importedCap {
+		t.SetImportedCap(s.ImportedCap())
+	}
 	return t, nil
 }
 
@@ -2458,16 +2462,16 @@ func (s Payload) Copy(seg *capnp.Segment) (Payload, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasCapTable() {
-		v, err := s.CapTable()
+	{
+		o, err := s.CapTable()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetCapTable(c)
+		t.SetCapTable(v)
 	}
 	return t, nil
 }
@@ -2638,9 +2642,15 @@ func (s CapDescriptor) Copy(seg *capnp.Segment) (CapDescriptor, error) {
 		}
 		t.SetThirdPartyHosted(c)
 	}
-	t.SetSenderHosted(s.SenderHosted())
-	t.SetSenderPromise(s.SenderPromise())
-	t.SetReceiverHosted(s.ReceiverHosted())
+	if s.Which() == CapDescriptor_Which_senderHosted {
+		t.SetSenderHosted(s.SenderHosted())
+	}
+	if s.Which() == CapDescriptor_Which_senderPromise {
+		t.SetSenderPromise(s.SenderPromise())
+	}
+	if s.Which() == CapDescriptor_Which_receiverHosted {
+		t.SetReceiverHosted(s.ReceiverHosted())
+	}
 	return t, nil
 }
 
@@ -2811,16 +2821,16 @@ func (s PromisedAnswer) Copy(seg *capnp.Segment) (PromisedAnswer, error) {
 	if err != nil {
 		return t, err
 	}
-	if s.HasTransform() {
-		v, err := s.Transform()
+	{
+		o, err := s.Transform()
 		if err != nil {
 			return t, err
 		}
-		c, err := v.Copy(seg)
+		v, err := o.Copy(seg)
 		if err != nil {
 			return t, err
 		}
-		t.SetTransform(c)
+		t.SetTransform(v)
 	}
 	t.SetQuestionId(s.QuestionId())
 	return t, nil
@@ -2941,7 +2951,9 @@ func (s PromisedAnswer_Op) Copy(seg *capnp.Segment) (PromisedAnswer_Op, error) {
 	if err != nil {
 		return t, err
 	}
-	t.SetGetPointerField(s.GetPointerField())
+	if s.Which() == PromisedAnswer_Op_Which_getPointerField {
+		t.SetGetPointerField(s.GetPointerField())
+	}
 	return t, nil
 }
 
