@@ -1,48 +1,51 @@
 func (s {{ .Node.Name }}) Copy(seg *capnp.Segment) ({{ .Node.Name }}, error) {
 	var err error
 	t, err := New{{ .Node.Name }}(seg)
-	if err != nil {
-		return t, err
-	}
+	if err != nil { return t, err }
 	{{- range $i, $f := .StructFields }}
-	{{- $isUnion := ( $f.DiscriminantValue ) ne .NoDiscriminant }}
-	{{- if $isUnion }}
+	{{- if ne ( $f.DiscriminantValue ) $.NoDiscriminant }}
 	if s.Has{{ $f.Name | title }}() {
 		v, err := s.{{ $f.Name | title }}()
-		if err != nil {
-			return t, err
-		}
+		if err != nil { return t, err }
 		c, err := v.Copy(seg)
-		if err != nil {
-			return t, err
-		}
+		if err != nil { return t, err }
 		t.Set{{ $f.Name | title }}(c)
 	}
 	{{- else }}
 	{
-	o, err := s.{{ $f.Name | title }}()
-	if err != nil {
-		return t, err
-	}
-	v, err := o.Copy(seg)
-	if err != nil {
-		return t, err
-	}
-	t.Set{{ $f.Name | title }}(v)
-	}
-	{{- end }}
-	{{- end }}
-	{{- range $i, $f := .TextFields }}
-	{
-		v, err := s.{{ $f.Name | title }}()
-		if err != nil {
-			return t, err
-		}
+		o, err := s.{{ $f.Name | title }}()
+		if err != nil { return t, err }
+		v, err := o.Copy(seg)
+		if err != nil { return t, err }
 		t.Set{{ $f.Name | title }}(v)
 	}
 	{{- end }}
+	{{- end }}
+
+	{{- range $i, $f := .TextFields }}
+	{{- if ne ( $f.DiscriminantValue ) $.NoDiscriminant }}
+	if s.Which() == {{ $.Node.Name }}_Which_{{ $f.Name }} {
+		v, err := s.{{ $f.Name | title }}()
+		if err != nil { return t, err }
+		t.Set{{ $f.Name | title }}(v)
+	}
+	{{- else }}
+	{
+		v, err := s.{{ $f.Name | title }}()
+		if err != nil { return t, err }
+		t.Set{{ $f.Name | title }}(v)
+	}
+	{{- end }}
+	{{- end }}
+
 	{{- range $i, $f := .Fields }}
+	{{- if ne ( $f.DiscriminantValue ) $.NoDiscriminant }}
+	if s.Which() == {{ $.Node.Name }}_Which_{{ $f.Name }} {
 		t.Set{{ $f.Name | title }}(s.{{ $f.Name | title }}())
+	}
+	{{- else }}
+	t.Set{{ $f.Name | title }}(s.{{ $f.Name | title }}())
+	{{- end }}
 	{{- end }}
 	return t, nil
 }

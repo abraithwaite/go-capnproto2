@@ -75,3 +75,56 @@ func TestCopy(t *testing.T) {
 	}
 
 }
+
+func TestCopyUnions(t *testing.T) {
+	_, seg, err := capnp.NewMessage(capnp.MultiSegment(nil))
+	if err != nil {
+		panic(err)
+	}
+
+	// Create object
+	z, err := air.NewRootZ(seg)
+	if err != nil {
+		panic(err)
+	}
+
+	ac, _ := z.NewAircraft()
+	b7, _ := ac.NewB737()
+	base, _ := b7.NewBase()
+	homes, _ := base.NewHomes(50)
+
+	// Something big for more memory usage
+	for i := 0; i < 50; i++ {
+		homes.Set(i, air.Airport_jfk)
+	}
+
+	// Marshal original bytes
+	b, err := z.Segment().Message().Marshal()
+	if err != nil {
+		panic(err)
+	}
+
+	_, seg, err = capnp.NewMessage(capnp.MultiSegment(nil))
+	if err != nil {
+		panic(err)
+	}
+
+	// set fields / union type
+	z.SetF64(11.11)
+
+	y, err := z.Copy(seg)
+	if err != nil {
+		panic(err)
+	}
+
+	b2, err := y.Segment().Message().Marshal()
+	if err != nil {
+		panic(err)
+	}
+	if len(b) <= len(b2) {
+		t.Errorf("Copied buffer is not smaller")
+	}
+	if y.Which() != air.Z_Which_f64 {
+		t.Errorf("New struct should have new union type. old: %v new: %v", z.Which(), y.Which())
+	}
+}
